@@ -84,8 +84,12 @@ STEP 5 — Secure + finish
 2. Rename htaccess.txt to .htaccess if the extractor skipped dotfiles
    (many ZIP tools hide dotfiles; the installer also recreates .htaccess
    automatically when it is missing — check that it exists either way)
-3. Sign in at https://idara.s0sta.com/ with the admin account from Step 4
-4. First configuration, in this order:
+3. DELETE diag.php  — the deployment self-check page. The .htaccess in
+   this build blocks it from visitors (HTTP 403), but delete it anyway.
+   Optionally also delete integrity.php, README.md and
+   UPLOAD-INSTRUCTIONS.txt — they are all blocked by .htaccess too.
+4. Sign in at https://idara.s0sta.com/ with the admin account from Step 4
+5. First configuration, in this order:
      a. Admin -> Departments   (add the real departments and their managers)
      b. Admin -> Users         (create users, set role, department and
                                 direct manager — this drives the visibility)
@@ -93,7 +97,7 @@ STEP 5 — Secure + finish
      d. Admin -> Types         (approval types)
      e. Admin -> Settings      (site name + document prefixes: task,
                                 approval, incoming and outgoing letter)
-5. Create a test task and a test approval to confirm the workflow
+6. Create a test task and a test approval to confirm the workflow
 
 (Optional demo data — only if you have SSH access:
   hPanel -> Advanced -> SSH Terminal -> run:
@@ -101,6 +105,24 @@ STEP 5 — Secure + finish
   then DELETE seed.php. This loads 8 departments, 10 users, 12 tasks,
   8 approvals, 6 letters, 4 meetings and 1 delegation.
   Demo logins are listed at the bottom of this file.)
+
+============================================================
+UPGRADING an existing installation (v1.0 -> v1.1)
+============================================================
+The v1.1 fixes need ONE new column and no other database changes.
+In hPanel -> Databases -> phpMyAdmin -> your database -> SQL tab, run:
+
+    ALTER TABLE users ADD must_change_password TINYINT(1) NOT NULL DEFAULT 0;
+
+(The app also works before you run it — the reset-password feature simply
+stays at the old behaviour until the column exists.)
+
+To apply the v1.1 fixes to a live site, upload ONLY these files over the
+existing ones (then delete diag.php if it is still there):
+    index.php, includes/models.php, includes/db.php, includes/auth.php,
+    includes/helpers.php, includes/layout.php, pages/ (the whole folder),
+    lang/ar.php, lang/en.php, assets/css/style.css, .htaccess
+Nothing else changes.
 
 ============================================================
 TROUBLESHOOTING

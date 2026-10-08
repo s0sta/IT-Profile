@@ -8,11 +8,15 @@ declare(strict_types=1);
 final class Database
 {
     private static ?PDO $pdo = null;
+    private static string $driver = 'sqlite';
+    /** @var array<string,bool> cached table.column existence */
+    private static array $columns = [];
 
     public static function init(array $cfg): void
     {
-        if ($cfg['driver'] === 'sqlite') {
-            $path = $cfg['path'] ?? (APP_ROOT . '/data/daem.sqlite');
+        self::$driver = $cfg['driver'] === 'mysql' ? 'mysql' : 'sqlite';
+        if (self::$driver === 'sqlite') {
+            $path = $cfg['path'] ?? (APP_ROOT . '/data/idara.sqlite');
             $dir = dirname($path);
             if (!is_dir($dir)) {
                 @mkdir($dir, 0750, true);
@@ -83,5 +87,40 @@ final class Database
     {
         self::query($sql, $params);
         return (int) self::pdo()->lastInsertId();
+    }
+
+    public static function driver(): string
+    {
+        return self::$driver;
+    }
+
+    /**
+     * Whether a table has a column — cached, and driver-aware. Used so the app
+     * keeps working on a database that has not yet run a newer migration
+     * (e.g. must_change_password) and before/after it does.
+     */
+    public static function hasColumn(string $table, string $col): bool
+    {
+        $key = $table . '.' . $col;
+        if (!array_key_exists($key, self::$columns)) {
+            $found = false;
+            if (self::$driver === 'sqlite') {
+                foreach (self::all('PRAGMA table_info(' . $table . ')') as $row) {
+                    if (($row['name'] ?? '') === $col) {
+                        $found = true;
+                        break;
+                    }
+                }
+            } else {
+                foreach (self::all('SHOW COLUMNS FROM `' . $table . '`') as $row) {
+                    if (($row['Field'] ?? '') === $col) {
+                        $found = true;
+                        break;
+                    }
+                }
+            }
+            self::$columns[$key] = $found;
+        }
+        return self::$columns[$key];
     }
 }

@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'toggle') {
         TaskCategories::toggleActive((int) ($_POST['id'] ?? 0));
-        flash('success', t('ac.updated'));
+        flash('success', t('ac.toggled'));
         redirect('admin/categories');
     }
 

@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash('error', t('profile.err_match'));
     } else {
         Users::setPassword((int) $me['id'], $new);
+        Auth::clearMustChange();
         flash('success', t('profile.changed'));
     }
     redirect('profile');

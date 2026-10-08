@@ -154,7 +154,7 @@ layout_header(t('ar.title'), 'admin/reports');
     </select>
     <button class="btn" type="submit"><?= e(t('ar.run')) ?></button>
     <a class="btn btn-ghost" href="<?= u('admin/reports') ?>"><?= e(t('common.reset')) ?></a>
-    <a class="btn btn-soft" href="<?= u('admin/reports') ?>&<?= e(keep_query()) ?>&export=csv"><?= icon('chart') ?> <?= e(t('ar.export')) ?></a>
+    <a class="btn btn-soft" href="<?= u('admin/reports') ?>&export=csv<?php $kq = keep_query(); echo $kq !== '' ? '&' . e($kq) : ''; ?>"><?= icon('chart') ?> <?= e(t('ar.export')) ?></a>
   </form>
 </section>
 

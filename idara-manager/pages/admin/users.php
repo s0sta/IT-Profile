@@ -72,12 +72,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'reset_password') {
         $id = (int) ($_POST['id'] ?? 0);
-        $pw = (string) ($_POST['password'] ?? '');
-        if (strlen($pw) < 8) {
-            flash('error', t('au.err_password'));
-        } elseif ($id) {
-            Users::setPassword($id, $pw);
-            flash('success', t('au.reset_done'));
+        if ($id) {
+            $pw = Users::resetPassword($id);
+            flash('success', t('au.reset_flash', ['password' => $pw]));
         }
         redirect('admin/users');
     }
@@ -188,7 +185,6 @@ layout_header(t('au.title'), 'admin/users');
                   <?= csrf_field() ?>
                   <input type="hidden" name="action" value="reset_password">
                   <input type="hidden" name="id" value="<?= (int) $u['id'] ?>">
-                  <input type="hidden" name="password" value="Temp12345">
                   <button class="btn btn-ghost btn-sm" type="submit"><?= e(t('au.reset')) ?></button>
                 </form>
                 <?php if ((int) $u['id'] !== Auth::id() && $u['role'] !== 'admin'): ?>
@@ -205,6 +201,7 @@ layout_header(t('au.title'), 'admin/users');
         </tbody>
       </table>
     </div>
+    <p class="muted-text"><?= e(t('au.keep_history')) ?></p>
   </div>
 </section>
 

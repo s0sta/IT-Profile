@@ -83,6 +83,9 @@ $all  = $isAdmin ? Delegations::listAll() : [];
 /** One row of the delegation table. */
 $renderRow = static function (array $d, bool $canCancel, string $today): void {
     $live = !empty($d['active']) && (string) $d['starts_at'] <= $today && (string) $d['ends_at'] >= $today;
+    // Three distinct states: in force today · deliberately cancelled · expired.
+    $stateLabel = empty($d['active']) ? t('deleg.cancelled') : ($live ? t('deleg.active') : t('deleg.expired'));
+    $stateClass = $live ? 'badge-active' : 'badge-inactive';
     ?>
     <tr>
       <td><?= e($d['delegator_name'] ?? '—') ?></td>
@@ -91,7 +94,7 @@ $renderRow = static function (array $d, bool $canCancel, string $today): void {
       <td><?= e(fmt_date($d['ends_at'])) ?></td>
       <td><?= $d['reason'] ? e(excerpt((string) $d['reason'], 90)) : '<span class="cell-muted">—</span>' ?></td>
       <td>
-        <span class="badge <?= $live ? 'badge-active' : 'badge-inactive' ?>"><?= e($live ? t('deleg.active') : t('deleg.inactive')) ?></span>
+        <span class="badge <?= e($stateClass) ?>"><?= e($stateLabel) ?></span>
       </td>
       <td>
         <?php if ($canCancel && !empty($d['active'])): ?>

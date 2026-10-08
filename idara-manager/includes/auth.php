@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /**
  * Authentication & authorization.
- * Roles: admin (full control) · agent (works tickets) · user (requester).
+ * Roles: admin (full control) · executive (leadership) · manager (department) · member (employee).
  */
 final class Auth
 {
@@ -69,6 +69,17 @@ final class Auth
         }
     }
 
+    /** True while the account must change its (temporary) password first. */
+    public static function mustChangePassword(): bool
+    {
+        return !empty($_SESSION['must_change']);
+    }
+
+    public static function clearMustChange(): void
+    {
+        $_SESSION['must_change'] = false;
+    }
+
     public static function requireStaff(): void
     {
         self::requireLogin();
@@ -115,6 +126,8 @@ final class Auth
             $_SESSION['uid']       = (int) $user['id'];
             $_SESSION['csrf']      = bin2hex(random_bytes(32));
             $_SESSION['last_activity'] = time();
+            $_SESSION['must_change'] = Database::hasColumn('users', 'must_change_password')
+                && (int) ($user['must_change_password'] ?? 0) === 1;
             audit('login', 'user', $user['id']);
             return $user;
         }

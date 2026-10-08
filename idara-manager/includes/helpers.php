@@ -107,10 +107,11 @@ function task_is_open(?string $status): bool
 function approval_statuses(): array
 {
     return [
-        'pending'  => t('astatus.pending'),
-        'approved' => t('astatus.approved'),
-        'rejected' => t('astatus.rejected'),
-        'returned' => t('astatus.returned'),
+        'pending'   => t('astatus.pending'),
+        'approved'  => t('astatus.approved'),
+        'rejected'  => t('astatus.rejected'),
+        'returned'  => t('astatus.returned'),
+        'cancelled' => t('astatus.cancelled'),
     ];
 }
 

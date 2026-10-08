@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'toggle') {
         ApprovalTypes::toggleActive((int) ($_POST['id'] ?? 0));
-        flash('success', t('at.updated'));
+        flash('success', t('at.toggled'));
         redirect('admin/types');
     }
 

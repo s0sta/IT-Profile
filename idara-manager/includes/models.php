@@ -166,8 +166,23 @@ final class Users
 
     public static function setPassword(int $id, string $plain): void
     {
-        Database::exec('UPDATE users SET password_hash = ? WHERE id = ?', [password_hash($plain, PASSWORD_DEFAULT), $id]);
+        $extra = Database::hasColumn('users', 'must_change_password') ? ', must_change_password = 0' : '';
+        Database::exec('UPDATE users SET password_hash = ?' . $extra . ' WHERE id = ?', [password_hash($plain, PASSWORD_DEFAULT), $id]);
         audit('user_password_reset', 'user', $id);
+    }
+
+    /**
+     * Admin reset: generate a random one-time password, mark the account so the
+     * user is forced to change it at the next sign-in, and return the password
+     * (shown once, in the flash message).
+     */
+    public static function resetPassword(int $id): string
+    {
+        $plain = bin2hex(random_bytes(4)); // 8 hex characters
+        $extra = Database::hasColumn('users', 'must_change_password') ? ', must_change_password = 1' : '';
+        Database::exec('UPDATE users SET password_hash = ?' . $extra . ' WHERE id = ?', [password_hash($plain, PASSWORD_DEFAULT), $id]);
+        audit('user_password_reset', 'user', $id);
+        return $plain;
     }
 
     public static function toggleActive(int $id): void
@@ -471,6 +486,14 @@ final class Tasks
         $progress = $t['progress'];
         if ($status === 'completed') {
             $progress = 100;
+        } elseif ((string) $t['status'] === 'completed') {
+            // Reopened: show what the checklist really says (or a partial bar
+            // when there is no checklist), never a full 100 % bar.
+            $done  = (int) Database::value('SELECT COUNT(*) FROM task_items WHERE task_id = ? AND is_done = 1', [$id]);
+            $total = (int) Database::value('SELECT COUNT(*) FROM task_items WHERE task_id = ?', [$id]);
+            $progress = $total > 0
+                ? (int) round($done / $total * 100)
+                : min(99, max(0, (int) $progress));
         }
         $sql = 'UPDATE tasks SET status = ?, progress = ?, updated_at = ?';
         $params = [$status, $progress, now()];
@@ -917,6 +940,93 @@ final class Approvals
         }
     }
 
+    /**
+     * The requester (or an admin/executive) withdraws a pending request:
+     * the chain closes, remaining steps are skipped and the current approver
+     * is notified. Returns false when the request is not withdrawable.
+     */
+    public static function withdraw(int $approvalId, array $me): bool
+    {
+        $approval = self::find($approvalId);
+        if (!$approval || $approval['status'] !== 'pending') {
+            return false;
+        }
+        $privileged = in_array($me['role'], ['admin', 'executive'], true);
+        if (!$privileged && (int) $approval['requester_id'] !== (int) $me['id']) {
+            return false;
+        }
+        $current = self::currentStep($approvalId);
+        Database::exec(
+            "UPDATE approval_steps SET status = 'skipped' WHERE approval_id = ? AND status IN ('pending', 'waiting')",
+            [$approvalId]
+        );
+        Database::exec(
+            "UPDATE approvals SET status = 'cancelled', updated_at = ?, closed_at = ? WHERE id = ?",
+            [now(), now(), $approvalId]
+        );
+        audit('approval_withdrawn', 'approval', $approvalId);
+        if ($current) {
+            notify((int) $current['approver_id'], t('notif.msg_approval_withdrawn', ['title' => excerpt((string) $approval['title'], 50)]), u('approval&id=' . $approvalId));
+        }
+        return true;
+    }
+
+    /** Ordered approver ids of the existing chain (skipped steps included). */
+    private static function existingChainIds(int $approvalId): array
+    {
+        return array_map('intval', array_column(
+            Database::all('SELECT approver_id FROM approval_steps WHERE approval_id = ? ORDER BY step_order ASC', [$approvalId]),
+            'approver_id'
+        ));
+    }
+
+    /**
+     * The requester (or an admin/executive) edits a pending request. When the
+     * approver chain changes, the steps are rebuilt from step 1 and the new
+     * first approver is notified; otherwise the chain and its history stay.
+     */
+    public static function editRequest(int $approvalId, array $d, array $approverIds, array $me): bool
+    {
+        $approval = self::find($approvalId);
+        if (!$approval || $approval['status'] !== 'pending') {
+            return false;
+        }
+        $privileged = in_array($me['role'], ['admin', 'executive'], true);
+        if (!$privileged && (int) $approval['requester_id'] !== (int) $me['id']) {
+            return false;
+        }
+        Database::exec(
+            'UPDATE approvals SET title = ?, description = ?, type_id = ?, priority = ?, due_date = ?, related_task_id = ?, updated_at = ? WHERE id = ?',
+            [
+                $d['title'], $d['description'] ?? '', $d['type_id'] ?: null, $d['priority'],
+                $d['due_date'] ?: null, $d['related_task_id'] ?: null, now(), $approvalId,
+            ]
+        );
+
+        $approverIds = array_values(array_unique(array_filter(array_map('intval', $approverIds), static fn (int $v): bool => $v > 0)));
+        $chainChanged = $approverIds !== self::existingChainIds($approvalId);
+        if ($chainChanged && $approverIds) {
+            Database::exec('DELETE FROM approval_steps WHERE approval_id = ?', [$approvalId]);
+            $order = 1;
+            foreach ($approverIds as $approverId) {
+                Database::exec(
+                    'INSERT INTO approval_steps (approval_id, step_order, approver_id, status, note, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+                    [$approvalId, $order, $approverId, $order === 1 ? 'pending' : 'waiting', '', now()]
+                );
+                $order++;
+            }
+            Database::exec('UPDATE approvals SET current_step = 1 WHERE id = ?', [$approvalId]);
+            $first = self::currentStep($approvalId);
+            if ($first) {
+                notify((int) $first['approver_id'], t('notif.msg_approval_pending', ['title' => excerpt((string) $d['title'], 50)]), u('approval&id=' . $approvalId));
+            }
+            audit('approval_chain_edited', 'approval', $approvalId, 'steps=' . count($approverIds));
+        } else {
+            audit('approval_edited', 'approval', $approvalId);
+        }
+        return true;
+    }
+
     public static function canView(array $approval, array $me): bool
     {
         if (in_array($me['role'], ['admin', 'executive'], true)) {
@@ -1053,14 +1163,17 @@ final class Approvals
     public static function overdueInboxCount(array $me): int
     {
         $params = [];
+        $w = [];
         $scope = self::scopeWhere($me, $params);
-        $w = ["ap.status = 'pending'", 'ap.due_date IS NOT NULL', 'ap.due_date < ?'];
+        if ($scope !== '') {
+            $w[] = $scope; // scope first — its params were appended first
+        }
+        $w[] = "ap.status = 'pending'";
+        $w[] = 'ap.due_date IS NOT NULL';
+        $w[] = 'ap.due_date < ?';
         $params[] = date('Y-m-d');
         $w[] = "EXISTS (SELECT 1 FROM approval_steps s WHERE s.approval_id = ap.id AND s.status = 'pending' AND s.step_order = ap.current_step AND (s.approver_id = ? OR s.approver_id IN (SELECT dl.delegator_id FROM delegations dl WHERE dl.delegate_id = ? AND dl.active = 1 AND dl.starts_at <= ? AND dl.ends_at >= ?)))";
         array_push($params, (int) $me['id'], (int) $me['id'], date('Y-m-d'), date('Y-m-d'));
-        if ($scope !== '') {
-            $w[] = $scope;
-        }
         return (int) Database::value('SELECT COUNT(*) FROM approvals ap WHERE ' . implode(' AND ', $w), $params);
     }
 
@@ -1227,7 +1340,7 @@ final class Correspondence
         Database::exec('UPDATE correspondence SET ref = ? WHERE id = ?', [self::makeRef($id, $d['direction']), $id]);
         audit('correspondence_created', 'correspondence', $id, 'direction=' . $d['direction']);
         if (!empty($d['assignee_id']) && (int) $d['assignee_id'] !== (int) $me['id']) {
-            notify((int) $d['assignee_id'], t('notif.msg_corr_assigned', ['ref' => self::makeRef($id, $d['direction'])]), u('correspondence&id=' . $id));
+            notify((int) $d['assignee_id'], t('notif.msg_corr_assigned', ['ref' => self::makeRef($id, $d['direction'])]), u('letter&id=' . $id));
         }
         return $id;
     }
@@ -1392,13 +1505,13 @@ final class Meetings
         return $id;
     }
 
-    public static function update(int $id, array $d): void
+    public static function update(int $id, array $d, string $detail = ''): void
     {
         Database::exec(
             'UPDATE meetings SET title = ?, agenda = ?, location = ?, starts_at = ?, ends_at = ?, status = ?, minutes = ?, updated_at = ? WHERE id = ?',
             [$d['title'], $d['agenda'] ?? '', $d['location'] ?? '', $d['starts_at'], $d['ends_at'] ?: null, $d['status'], $d['minutes'] ?? '', now(), $id]
         );
-        audit('meeting_updated', 'meeting', $id);
+        audit('meeting_updated', 'meeting', $id, $detail !== '' ? $detail : 'status=' . $d['status']);
     }
 
     public static function setAttended(int $meetingId, int $userId, bool $attended): void

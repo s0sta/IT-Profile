@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string) ($_POST['action'] ?? '');
 
     /** Persist status + minutes without dropping the meeting's other fields. */
-    $save = static function (array $meeting, string $status, string $minutes) use ($id): void {
+    $save = static function (array $meeting, string $status, string $minutes, string $detail = '') use ($id): void {
         Meetings::update($id, [
             'title'     => (string) $meeting['title'],
             'agenda'    => (string) $meeting['agenda'],
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'ends_at'   => (string) ($meeting['ends_at'] ?? ''),
             'status'    => $status,
             'minutes'   => $minutes,
-        ]);
+        ], $detail);
     };
 
     if (!$canManage) {
@@ -62,8 +62,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ? trim((string) ($_POST['minutes'] ?? ''))
             : (string) $meeting['minutes'];
 
-        $save($meeting, $status, $minutes);
+        $save($meeting, $status, $minutes, $action === 'minutes' ? 'field=minutes' : 'status=' . $status);
         flash('success', t('meetings.updated_ok'));
+        redirect('meeting&id=' . $id);
+    }
+
+    if ($action === 'edit') {
+        $title     = trim((string) ($_POST['title'] ?? ''));
+        $startsRaw = trim((string) ($_POST['starts_at'] ?? ''));
+        $endsRaw   = trim((string) ($_POST['ends_at'] ?? ''));
+        $starts    = ($startsRaw !== '' && strtotime($startsRaw) !== false) ? date('Y-m-d H:i:s', strtotime($startsRaw)) : null;
+        $ends      = ($endsRaw !== '' && strtotime($endsRaw) !== false) ? date('Y-m-d H:i:s', strtotime($endsRaw)) : null;
+
+        if ($title === '') {
+            flash('error', t('meetings.err_title'));
+        } elseif ($starts === null) {
+            flash('error', t('meetings.err_start'));
+        } else {
+            Meetings::update($id, [
+                'title'     => $title,
+                'agenda'    => trim((string) ($_POST['agenda'] ?? '')),
+                'location'  => trim((string) ($_POST['location'] ?? '')),
+                'starts_at' => (string) $starts,
+                'ends_at'   => $ends,
+                'status'    => (string) $meeting['status'],
+                'minutes'   => (string) $meeting['minutes'],
+            ], 'field=details');
+            flash('success', t('meetings.edit_ok'));
+        }
         redirect('meeting&id=' . $id);
     }
 
@@ -114,6 +140,39 @@ layout_header(t('meetings.details'), 'meetings');
         </form>
       <?php endif; ?>
     </div>
+    <details class="ticket-actions">
+      <summary class="btn btn-ghost"><?= icon('edit') ?> <?= e(t('meetings.edit')) ?></summary>
+      <form method="post" action="<?= u('meeting&id=' . $id) ?>" class="panel-inner form-stack">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="edit">
+
+        <label class="field-label" for="ed-title"><?= e(t('common.subject')) ?></label>
+        <input class="input" id="ed-title" name="title" type="text" maxlength="250" required value="<?= e($meeting['title']) ?>">
+
+        <label class="field-label" for="ed-agenda"><?= e(t('common.agenda')) ?></label>
+        <textarea class="input" id="ed-agenda" name="agenda" rows="4"><?= e((string) $meeting['agenda']) ?></textarea>
+
+        <div class="row-2">
+          <div>
+            <label class="field-label" for="ed-location"><?= e(t('common.location')) ?></label>
+            <input class="input" id="ed-location" name="location" type="text" maxlength="180" value="<?= e((string) $meeting['location']) ?>">
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div>
+            <label class="field-label" for="ed-starts"><?= e(t('meetings.starts_at')) ?></label>
+            <input class="input" id="ed-starts" name="starts_at" type="datetime-local" required value="<?= e(date('Y-m-d\TH:i', strtotime((string) $meeting['starts_at']))) ?>">
+          </div>
+          <div>
+            <label class="field-label" for="ed-ends"><?= e(t('meetings.ends_at')) ?></label>
+            <input class="input" id="ed-ends" name="ends_at" type="datetime-local" value="<?= $meeting['ends_at'] ? e(date('Y-m-d\TH:i', strtotime((string) $meeting['ends_at']))) : '' ?>">
+          </div>
+        </div>
+
+        <button class="btn btn-primary" type="submit"><?= e(t('common.save')) ?></button>
+      </form>
+    </details>
   <?php endif; ?>
 
   <div class="meta-grid">

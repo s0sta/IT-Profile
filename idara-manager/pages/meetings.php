@@ -147,11 +147,12 @@ layout_header(t('meetings.title'), 'meetings');
         <label class="field-label" for="attendees"><?= e(t('meetings.attendees')) ?></label>
         <select class="input" id="attendees" name="attendees[]" multiple size="6" required>
           <?php foreach ($users as $u): ?>
-            <option value="<?= (int) $u['id'] ?>" <?= in_array((int) $u['id'], $oldAttendees, true) ? 'selected' : '' ?>>
+            <option value="<?= (int) $u['id'] ?>" <?= in_array((int) $u['id'], $oldAttendees, true) || (empty($oldAttendees) && (int) $u['id'] === (int) $me['id']) ? 'selected' : '' ?>>
               <?= e($u['name']) ?><?= $u['job_title'] !== '' ? ' — ' . e($u['job_title']) : '' ?>
             </option>
           <?php endforeach; ?>
         </select>
+        <p class="muted-text"><?= e(t('meetings.hint_attendees')) ?></p>
       </div>
     </div>
 

@@ -71,4 +71,10 @@ switch ($minRole) {
         break;
 }
 
+// Accounts with a temporary (reset) password must change it before anything else.
+if (Auth::current() && Auth::mustChangePassword() && !in_array($page, ['profile', 'api', 'logout', 'doc'], true)) {
+    flash('warning', t('au.must_change'));
+    redirect('profile');
+}
+
 require APP_ROOT . '/' . $file;

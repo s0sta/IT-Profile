@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS users (
   phone         VARCHAR(40)  NOT NULL DEFAULT '',
   manager_id    INT UNSIGNED NULL,
   active        TINYINT(1)   NOT NULL DEFAULT 1,
+  must_change_password TINYINT(1) NOT NULL DEFAULT 0,
   last_login_at DATETIME NULL,
   created_at    DATETIME NOT NULL,
   INDEX idx_users_dept (department_id),

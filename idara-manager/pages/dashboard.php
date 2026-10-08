@@ -48,7 +48,7 @@ layout_header($title, 'dashboard');
   </div>
   <div class="stat-card <?= $inboxCount ? 'stat-accent' : '' ?>">
     <span class="stat-value"><?= $inboxCount ?></span>
-    <span class="stat-label"><?= e(t('dash.awaiting_me')) ?></span>
+    <span class="stat-label"><?= e(t('dash.awaiting_me')) ?><?php if ($inboxOver): ?> · <?= (int) $inboxOver ?> <?= e(t('dash.overdue_approvals')) ?><?php endif; ?></span>
   </div>
   <div class="stat-card <?= $myStats['overdue'] ? 'stat-warn' : '' ?>">
     <span class="stat-value"><?= (int) $myStats['overdue'] ?></span>
