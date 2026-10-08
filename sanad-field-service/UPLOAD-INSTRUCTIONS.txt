@@ -1,0 +1,119 @@
+SANAD — FIELD SERVICE & JOB MANAGEMENT
+Complete Hostinger guide — from zero to a working website
+Suggested URL: https://sanad.s0sta.com/   (or a subfolder: s0sta.com/sanad)
+
+============================================================
+STEP 1 — Create the subdomain
+============================================================
+1. Hostinger hPanel → Websites → Manage (s0sta.com) → Subdomains
+2. Create subdomain name:  sanad
+3. Hostinger creates a folder, usually:  public_html/sanad
+   (write down the exact folder path)
+4. SSL: hPanel → Security → SSL → install the free certificate for the subdomain
+
+============================================================
+STEP 2 — Create the database
+============================================================
+1. hPanel → Databases → MySQL Databases
+2. Create a database (it will be named like  uXXXXXXXXX_sanad)
+3. Create a MySQL user (named like  uXXXXXXXXX_sanaduser) with a strong password
+4. IMPORTANT: "Assign user to database" → choose the user + the database →
+   grant ALL PRIVILEGES → Assign
+5. Write down: host (localhost), database name, user name, password
+
+============================================================
+STEP 3 — Upload the files
+============================================================
+1. hPanel → Websites → Manage → Files → File Manager
+2. Open the subdomain folder (e.g. public_html/sanad)
+3. Upload the Sanad ZIP and EXTRACT it there
+4. Result must be:   public_html/sanad/index.php
+   (if extraction created a double folder, move the inner files up one level)
+5. Make sure the folder "storage" exists (create it if missing) — job photos are kept there
+
+============================================================
+STEP 4 — Install
+============================================================
+1. Open in the browser:  https://sanad.s0sta.com/install.php
+2. Choose "MySQL — production"
+3. Fill:
+     MySQL host:        localhost
+     Port:              3306
+     Database name:     uXXXXXXXXX_sanad        (exact name from hPanel)
+     Database user:     uXXXXXXXXX_sanaduser    (exact name from hPanel)
+     Database password: (the MySQL user's password)
+     Business name:     Sanad
+     Admin account:     your name / username / email / password (min 8 chars)
+4. Press "Install Sanad"
+5. You must see the green box:  "Installation complete."
+
+============================================================
+STEP 5 — Secure + set up your business
+============================================================
+1. In File Manager: DELETE install.php
+2. If the file ".htaccess" is missing in the folder: rename "htaccess.txt" to ".htaccess"
+   (it blocks public access to includes/, data/, storage/, sql/ and lang/)
+3. Sign in at https://sanad.s0sta.com/ with your admin account
+4. Settings: business name, number prefixes, currency, VAT rate, days to pay, alert window
+5. Users: create your dispatcher, your technicians (give each one a board colour) and your accountant
+6. Service catalog: add the services you sell with price and time needed
+7. Parts stock: add your material with cost price, selling price and reorder level
+8. Customers: add your customers and their service addresses (with the access notes!)
+
+(Optional demo data — only if you have SSH access:
+  hPanel → Advanced → SSH Terminal → run:
+    php ~/domains/s0sta.com/public_html/sanad/seed.php
+  then delete seed.php. Demo logins are listed at the bottom.)
+
+============================================================
+TROUBLESHOOTING
+============================================================
+- "Access denied for user … using password: YES"
+  → wrong username/password, or the user is not assigned to the database.
+    Copy the full prefixed names from hPanel and assign ALL PRIVILEGES.
+
+- "This page isn't working — HTTP ERROR 500"
+  → a data/config.php from another machine was uploaded with the files.
+    DELETE the data folder in File Manager and run install.php again
+    (or open install.php?reconfigure=1). This ZIP contains NO data/ folder.
+
+- "General error: 1005 … Foreign key constraint is incorrectly formed"
+  → the old schema file was still on the server. Delete the folder, extract THIS
+    ZIP fresh (it uses no database-level foreign keys) and install again.
+
+- "Already installed" but the site does not work
+  → open install.php?reconfigure=1 and submit the database form again.
+
+- Photos cannot be uploaded
+  → the folder "storage/uploads" needs write permission (755 is usually enough
+    on Hostinger; use 775 if it fails).
+
+- "General error: 1267 Illegal mix of collations" (or the Reports/Invoices tabs
+  show "Something went wrong" with such an error)
+  → the database was created with a different collation than the server expects.
+    FIX: open install.php?reconfigure=1 and submit the SAME MySQL details again.
+    The installer converts all tables to utf8mb4_unicode_ci (safe, keeps your data).
+
+- Everything works but looks plain (no design)
+  → the assets/ folder was not extracted. Re-extract the ZIP.
+
+- Full self-check: open  diag.php?go=1  (file integrity, database, sessions,
+  folder permissions). Delete diag.php afterwards.
+
+============================================================
+DEMO ACCOUNTS (only after running seed.php)
+============================================================
+Admin:       (the account you created in Step 4)
+Dispatcher:  noura.dispatch / Demo@1234
+Technicians: ahmed.tech · bilal.tech · sameer.tech / Demo@1234
+Accountant:  rana.accounts / Demo@1234
+Change these demo passwords immediately if you keep the accounts.
+
+============================================================
+THE 2-MINUTE TOUR (show this to a customer)
+============================================================
+1. Dispatcher → Dispatch board → give the urgent job to a technician
+2. Technician → My jobs → open the job → In progress → tick the checklist →
+   add a part → write a note → Done
+3. Accountant → open the job → Create invoice → record a payment → Print
+4. Dispatcher → Maintenance contracts → "Visits waiting for a job" → Plan a job

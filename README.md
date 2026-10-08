@@ -1,6 +1,6 @@
 # IT Profile — s0sta
 
-Production-ready **IT management systems**, designed and built from scratch.
+Production-ready **management systems for real businesses** — IT operations and field service — designed and built from scratch.
 
 Plain **PHP 8 + PDO** (SQLite *or* MySQL) with vanilla JS/CSS — no frameworks, no composer, no build step. Every system installs through a web installer and runs on ordinary shared hosting.
 
@@ -54,6 +54,30 @@ Demo sign-ins: `admin / Admin@1234` · `sarah.qahtani / Manager@1234` (departmen
 
 ---
 
+### ◆ Sanad — Field Service & Job Management
+
+**سند** — the daily work organiser for a field-service company (A/C, plumbing, electrical, cleaning, pest control…): dispatch, jobs, stock and billing in one place.
+
+| | |
+|---|---|
+| **Purpose** | Job scheduling and dispatch for businesses that send technicians to customers — replaces paper and WhatsApp groups |
+| **Highlights** | **Dispatch board** with one column per technician plus an “Not assigned” column · work orders with status workflow, priority and time windows · per-job **checklists**, progress notes and photo attachments · parts stock with **automatic deduction** on use and low-stock alerts · **AMC maintenance contracts** whose visits are planned automatically and become jobs in one click · **VAT invoices** built from a finished job (labour + parts) with payment recording and a printable A4 sheet · reports with CSV export · notifications and full audit log |
+| **Roles** | Administrator · Dispatcher · Technician (sees only their own jobs) · Accountant |
+| **Languages** | English · **Deutsch** · **العربية (RTL)** |
+| **Stack** | PHP 8 · PDO (SQLite demo / MySQL production) · vanilla JS/CSS |
+| **Docs** | [Project README](sanad-field-service/README.md) · [deployment guide](sanad-field-service/UPLOAD-INSTRUCTIONS.txt) |
+| **Tests** | `tests/smoke.sh` (**89 checks**) · `tests/i18n-smoke.sh` (**42 checks**) · `diag.php?go=1` self-check |
+
+```bash
+cd sanad-field-service
+php -S localhost:8000        # open http://localhost:8000/install.php  (choose SQLite)
+php seed.php                 # optional demo data
+```
+
+Demo sign-ins: `noura.dispatch / Demo@1234` (dispatcher) · `ahmed.tech / Demo@1234` (technician) · `rana.accounts / Demo@1234` (accountant).
+
+---
+
 ## What the systems have in common
 
 - **Zero dependencies** — no composer, no node, no build step; upload the folder and run.
@@ -61,7 +85,7 @@ Demo sign-ins: `admin / Admin@1234` · `sarah.qahtani / Manager@1234` (departmen
 - **Security by default** — PDO prepared statements everywhere, `password_hash`, CSRF tokens on every form, login throttling, hardened sessions, upload whitelist with size limits, `.htaccess` blocking of `data/`, `storage/`, `includes/`, `sql/`, `lang/`.
 - **Accountability** — an audit log records every action (who, what, when, from which IP).
 - **Operations ready** — in-app notifications, CSV exports, `diag.php?go=1` deployment self-check, `integrity.php` release manifest and shell test suites.
-- **Bilingual** — right-to-left layout support, an Arabic master language file with English (and German, in Daem) translations, plus an A1-level guide inside the app for non-technical staff.
+- **Multilingual** — right-to-left layout support, Arabic + English (Daem, Idara) and full English/German/Arabic parity (Sanad), plus an A1-level guide inside the app for non-technical staff.
 
 ---
 
@@ -71,17 +95,19 @@ Demo sign-ins: `admin / Admin@1234` · `sarah.qahtani / Manager@1234` (departmen
 .
 ├── daem-helpdesk/           IT help desk (tickets · SLA · knowledge base · reports · 3 languages)
 │   └── ...
-└── idara-manager/           Manager workspace (tasks · team · approvals · correspondence · meetings)
+├── idara-manager/           Manager workspace (tasks · team · approvals · correspondence · meetings)
+│   └── ...
+└── sanad-field-service/     Field service (dispatch board · jobs · contracts · stock · invoices)
     ├── index.php            front controller (routes + role guards)
     ├── install.php          web installer (SQLite / MySQL) — delete after installing
-    ├── seed.php             demo organisation for testing
+    ├── seed.php             demo service company for testing
     ├── diag.php             deployment self-check (delete in production)
     ├── includes/            core: bootstrap, db, auth, i18n, helpers, models, layout
     ├── pages/               one file per route (+ pages/admin/)
-    ├── lang/                Arabic master + English UI and documentation content
+    ├── lang/                English master + German/Arabic UI and documentation content
     ├── sql/                 schema for SQLite and MySQL/MariaDB
     ├── assets/              CSS (light/dark, RTL) and vanilla JS
-    └── tests/               end-to-end and bilingual test suites
+    └── tests/               end-to-end and trilingual test suites
 ```
 
 ---
