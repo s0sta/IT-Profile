@@ -106,8 +106,8 @@ $meeting_table = static function (array $rows): void {
               </td>
               <td><?= e(fmt_dt($m['starts_at'])) ?></td>
               <td><?= e((string) $m['location'] !== '' ? $m['location'] : '—') ?></td>
-              <td><?= e($m['organizer_name'] ?? '—') ?></td>
-              <td><?= e(t('meetings.attendees_count', ['n' => (int) $m['attendees_count']])) ?></td>
+              <td><?= e(bilingual($m, 'organizer_name')) ?></td>
+              <td><?= (int) $m['attendees_count'] === 1 ? e(t('meetings.attendees_one')) : e(t('meetings.attendees_count', ['n' => (int) $m['attendees_count']])) ?></td>
               <td><span class="badge"><?= e(meeting_statuses()[(string) $m['status']] ?? (string) $m['status']) ?></span></td>
             </tr>
           <?php endforeach; ?>

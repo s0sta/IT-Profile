@@ -15,6 +15,28 @@ if (!$me) {
     exit(t('auth.denied'));
 }
 
+// Profile photos: ?p=download&avatar=<filename> — served from storage/avatars.
+if (isset($_GET['avatar']) && $_GET['avatar'] !== '') {
+    $av = basename((string) $_GET['avatar']);
+    if (!preg_match('/^[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp|gif)$/i', $av)) {
+        http_response_code(404);
+        exit(t('e404.text'));
+    }
+    $f = APP_ROOT . '/storage/avatars/' . $av;
+    if (!is_file($f)) {
+        http_response_code(404);
+        exit(t('e404.text'));
+    }
+    $ext = strtolower(pathinfo($av, PATHINFO_EXTENSION));
+    $mime = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp', 'gif' => 'image/gif'][$ext];
+    header('Content-Type: ' . $mime);
+    header('Content-Length: ' . (string) filesize($f));
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: private, max-age=3600');
+    readfile($f);
+    exit;
+}
+
 $id  = (int) ($_GET['id'] ?? 0);
 $att = $id > 0 ? Database::one('SELECT * FROM attachments WHERE id = ?', [$id]) : null;
 if (!$att) {

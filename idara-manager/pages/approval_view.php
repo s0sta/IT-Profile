@@ -7,11 +7,17 @@ $approval = Approvals::find($id);
 
 if (!$approval) {
     http_response_code(404);
-    exit(t('e404.title'));
+    layout_header(t('e404.title'), '');
+    echo '<div class="panel"><h1 class="ticket-subject">404</h1><p class="muted-text">' . e(t('e404.text')) . '</p><a class="btn btn-primary" href="' . u('dashboard') . '">' . e(t('e404.back')) . '</a></div>';
+    layout_footer();
+    exit;
 }
 if (!Approvals::canView($approval, $me)) {
     http_response_code(403);
-    exit(t('auth.denied'));
+    layout_header(t('auth.denied'), '');
+    echo '<div class="panel"><h1 class="ticket-subject">403</h1><p class="muted-text">' . e(t('auth.denied')) . '</p><a class="btn btn-primary" href="' . u('dashboard') . '">' . e(t('common.back')) . '</a></div>';
+    layout_footer();
+    exit;
 }
 
 $canDecide = Approvals::canDecide($approval, (int) $me['id']);
@@ -23,7 +29,8 @@ if ($canDecide && $current && (int) $current['approver_id'] !== (int) $me['id'])
     $delegated = true;
 }
 $canWithdraw = $approval['status'] === 'pending' && ($isMine || $privileged);
-$canEdit     = $approval['status'] === 'pending' && ($isMine || $privileged);
+$canEdit     = in_array($approval['status'], ['pending', 'returned'], true) && ($isMine || $privileged);
+$isReturned  = $approval['status'] === 'returned';
 
 // ---------------------------------------------------------------- POST: decision
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -72,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!$approverIds) {
             flash('error', t('approvals.err_approvers'));
         } else {
+            $wasReturnedBefore = $approval['status'] === 'returned';
             Approvals::editRequest($id, [
                 'title'           => $title,
                 'description'     => trim((string) ($_POST['description'] ?? '')),
@@ -81,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'related_task_id' => (int) ($_POST['related_task_id'] ?? 0),
             ], $approverIds, $me);
             handle_uploads(null, null, $id, (int) $me['id']);
-            flash('success', t('approvals.edit_ok'));
+            flash('success', $wasReturnedBefore ? t('approvals.resubmitted_ok') : t('approvals.edit_ok'));
         }
         redirect('approval&id=' . $id);
     }
@@ -125,7 +133,7 @@ layout_header($approval['ref'] . ' — ' . $approval['title'], 'approvals');
   </div>
 
   <div class="meta-grid">
-    <div class="meta-item"><span class="meta-label"><?= e(t('approvals.requested_by')) ?></span><span class="meta-value"><?= e($approval['requester_name'] ?? '—') ?></span></div>
+    <div class="meta-item"><span class="meta-label"><?= e(t('approvals.requested_by')) ?></span><span class="meta-value"><?= e(bilingual($approval, 'requester_name')) ?></span></div>
     <div class="meta-item"><span class="meta-label"><?= e(t('approvals.submitted_at')) ?></span><span class="meta-value"><?= e(fmt_dt($approval['created_at'])) ?></span></div>
     <div class="meta-item"><span class="meta-label"><?= e(t('approvals.col_due')) ?></span><span class="meta-value"><?= due_chip($approval['due_date'], $approval['status'] === 'pending' ? 'new' : 'completed') ?></span></div>
     <div class="meta-item"><span class="meta-label"><?= e(t('approvals.current')) ?></span><span class="meta-value"><?= e(t('approvals.step_of', ['a' => (int) $approval['current_step'], 'b' => (int) $approval['steps_total']])) ?></span></div>
@@ -152,8 +160,11 @@ layout_header($approval['ref'] . ' — ' . $approval['title'], 'approvals');
       </form>
     <?php endif; ?>
     <?php if ($canEdit): ?>
-      <details>
+      <details <?= $isReturned ? 'open' : '' ?>>
         <summary class="btn btn-ghost"><?= icon('edit') ?> <?= e(t('approvals.edit')) ?></summary>
+        <?php if ($isReturned): ?>
+          <p class="muted-text"><?= e(t('approvals.resubmit_hint')) ?></p>
+        <?php endif; ?>
         <form method="post" action="<?= u('approval&id=' . $id) ?>" enctype="multipart/form-data" class="panel-inner form-stack">
           <?= csrf_field() ?>
           <input type="hidden" name="action" value="edit">
@@ -189,7 +200,7 @@ layout_header($approval['ref'] . ' — ' . $approval['title'], 'approvals');
 
           <label class="field-label" for="e-approvers"><?= e(t('approvals.chain')) ?></label>
           <select class="input" id="e-approvers" name="approvers[]" multiple size="5" required>
-            <?php foreach ($approvers as $u): ?>
+            <?php foreach ($approvers as $u): ?><?php if ((int) $u['id'] === (int) $me['id']) { continue; } ?>
               <option value="<?= (int) $u['id'] ?>" <?= in_array((int) $u['id'], $chainIds, true) ? 'selected' : '' ?>>
                 <?= e($u['name']) ?><?= $u['job_title'] !== '' ? ' — ' . e($u['job_title']) : '' ?>
               </option>
@@ -246,6 +257,10 @@ layout_header($approval['ref'] . ' — ' . $approval['title'], 'approvals');
 <?php elseif ($approval['status'] === 'pending'): ?>
   <div class="panel panel-muted">
     <p class="muted-text"><?= e(t('approvals.waiting_others')) ?><?= $current ? ': ' . e($current['approver_name'] ?? '') : '' ?></p>
+  </div>
+<?php elseif ($isReturned): ?>
+  <div class="panel panel-muted">
+    <p class="muted-text"><?= e(t('approvals.resubmit_hint')) ?></p>
   </div>
 <?php else: ?>
   <div class="panel panel-muted">

@@ -252,6 +252,36 @@ function due_label(?string $date, ?string $status = null): string
     return fmt_date($date);
 }
 
+// ---------------------------------------------------------------- user display
+
+/** Display name in the current language (English prefers name_en). */
+function user_name(array $u): string
+{
+    if (daem_current_lang() !== 'ar' && !empty($u['name_en']) && trim((string) $u['name_en']) !== '') {
+        return (string) $u['name_en'];
+    }
+    return (string) ($u['name'] ?? '—');
+}
+
+/** A job title is single-language (Arabic); hide it in English mode when it is Arabic-only. */
+function job_title_display(?string $title): string
+{
+    $title = trim((string) $title);
+    if ($title === '') {
+        return '—';
+    }
+    if (daem_current_lang() !== 'ar' && preg_match('/[\x{0600}-\x{06FF}]/u', $title)) {
+        return '—';
+    }
+    return $title;
+}
+
+/** True when a task/correspondence status means the item is closed (no due date shown). */
+function is_closed_status(?string $status): bool
+{
+    return in_array($status, ['completed', 'cancelled', 'archived'], true);
+}
+
 // ---------------------------------------------------------------- audit + notify
 
 function audit(string $action, ?string $entity = null, $entityId = null, ?string $details = null): void

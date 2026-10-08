@@ -15,8 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'name_en' => trim((string) ($_POST['name_en'] ?? '')),
         ];
 
+        $excludeId = $action === 'update' ? (int) ($_POST['id'] ?? 0) : 0;
         if ($data['name_ar'] === '') {
             flash('error', t('at.err_name'));
+        } elseif (ApprovalTypes::isDuplicate($data, $excludeId)) {
+            flash('error', t('at.err_dup'));
         } elseif ($action === 'add') {
             ApprovalTypes::create($data);
             flash('success', t('at.created'));

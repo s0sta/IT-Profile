@@ -12,7 +12,10 @@ $id      = (int) ($_GET['id'] ?? 0);
 $meeting = Meetings::find($id);
 if (!$meeting) {
     http_response_code(404);
-    exit(t('e404.title'));
+    layout_header(t('e404.title'), '');
+    echo '<div class="panel"><h1 class="ticket-subject">404</h1><p class="muted-text">' . e(t('e404.text')) . '</p><a class="btn btn-primary" href="' . u('dashboard') . '">' . e(t('e404.back')) . '</a></div>';
+    layout_footer();
+    exit;
 }
 
 // Only the organizer (or an admin / executive) may change the register,
@@ -117,7 +120,7 @@ layout_header(t('meetings.details'), 'meetings');
 
   <div class="ticket-badges">
     <span class="badge"><?= e(meeting_statuses()[(string) $meeting['status']] ?? (string) $meeting['status']) ?></span>
-    <span class="badge"><?= e(t('meetings.attendees_count', ['n' => count($attendees)])) ?></span>
+    <span class="badge"><?= count($attendees) === 1 ? e(t('meetings.attendees_one')) : e(t('meetings.attendees_count', ['n' => count($attendees)])) ?></span>
     <span class="badge"><?= e(t('meetings.present')) ?>: <?= $present ?></span>
   </div>
 
@@ -178,7 +181,7 @@ layout_header(t('meetings.details'), 'meetings');
   <div class="meta-grid">
     <div class="meta-item">
       <span class="meta-label"><?= e(t('meetings.organizer')) ?></span>
-      <span class="meta-value"><?= e($meeting['organizer_name'] ?? '—') ?></span>
+      <span class="meta-value"><?= e(bilingual($meeting, 'organizer_name')) ?></span>
     </div>
     <div class="meta-item">
       <span class="meta-label"><?= e(t('meetings.starts_at')) ?></span>
@@ -218,14 +221,16 @@ layout_header(t('meetings.details'), 'meetings');
           <?php foreach ($attendees as $a): ?>
             <tr>
               <td>
-                <span class="avatar"><?= e(initials($a['name'])) ?></span>
-                <?= e($a['name']) ?>
+                <?= avatar_img($a, 32) ?>
+                <?= e(user_name($a)) ?>
               </td>
               <td><?= role_badge((string) $a['role']) ?></td>
-              <td><?= e((string) $a['job_title'] !== '' ? $a['job_title'] : '—') ?></td>
+              <td><?= e(job_title_display($a['job_title'])) ?></td>
               <td>
                 <?php if ((int) $a['attended'] === 1): ?>
                   <span class="badge badge-active"><?= e(t('meetings.present')) ?></span>
+                <?php elseif (strtotime((string) $meeting['starts_at']) > time()): ?>
+                  <span class="badge badge-inactive"><?= e(t('meetings.not_set')) ?></span>
                 <?php else: ?>
                   <span class="badge badge-inactive"><?= e(t('meetings.absent')) ?></span>
                 <?php endif; ?>

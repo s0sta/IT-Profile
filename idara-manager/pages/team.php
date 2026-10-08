@@ -63,11 +63,11 @@ layout_header(t('team.title'), 'team');
           ?>
             <tr>
               <td>
-                <span class="avatar"><?= e(initials($m['name'])) ?></span>
-                <?= e($m['name']) ?>
+                <?= avatar_img($m, 34) ?>
+                <?= e(user_name($m)) ?>
                 <div class="cell-muted"><?= role_badge((string) $m['role']) ?></div>
               </td>
-              <td><?= e($m['job_title'] !== '' ? $m['job_title'] : '—') ?></td>
+              <td><?= e(job_title_display($m['job_title'])) ?></td>
               <td><?= e($m['email']) ?></td>
               <td><?= e($m['phone'] !== '' ? $m['phone'] : '—') ?></td>
               <td><?= $open ?></td>
@@ -92,7 +92,7 @@ layout_header(t('team.title'), 'team');
     <div class="hbar-list">
       <?php foreach ($workload as $w): ?>
         <div class="hbar">
-          <span class="hbar-label"><?= e($w['name']) ?></span>
+          <span class="hbar-label"><?= e(user_name($w)) ?></span>
           <div class="hbar-track"><div class="hbar-fill hbar-load" style="width:<?= round((int) $w['open_now'] / $maxLoad * 100) ?>%"></div></div>
           <span class="hbar-value"><?= (int) $w['open_now'] ?><?= (int) $w['overdue'] ? ' ⚠' . (int) $w['overdue'] : '' ?></span>
         </div>

@@ -25,6 +25,9 @@ CREATE TABLE IF NOT EXISTS users (
   manager_id    INTEGER,
   active        INTEGER NOT NULL DEFAULT 1,
   must_change_password INTEGER NOT NULL DEFAULT 0,
+  avatar        TEXT NOT NULL DEFAULT '',
+  bio           TEXT NOT NULL DEFAULT '',
+  birthdate     TEXT,
   last_login_at TEXT,
   created_at    TEXT NOT NULL
 );

@@ -79,6 +79,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('admin/users');
     }
 
+    if ($action === 'delete') {
+        $id  = (int) ($_POST['id'] ?? 0);
+        $res = Users::delete($id, Auth::current());
+        if ($res === []) {
+            flash('success', t('au.deleted_ok'));
+        } elseif (in_array('self', $res, true)) {
+            flash('error', t('au.err_delete_self'));
+        } elseif (in_array('last-admin', $res, true)) {
+            flash('error', t('au.err_last_admin'));
+        } elseif ($res === ['user-not-found']) {
+            flash('error', t('e404.text'));
+        } else {
+            flash('error', t('au.err_has_history'));
+        }
+        redirect('admin/users');
+    }
+
     if ($action === 'toggle') {
         $id     = (int) ($_POST['id'] ?? 0);
         $target = $id ? Users::find($id) : null;
@@ -139,7 +156,8 @@ layout_header(t('au.title'), 'admin/users');
       <label class="field-label"><?= e(t('common.job_title')) ?></label>
       <input class="input" name="job_title" value="<?= e($editUser['job_title'] ?? '') ?>">
       <label class="field-label"><?= e(t('common.phone')) ?></label>
-      <input class="input" name="phone" value="<?= e($editUser['phone'] ?? '') ?>">
+      <input class="input" name="phone" placeholder="+966…" value="<?= e($editUser['phone'] ?? '') ?>">
+      <p class="muted-text"><?= e(t('au.phone_hint')) ?></p>
       <label class="field-label"><?= e(t('common.manager')) ?></label>
       <select class="input input-select" name="manager_id">
         <option value=""><?= e(t('common.select')) ?></option>
@@ -193,6 +211,14 @@ layout_header(t('au.title'), 'admin/users');
                     <input type="hidden" name="action" value="toggle">
                     <input type="hidden" name="id" value="<?= (int) $u['id'] ?>">
                     <button class="btn btn-ghost btn-sm <?= (int) $u['active'] === 1 ? 'text-danger' : '' ?>" type="submit"><?= (int) $u['active'] === 1 ? e(t('au.deactivate')) : e(t('au.activate')) ?></button>
+                  </form>
+                <?php endif; ?>
+                <?php if ((int) $u['id'] !== Auth::id()): ?>
+                  <form method="post" action="<?= u('admin/users') ?>" class="inline-form" data-confirm="<?= e(t('au.confirm_delete')) ?>">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="id" value="<?= (int) $u['id'] ?>">
+                    <button class="btn btn-ghost btn-sm text-danger" type="submit"><?= icon('x') ?> <?= e(t('au.delete')) ?></button>
                   </form>
                 <?php endif; ?>
               </td>

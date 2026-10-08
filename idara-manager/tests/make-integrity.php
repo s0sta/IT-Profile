@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Run from the project root:  php tests/make-integrity.php
  * Re-run this every time a shipped file changes.
  *
- * Included: *.php, *.css, *.js, *.sql, *.md, *.txt and the bare .htaccess.
+ * Included: *.php, *.css, *.js, *.sql, *.md, *.txt, *.svg and the bare .htaccess.
  * Skipped:   data/, storage/, tests/, every other dotfile, integrity.php and
  *            diag.php themselves (they are not part of the released manifest).
  */
@@ -14,7 +14,7 @@ declare(strict_types=1);
 $root = dirname(__DIR__);
 $skipDirs = ['data', 'storage', 'tests', '.git'];
 $skipFiles = ['integrity.php', 'diag.php', '.DS_Store', '.gitignore'];
-$extensions = ['php', 'css', 'js', 'sql', 'md', 'txt'];
+$extensions = ['php', 'css', 'js', 'sql', 'md', 'txt', 'svg'];
 
 $manifest = [];
 

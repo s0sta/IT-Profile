@@ -91,10 +91,15 @@ function progress_bar(int $progress): string
 }
 
 /** Coloured due-date chip (red when overdue, amber when near). */
-function due_chip(?string $date, ?string $status = null): string
+function due_chip(?string $date, ?string $status = null, ?string $doneLabel = null): string
 {
     if (!$date) {
         return '<span class="cell-muted">—</span>';
+    }
+    if (is_closed_status($status)) {
+        // Finished items show their outcome, not a due date.
+        $label = $doneLabel !== null && $doneLabel !== '' ? $doneLabel : t('tstatus.completed');
+        return '<span class="due-chip">' . e($label) . '</span>';
     }
     $days = days_left($date);
     $open = $status === null || task_is_open($status);
@@ -105,6 +110,22 @@ function due_chip(?string $date, ?string $status = null): string
         $class .= ' due-soon';
     }
     return '<span class="' . $class . '">' . e(due_label($date, $status)) . '</span>';
+}
+
+/** Avatar <img> for a user row: a built-in or uploaded photo, else initials. */
+function avatar_img(?array $u, int $size = 36): string
+{
+    if (!$u) {
+        return '';
+    }
+    $avatar = trim((string) ($u['avatar'] ?? ''));
+    if ($avatar !== '' && preg_match('#^(builtin|up):[A-Za-z0-9._-]+$#', $avatar)) {
+        $src = str_starts_with($avatar, 'builtin:')
+            ? 'assets/avatars/' . substr($avatar, 8)
+            : u('download&avatar=' . urlencode(substr($avatar, 3)));
+        return '<img class="avatar-img" src="' . e($src) . '" alt="' . e(user_name($u)) . '" width="' . $size . '" height="' . $size . '" loading="lazy">';
+    }
+    return '<span class="avatar" style="width:' . $size . 'px;height:' . $size . 'px;line-height:' . $size . 'px;font-size:' . (int) max(11, $size * 0.38) . 'px">' . e(initials((string) $u['name'])) . '</span>';
 }
 
 // ---------------------------------------------------------------- tables
@@ -184,7 +205,7 @@ function approval_table(array $rows): void
           <td><?= priority_badge((string) $ap['priority']) ?></td>
           <td><?= approval_status_badge((string) $ap['status']) ?></td>
           <td><?= e($ap['requester_name'] ?? '—') ?></td>
-          <td><?= due_chip($ap['due_date'], $ap['status'] === 'pending' ? 'new' : 'completed') ?></td>
+          <td><?= $ap['status'] === 'pending' ? due_chip($ap['due_date'], 'new') : due_chip($ap['due_date'], 'completed', approval_statuses()[$ap['status']] ?? t('tstatus.completed')) ?></td>
         </tr>
         <?php endforeach; ?>
       </tbody>
@@ -274,7 +295,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(err){}})();
         <a class="icon-btn bell" href="<?= u('notifications') ?>" aria-label="<?= e(t('nav.notifications')) ?>"><?= icon('bell') ?><?php if ($unread): ?><span class="bell-badge"><?= $unread > 99 ? '99+' : $unread ?></span><?php endif; ?></a>
         <div class="user-menu" id="user-menu">
           <button class="user-chip" id="user-chip" aria-haspopup="true">
-            <span class="avatar"><?= e(initials($user['name'])) ?></span>
+            <?= avatar_img($user, 34) ?>
             <span class="user-meta"><span class="user-name"><?= e($user['name']) ?></span><span class="user-role"><?= e(roles()[$user['role']] ?? $user['role']) ?></span></span>
             <span class="chev">▾</span>
           </button>

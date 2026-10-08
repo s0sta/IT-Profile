@@ -83,8 +83,16 @@ $all  = $isAdmin ? Delegations::listAll() : [];
 /** One row of the delegation table. */
 $renderRow = static function (array $d, bool $canCancel, string $today): void {
     $live = !empty($d['active']) && (string) $d['starts_at'] <= $today && (string) $d['ends_at'] >= $today;
-    // Three distinct states: in force today · deliberately cancelled · expired.
-    $stateLabel = empty($d['active']) ? t('deleg.cancelled') : ($live ? t('deleg.active') : t('deleg.expired'));
+    // Four distinct states: scheduled (future) · in force today · expired · cancelled.
+    if (empty($d['active'])) {
+        $stateLabel = t('deleg.cancelled');
+    } elseif ($live) {
+        $stateLabel = t('deleg.active');
+    } elseif ((string) $d['starts_at'] > $today) {
+        $stateLabel = t('deleg.scheduled');
+    } else {
+        $stateLabel = t('deleg.expired');
+    }
     $stateClass = $live ? 'badge-active' : 'badge-inactive';
     ?>
     <tr>
@@ -169,9 +177,15 @@ layout_header(t('deleg.title'), 'delegations');
   <p class="muted-text"><?= e(t('deleg.note')) ?></p>
 </section>
 
+<?php
+// A single table per user: the administrator sees every delegation once
+// (the "all" list); everyone else sees the rows they are part of.
+$rows = $isAdmin ? $all : $mine;
+$canCancel = static fn (array $d): bool => $isAdmin || (int) $d['delegator_id'] === (int) $me['id'];
+?>
 <section class="panel">
-  <h2 class="panel-title"><?= e(t('deleg.title')) ?></h2>
-  <?php if (!$mine): ?>
+  <h2 class="panel-title"><?= e(t('deleg.title')) ?><?= $isAdmin ? ' — ' . e(t('common.all')) : '' ?></h2>
+  <?php if (!$rows): ?>
     <div class="empty"><?= e(t('deleg.empty')) ?></div>
   <?php else: ?>
     <div class="table-wrap">
@@ -188,43 +202,13 @@ layout_header(t('deleg.title'), 'delegations');
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($mine as $d) {
-              $renderRow($d, $isAdmin || (int) $d['delegator_id'] === (int) $me['id'], $today);
+          <?php foreach ($rows as $d) {
+              $renderRow($d, $canCancel($d), $today);
           } ?>
         </tbody>
       </table>
     </div>
   <?php endif; ?>
 </section>
-
-<?php if ($isAdmin): ?>
-<section class="panel">
-  <h2 class="panel-title"><?= e(t('deleg.title')) ?> — <?= e(t('common.all')) ?></h2>
-  <?php if (!$all): ?>
-    <div class="empty"><?= e(t('deleg.empty')) ?></div>
-  <?php else: ?>
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr>
-            <th><?= e(t('deleg.delegator')) ?></th>
-            <th><?= e(t('deleg.delegate')) ?></th>
-            <th><?= e(t('deleg.starts_at')) ?></th>
-            <th><?= e(t('deleg.ends_at')) ?></th>
-            <th><?= e(t('common.reason')) ?></th>
-            <th><?= e(t('common.status')) ?></th>
-            <th><?= e(t('common.actions')) ?></th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($all as $d) {
-              $renderRow($d, true, $today);
-          } ?>
-        </tbody>
-      </table>
-    </div>
-  <?php endif; ?>
-</section>
-<?php endif; ?>
 
 <?php layout_footer(); ?>

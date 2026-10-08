@@ -378,7 +378,105 @@ check "B12 CSV export link is present" "export=csv" "$RP"
 MF=$(curl -s -b $JAR "$BASE/index.php?p=meetings")
 check "B13 attendee hint is shown" "$(val meetings.hint_attendees)" "$MF"
 
-echo "== 27. Login throttle (last — it blocks this IP for 15 minutes) =="
+echo "== 27. v1.2 fixes — live-test notes =="
+
+# static: the 20 built-in avatars ship
+AV=$(ls assets/avatars/*.svg 2>/dev/null | wc -l | tr -d ' ')
+check "20 built-in avatar photos ship" "^20$" "$AV"
+
+# item 9: a requester cannot approve their own request
+AP=$(curl -s -b $JN "$BASE/index.php?p=new-approval")
+T=$(echo "$AP" | csrf)
+SELF=$(curl -s -L -b $JN --data-urlencode "csrf=$T" --data-urlencode "title=طلب ذاتي" -d "type_id=1" -d "priority=low" -d "due_date=" -d "approver_ids[]=6" "$BASE/index.php?p=new-approval")
+check "item 9 self-approver is refused" "$(val approvals.err_self)" "$SELF"
+
+# item 6: duplicate department name/code is refused
+DU=$(curl -s -b $JA "$BASE/index.php?p=admin/departments")
+T=$(echo "$DU" | csrf)
+DD=$(curl -s -L -b $JA --data-urlencode "csrf=$T" -d "action=add" --data-urlencode "name_ar=الإدارة العامة" -d "name_en=Head Office" -d "code=HQ" -d "manager_id=" "$BASE/index.php?p=admin/departments")
+check "item 6 duplicate department is refused" "$(val ad.err_dup)" "$DD"
+
+# item 1: return-for-revision then resubmit
+FIRST=$(curl -s -b $JAR "$BASE/index.php?p=approvals&inbox=1" | grep -o 'p=approval&id=[0-9]*' | grep -o '[0-9]*' | head -1)
+RV=$(curl -s -b $JAR "$BASE/index.php?p=approval&id=$FIRST")
+T=$(echo "$RV" | csrf)
+curl -s -L -b $JAR --data-urlencode "csrf=$T" -d "action=decide" -d "decision=returned" --data-urlencode "note=عدّل التفاصيل وأعد الإرسال" "$BASE/index.php?p=approval&id=$FIRST" -o /tmp/idara-ret.html
+check "item 1 return decision is confirmed" "$(val approvals.returned_msg)" "$(cat /tmp/idara-ret.html)"
+NV=$(curl -s -b $JN "$BASE/index.php?p=approval&id=$FIRST")
+check "item 1 returned request shows the resubmit hint" "$(val approvals.resubmit_hint)" "$NV"
+T=$(echo "$NV" | csrf)
+RR=$(curl -s -L -b $JN --data-urlencode "csrf=$T" -d "action=edit" --data-urlencode "title=اعتماد إصدار ترخيص استثماري — بعد التعديل" -d "type_id=1" -d "priority=high" -d "due_date=" -d "approvers[]=3" -d "approvers[]=2" "$BASE/index.php?p=approval&id=$FIRST")
+check "item 1 resubmission is confirmed" "$(val approvals.resubmitted_ok)" "$RR"
+PEN=$(php -r 'define("APP_ROOT", __DIR__); require "includes/db.php"; Database::init((require "data/config.php")["db"]); echo Database::value("SELECT status FROM approvals WHERE id = ?", [(int) $argv[1]]);' "$FIRST")
+check "item 1 resubmitted request is pending again" "^pending$" "$PEN"
+
+# item 2: a future delegation shows "Scheduled"
+DG=$(curl -s -b $JAR "$BASE/index.php?p=delegations")
+T=$(echo "$DG" | csrf)
+FUT1=$(php -r 'echo date("Y-m-d", strtotime("+5 days"));')
+FUT2=$(php -r 'echo date("Y-m-d", strtotime("+10 days"));')
+curl -s -b $JAR --data-urlencode "csrf=$T" -d "action=create" -d "delegator_id=3" -d "delegate_id=9" -d "starts_at=$FUT1" -d "ends_at=$FUT2" --data-urlencode "reason=تفويض مستقبلي" -o /dev/null "$BASE/index.php?p=delegations"
+SCH=$(curl -s -b $JAR "$BASE/index.php?p=delegations")
+check "item 2 future delegation shows Scheduled" "$(val deleg.scheduled)" "$SCH"
+
+# item 4: letters appear on the calendar
+CAL=$(curl -s -b $JAR "$BASE/index.php?p=calendar")
+check "item 4 calendar shows letters" "cal-letter" "$CAL"
+check "item 4 calendar legend mentions letters" "$(val cal.letters)" "$CAL"
+
+# item 10: dashboard numbers are links
+DASH=$(curl -s -b $JAR "$BASE/index.php?p=dashboard")
+check "item 10 inbox card links to the inbox" "p=approvals&inbox=1" "$DASH"
+check "item 10 my-tasks card links to my tasks" "p=tasks&mine=1" "$DASH"
+
+# item 11: tasks page has My / Team tabs
+TS=$(curl -s -b $JAR "$BASE/index.php?p=tasks")
+check "item 11 tasks page shows My-tasks tab" "$(val tasks.my_tab)" "$TS"
+check "item 11 tasks page shows Team-tasks tab" "$(val tasks.team_tab)" "$TS"
+
+# item 14: "1 participant" plural + item 15: attendance "Not set"
+MV=$(curl -s -b $JAR "$BASE/index.php?p=meetings")
+T=$(echo "$MV" | csrf)
+ST=$(php -r 'echo date("Y-m-d\TH:i", strtotime("+6 days 09:00"));')
+MID1=$(curl -s -b $JAR --data-urlencode "csrf=$T" --data-urlencode "title=اجتماع منفرد" -d "agenda=" -d "location=قاعة" -d "starts_at=$ST" -d "ends_at=" -d "attendees[]=9" -o /dev/null -w "%{redirect_url}" "$BASE/index.php?p=meetings" | grep -o '[0-9]*$')
+MVAL=$(curl -s -b $JAR "$BASE/index.php?p=meeting&id=$MID1")
+check "item 14 single attendee shows 1 participant" "$(val meetings.attendees_one)" "$MVAL"
+check "item 15 future meeting shows Not set" "$(val meetings.not_set)" "$MVAL"
+
+# item 16: styled 404 on a detail page
+N4=$(curl -s -b $JAR "$BASE/index.php?p=task&id=999999")
+check "item 16 404 page has the full layout + back button" "$(val e404.back)" "$N4"
+
+# item 17: audit log shows the user name for user entities
+AUD=$(curl -s -b $JA "$BASE/index.php?p=admin/audit")
+check "item 17 audit shows the target user name" "نورة الشمري" "$AUD"
+
+# user deletion: fresh user is deletable, a user with history is not
+PU=$(curl -s -b $JA "$BASE/index.php?p=admin/users")
+T=$(echo "$PU" | csrf)
+curl -s -b $JA --data-urlencode "csrf=$T" -d "action=add" --data-urlencode "name=مستخدم حذف" -d "name_en=Delete Test" -d "username=zz.delete.test" -d "email=zz.delete.test@idara.local" -d "role=member" -d "department_id=" -d "job_title=" -d "phone=" -d "manager_id=" -d "password=Delete@123" -o /dev/null "$BASE/index.php?p=admin/users"
+DELID=$(php -r 'define("APP_ROOT", __DIR__); require "includes/db.php"; Database::init((require "data/config.php")["db"]); echo (int) Database::value("SELECT id FROM users WHERE username = ?", ["zz.delete.test"]);')
+PU2=$(curl -s -b $JA "$BASE/index.php?p=admin/users")
+T=$(echo "$PU2" | csrf)
+DR=$(curl -s -L -b $JA --data-urlencode "csrf=$T" -d "action=delete" -d "id=$DELID" "$BASE/index.php?p=admin/users")
+check "a fresh user can be deleted" "$(val au.deleted_ok)" "$DR"
+GONE=$(php -r 'define("APP_ROOT", __DIR__); require "includes/db.php"; Database::init((require "data/config.php")["db"]); echo (int) Database::value("SELECT COUNT(*) FROM users WHERE id = ?", [(int) $argv[1]]);' "$DELID")
+check "the deleted user is gone" "^0$" "$GONE"
+PU3=$(curl -s -b $JA "$BASE/index.php?p=admin/users")
+T=$(echo "$PU3" | csrf)
+DH=$(curl -s -L -b $JA --data-urlencode "csrf=$T" -d "action=delete" -d "id=3" "$BASE/index.php?p=admin/users")
+check "a user with history cannot be deleted" "$(val au.err_has_history)" "$DH"
+
+# profile: avatar picker, bio, birthdate
+PR=$(curl -s -b $JAR "$BASE/index.php?p=profile")
+T=$(echo "$PR" | csrf)
+PF=$(curl -s -L -b $JAR --data-urlencode "csrf=$T" -d "action=profile" -d "avatar=builtin:03.svg" --data-urlencode "bio=نبذة فحص" -d "birthdate=1990-05-20" "$BASE/index.php?p=profile")
+check "profile update is confirmed" "$(val profile.profile_updated)" "$PF"
+AV2=$(php -r 'define("APP_ROOT", __DIR__); require "includes/db.php"; Database::init((require "data/config.php")["db"]); echo (string) Database::value("SELECT avatar FROM users WHERE id = 3");')
+check "profile avatar persisted" "^builtin:03.svg$" "$AV2"
+check "profile page shows the chosen avatar" "assets/avatars/03.svg" "$(curl -s -b $JAR "$BASE/index.php?p=profile")"
+
+echo "== 28. Login throttle (last — it blocks this IP for 15 minutes) =="
 JTH=/tmp/idara-throttle.jar; rm -f $JTH
 T=$(curl -s -c $JTH "$BASE/index.php?p=login" | csrf)
 for i in 1 2 3 4 5 6; do

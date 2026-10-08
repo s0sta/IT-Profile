@@ -31,12 +31,17 @@ layout_header(t('al.title'), 'admin/audit');
     <table class="table">
       <thead><tr><th><?= e(t('al.time')) ?></th><th><?= e(t('al.user')) ?></th><th><?= e(t('al.action')) ?></th><th><?= e(t('al.entity')) ?></th><th><?= e(t('al.details')) ?></th><th><?= e(t('al.ip')) ?></th></tr></thead>
       <tbody>
-        <?php foreach ($rows as $a): ?>
+        <?php
+        $nameMap = [];
+        foreach (Users::all() as $uu) {
+            $nameMap[(int) $uu['id']] = user_name($uu);
+        }
+        foreach ($rows as $a): ?>
           <tr>
             <td class="cell-muted"><?= e(fmt_dt($a['created_at'])) ?></td>
             <td><?= e($a['username']) ?></td>
             <td><span class="badge badge-audit"><?= e(str_replace('_', ' ', $a['action'])) ?></span></td>
-            <td><?= e($a['entity'] ?? '—') ?><?= $a['entity_id'] ? ' #' . e((string) $a['entity_id']) : '' ?></td>
+            <td><?php if (($a['entity'] ?? '') === 'user' && isset($nameMap[(int) $a['entity_id']])): ?><?= e($nameMap[(int) $a['entity_id']]) ?><?php else: ?><?= e($a['entity'] ?? '—') ?><?= $a['entity_id'] ? ' #' . e((string) $a['entity_id']) : '' ?><?php endif; ?></td>
             <td class="cell-muted"><?= e($a['details'] ?? '') ?></td>
             <td class="cell-muted"><?= e($a['ip']) ?></td>
           </tr>

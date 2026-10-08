@@ -16,6 +16,7 @@ $f = [
     'assignee'   => (string) ($_GET['assignee'] ?? ''),
     'department' => (string) ($_GET['department'] ?? ''),
     'mine'       => !empty($_GET['mine']) ? 1 : 0,
+    'team'       => !empty($_GET['team']) ? 1 : 0,
     'overdue'    => !empty($_GET['overdue']) ? 1 : 0,
     'sort'       => (string) ($_GET['sort'] ?? 'due'),
 ];
@@ -39,6 +40,14 @@ layout_header($title, 'tasks');
   <div class="panel-head">
     <h2 class="panel-title"><?= e($title) ?></h2>
     <a class="btn btn-primary" href="<?= u('new-task') ?>"><?= icon('plus') ?> <?= e(t('tasks.new')) ?></a>
+  </div>
+
+  <div class="quick-actions" style="margin-bottom:12px">
+    <a class="btn btn-sm <?= !$f['mine'] && !$f['team'] ? 'btn-primary' : 'btn-ghost' ?>" href="<?= u('tasks') ?>"><?= e(t('tasks.all_tab')) ?></a>
+    <a class="btn btn-sm <?= $f['mine'] ? 'btn-primary' : 'btn-ghost' ?>" href="<?= u('tasks&mine=1') ?>"><?= e(t('tasks.my_tab')) ?></a>
+    <?php if (($me['role'] ?? '') !== 'member'): ?>
+      <a class="btn btn-sm <?= $f['team'] ? 'btn-primary' : 'btn-ghost' ?>" href="<?= u('tasks&team=1') ?>"><?= e(t('tasks.team_tab')) ?></a>
+    <?php endif; ?>
   </div>
 
   <form class="filters" method="get" action="<?= u('tasks') ?>">
@@ -78,8 +87,8 @@ layout_header($title, 'tasks');
       <?php endforeach; ?>
     </select>
     <label class="check-label">
-      <input type="checkbox" name="mine" value="1" <?= $f['mine'] ? 'checked' : '' ?>>
-      <?= e(t('tasks.only_mine')) ?>
+      <input type="checkbox" name="team" value="1" <?= $f['team'] ? 'checked' : '' ?>>
+      <?= e(t('tasks.team_tab')) ?>
     </label>
     <label class="check-label">
       <input type="checkbox" name="overdue" value="1" <?= $f['overdue'] ? 'checked' : '' ?>>

@@ -15,8 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'name_en' => trim((string) ($_POST['name_en'] ?? '')),
         ];
 
+        $excludeId = $action === 'update' ? (int) ($_POST['id'] ?? 0) : 0;
         if ($data['name_ar'] === '') {
             flash('error', t('ac.err_name'));
+        } elseif (TaskCategories::isDuplicate($data, $excludeId)) {
+            flash('error', t('ac.err_dup'));
         } elseif ($action === 'add') {
             TaskCategories::create($data);
             flash('success', t('ac.created'));

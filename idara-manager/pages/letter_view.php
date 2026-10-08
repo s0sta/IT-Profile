@@ -11,7 +11,10 @@ $id     = (int) ($_GET['id'] ?? 0);
 $letter = Correspondence::find($id);
 if (!$letter) {
     http_response_code(404);
-    exit(t('e404.title'));
+    layout_header(t('e404.title'), '');
+    echo '<div class="panel"><h1 class="ticket-subject">404</h1><p class="muted-text">' . e(t('e404.text')) . '</p><a class="btn btn-primary" href="' . u('dashboard') . '">' . e(t('e404.back')) . '</a></div>';
+    layout_footer();
+    exit;
 }
 
 // Admin / executive, the assignee, or the assignee's manager may edit.
@@ -103,7 +106,7 @@ layout_header(t('corr.details'), 'correspondence');
     </div>
     <div class="meta-item">
       <span class="meta-label"><?= e(t('corr.due_date')) ?></span>
-      <span class="meta-value"><?= due_chip($letter['due_date'], $open ? 'new' : 'completed') ?></span>
+      <span class="meta-value"><?= $open ? due_chip($letter['due_date'], 'new') : due_chip($letter['due_date'], 'completed', $letter['status'] === 'archived' ? (correspondence_statuses()['archived'] ?? t('tstatus.completed')) : (correspondence_statuses()[$letter['status']] ?? t('tstatus.completed'))) ?></span>
     </div>
     <div class="meta-item">
       <span class="meta-label"><?= e(t('common.assignee')) ?></span>

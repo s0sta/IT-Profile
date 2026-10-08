@@ -125,6 +125,35 @@ existing ones (then delete diag.php if it is still there):
 Nothing else changes.
 
 ============================================================
+UPGRADING to v1.2 (live-test fixes + profile photos)
+============================================================
+v1.2 fixes the 20 problems from the live testing pass (returned requests can
+be edited and resubmitted, future delegations show "Scheduled", step
+notifications say the right thing, letters appear on the calendar, the
+calendar fits all 7 days, duplicate names/codes are refused, cancelled
+meetings stay out of "Upcoming", finished items show their outcome instead
+of a due date, nobody can approve their own request, dashboard numbers are
+links, the tasks page has My/Team/All tabs, the delegations table is shown
+once, English mode has no Arabic leftovers, "1 participant" plural, "Not
+set" attendance before a meeting, styled 404 pages, audit log shows names,
+Saudi phone example +966, dashboard workload matches My Team) and adds:
+    - guarded user deletion (a user with any history cannot be deleted;
+      a fresh user can) plus profile photos: 20 built-in avatars, a custom
+      photo upload, a bio and a birthdate on the profile page.
+
+To upgrade a live site:
+1. Upload EVERYTHING from this ZIP over the existing files (the new
+   assets/avatars/ folder must exist after the upload).
+2. Run this SQL once (hPanel -> Databases -> phpMyAdmin -> SQL):
+     ALTER TABLE users
+       ADD avatar VARCHAR(60) NOT NULL DEFAULT '',
+       ADD bio VARCHAR(1000) NOT NULL DEFAULT '',
+       ADD birthdate DATE NULL;
+   (The site keeps working before you run it; only the new profile fields
+   are unavailable until then.)
+3. Delete diag.php if it is still there.
+
+============================================================
 TROUBLESHOOTING
 ============================================================
 - "Access denied for user 'uXXXXXXXXX_idara'@'localhost' (using password: YES)"

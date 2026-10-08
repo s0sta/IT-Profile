@@ -29,6 +29,18 @@ final class Departments
         return Database::one('SELECT * FROM departments WHERE id = ?', [$id]);
     }
 
+    /** True when another department already uses this name or code (case-insensitive code). */
+    public static function isDuplicate(array $d, int $excludeId = 0): bool
+    {
+        $n = trim((string) $d['name_ar']);
+        $en = trim((string) ($d['name_en'] ?? ''));
+        $code = trim((string) ($d['code'] ?? ''));
+        return (int) Database::value(
+            'SELECT COUNT(*) FROM departments WHERE id <> ? AND (name_ar = ? OR (name_en <> \'\' AND name_en = ?) OR (code <> \'\' AND LOWER(code) = LOWER(?)))',
+            [$excludeId, $n, $en, $code]
+        ) > 0;
+    }
+
     public static function create(array $d): int
     {
         $sort = (int) Database::value('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM departments');
@@ -120,6 +132,64 @@ final class Users
     public static function approvers(): array
     {
         return self::byRole(['manager', 'executive', 'admin']);
+    }
+
+    /**
+     * Guarded deletion: refuses when the user is referenced anywhere, so the
+     * audit trail and history always keep real names. Returns an empty array
+     * on success (after deleting), otherwise a list of blocking reasons.
+     */
+    public static function delete(int $id, array $me): array
+    {
+        $u = self::find($id);
+        if (!$u) {
+            return ['user-not-found'];
+        }
+        if ((int) $u['id'] === (int) $me['id']) {
+            return ['self'];
+        }
+        if ($u['role'] === 'admin') {
+            $admins = (int) Database::value("SELECT COUNT(*) FROM users WHERE role = 'admin' AND active = 1");
+            if ($admins <= 1) {
+                return ['last-admin'];
+            }
+        }
+        $checks = [
+            ['tasks', 'creator_id', 'tasks'],
+            ['tasks', 'assignee_id', 'tasks'],
+            ['task_updates', 'author_id', 'task history'],
+            ['approvals', 'requester_id', 'approvals'],
+            ['approval_steps', 'approver_id', 'approval chains'],
+            ['correspondence', 'assignee_id', 'correspondence'],
+            ['meetings', 'organizer_id', 'meetings'],
+            ['meeting_attendees', 'user_id', 'meeting attendance'],
+            ['delegations', 'delegator_id', 'delegations'],
+            ['delegations', 'delegate_id', 'delegations'],
+            ['notifications', 'user_id', 'notifications'],
+            ['audit_log', 'user_id', 'audit history'],
+        ];
+        $blocks = [];
+        foreach ($checks as [$table, $col, $label]) {
+            if ((int) Database::value("SELECT COUNT(*) FROM {$table} WHERE {$col} = ?", [$id]) > 0) {
+                $blocks[] = $label;
+            }
+        }
+        if ($blocks) {
+            return $blocks;
+        }
+        Database::exec('DELETE FROM users WHERE id = ?', [$id]);
+        audit('user_deleted', 'user', (string) $u['name']);
+        return [];
+    }
+
+    /** Self-service profile fields: avatar, bio, birthdate. */
+    public static function updateProfile(int $id, array $d): void
+    {
+        Database::exec(
+            'UPDATE users SET avatar = ?, bio = ?, birthdate = ? WHERE id = ?',
+            [(string) ($d['avatar'] ?? ''), (string) ($d['bio'] ?? ''), $d['birthdate'] ?: null, $id]
+        );
+        audit('profile_updated', 'user', $id, 'fields=avatar,bio,birthdate');
     }
 
     /** ids a manager may look after: self + direct reports. */
@@ -221,6 +291,16 @@ final class TaskCategories
     public static function find(int $id): ?array
     {
         return Database::one('SELECT * FROM task_categories WHERE id = ?', [$id]);
+    }
+
+    public static function isDuplicate(array $d, int $excludeId = 0): bool
+    {
+        $n = trim((string) $d['name_ar']);
+        $en = trim((string) ($d['name_en'] ?? ''));
+        return (int) Database::value(
+            'SELECT COUNT(*) FROM task_categories WHERE id <> ? AND (name_ar = ? OR (name_en <> \'\' AND name_en = ?))',
+            [$excludeId, $n, $en]
+        ) > 0;
     }
 
     public static function create(array $d): void
@@ -376,6 +456,10 @@ final class Tasks
         }
         if (!empty($f['mine'])) {
             $w[] = 't.assignee_id = ?';
+            $params[] = (int) Auth::id();
+        }
+        if (!empty($f['team'])) {
+            $w[] = 't.assignee_id <> ?';
             $params[] = (int) Auth::id();
         }
         if (!empty($f['overdue'])) {
@@ -685,7 +769,8 @@ final class Tasks
     public static function teamWorkload(array $me): array
     {
         if ($me['role'] === 'manager') {
-            $scope = Users::scopeIds($me);
+            // same list as the "My Team" page: the direct reports
+            $scope = array_map(static fn ($u) => (int) $u['id'], Users::team((int) $me['id']));
         } elseif (in_array($me['role'], ['admin', 'executive'], true)) {
             $scope = array_map(static fn ($u) => (int) $u['id'], Users::all(true));
         } else {
@@ -696,12 +781,12 @@ final class Tasks
         }
         $ph = implode(',', array_fill(0, count($scope), '?'));
         return Database::all(
-            "SELECT u.id, u.name, u.role,
+            "SELECT u.id, u.name, u.name_en, u.role,
                     SUM(CASE WHEN t.status NOT IN ('completed','cancelled') THEN 1 ELSE 0 END) AS open_now,
                     SUM(CASE WHEN t.due_date IS NOT NULL AND t.due_date < ? AND t.status NOT IN ('completed','cancelled') THEN 1 ELSE 0 END) AS overdue
              FROM users u LEFT JOIN tasks t ON t.assignee_id = u.id
              WHERE u.id IN ($ph)
-             GROUP BY u.id, u.name, u.role
+             GROUP BY u.id, u.name, u.name_en, u.role
              ORDER BY open_now DESC, u.name ASC",
             array_merge([date('Y-m-d')], $scope)
         );
@@ -754,6 +839,16 @@ final class ApprovalTypes
         return Database::one('SELECT * FROM approval_types WHERE id = ?', [$id]);
     }
 
+    public static function isDuplicate(array $d, int $excludeId = 0): bool
+    {
+        $n = trim((string) $d['name_ar']);
+        $en = trim((string) ($d['name_en'] ?? ''));
+        return (int) Database::value(
+            'SELECT COUNT(*) FROM approval_types WHERE id <> ? AND (name_ar = ? OR (name_en <> \'\' AND name_en = ?))',
+            [$excludeId, $n, $en]
+        ) > 0;
+    }
+
     public static function create(array $d): void
     {
         $sort = (int) Database::value('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM approval_types');
@@ -795,7 +890,7 @@ final class Approvals
     private static function selectSql(): string
     {
         return 'SELECT ap.*,
-                       r.name AS requester_name,
+                       r.name AS requester_name, r.name_en AS requester_name_en,
                        ty.name_ar AS type_name_ar, ty.name_en AS type_name_en,
                        d.name_ar AS dept_name_ar, d.name_en AS dept_name_en,
                        (SELECT COUNT(*) FROM approval_steps s WHERE s.approval_id = ap.id) AS steps_total,
@@ -855,8 +950,8 @@ final class Approvals
         $order = 1;
         foreach ($approverIds as $approverId) {
             $approverId = (int) $approverId;
-            if ($approverId <= 0) {
-                continue;
+            if ($approverId <= 0 || $approverId === (int) $me['id']) {
+                continue; // a requester can never approve their own request
             }
             Database::exec(
                 'INSERT INTO approval_steps (approval_id, step_order, approver_id, status, note, created_at) VALUES (?, ?, ?, ?, ?, ?)',
@@ -914,6 +1009,9 @@ final class Approvals
                     [(int) $next['step_order'], now(), $approvalId]
                 );
                 notify((int) $next['approver_id'], t('notif.msg_approval_pending', ['title' => excerpt((string) $approval['title'], 50)]), u('approval&id=' . $approvalId));
+                if ((int) $approval['requester_id'] !== Auth::id()) {
+                    notify((int) $approval['requester_id'], t('notif.msg_approval_step', ['title' => excerpt((string) $approval['title'], 50), 'step' => (int) $step['step_order'], 'next' => (int) $next['step_order']]), u('approval&id=' . $approvalId));
+                }
             } else {
                 Database::exec(
                     "UPDATE approvals SET status = 'approved', updated_at = ?, closed_at = ? WHERE id = ?",
@@ -934,9 +1032,16 @@ final class Approvals
 
         audit('approval_' . $decision, 'approval', $approvalId, 'step=' . $step['step_order']);
 
-        $msgKey = $decision === 'approved' ? 'notif.msg_approval_approved' : ($decision === 'rejected' ? 'notif.msg_approval_rejected' : 'notif.msg_approval_returned');
-        if ((int) $approval['requester_id'] !== Auth::id()) {
-            notify((int) $approval['requester_id'], t($msgKey, ['title' => excerpt((string) $approval['title'], 50)]), u('approval&id=' . $approvalId));
+        if ($decision === 'approved' && (int) $approval['current_step'] >= (int) $step['step_order'] && !Database::value('SELECT COUNT(*) FROM approval_steps WHERE approval_id = ? AND status = ?', [$approvalId, 'pending'])) {
+            // chain finished with this approval — inform the requester once
+            if ((int) $approval['requester_id'] !== Auth::id()) {
+                notify((int) $approval['requester_id'], t('notif.msg_approval_approved', ['title' => excerpt((string) $approval['title'], 50)]), u('approval&id=' . $approvalId));
+            }
+        } elseif ($decision !== 'approved') {
+            $msgKey = $decision === 'rejected' ? 'notif.msg_approval_rejected' : 'notif.msg_approval_returned';
+            if ((int) $approval['requester_id'] !== Auth::id()) {
+                notify((int) $approval['requester_id'], t($msgKey, ['title' => excerpt((string) $approval['title'], 50)]), u('approval&id=' . $approvalId));
+            }
         }
     }
 
@@ -988,24 +1093,27 @@ final class Approvals
     public static function editRequest(int $approvalId, array $d, array $approverIds, array $me): bool
     {
         $approval = self::find($approvalId);
-        if (!$approval || $approval['status'] !== 'pending') {
+        if (!$approval || !in_array($approval['status'], ['pending', 'returned'], true)) {
             return false;
         }
         $privileged = in_array($me['role'], ['admin', 'executive'], true);
         if (!$privileged && (int) $approval['requester_id'] !== (int) $me['id']) {
             return false;
         }
+        $wasReturned = $approval['status'] === 'returned';
+        $status = $wasReturned ? 'pending' : 'pending';
         Database::exec(
-            'UPDATE approvals SET title = ?, description = ?, type_id = ?, priority = ?, due_date = ?, related_task_id = ?, updated_at = ? WHERE id = ?',
+            'UPDATE approvals SET title = ?, description = ?, type_id = ?, priority = ?, due_date = ?, related_task_id = ?, status = ?, updated_at = ?, closed_at = NULL WHERE id = ?',
             [
                 $d['title'], $d['description'] ?? '', $d['type_id'] ?: null, $d['priority'],
-                $d['due_date'] ?: null, $d['related_task_id'] ?: null, now(), $approvalId,
+                $d['due_date'] ?: null, $d['related_task_id'] ?: null, $status, now(), $approvalId,
             ]
         );
 
-        $approverIds = array_values(array_unique(array_filter(array_map('intval', $approverIds), static fn (int $v): bool => $v > 0)));
+        $approverIds = array_values(array_unique(array_filter(array_map('intval', $approverIds), static fn (int $v): bool => $v > 0 && $v !== (int) $me['id'])));
+        // A resubmission (or a changed chain) rebuilds the steps from step 1.
         $chainChanged = $approverIds !== self::existingChainIds($approvalId);
-        if ($chainChanged && $approverIds) {
+        if (($chainChanged || $wasReturned) && $approverIds) {
             Database::exec('DELETE FROM approval_steps WHERE approval_id = ?', [$approvalId]);
             $order = 1;
             foreach ($approverIds as $approverId) {
@@ -1020,7 +1128,7 @@ final class Approvals
             if ($first) {
                 notify((int) $first['approver_id'], t('notif.msg_approval_pending', ['title' => excerpt((string) $d['title'], 50)]), u('approval&id=' . $approvalId));
             }
-            audit('approval_chain_edited', 'approval', $approvalId, 'steps=' . count($approverIds));
+            audit($wasReturned ? 'approval_resubmitted' : 'approval_chain_edited', 'approval', $approvalId, 'steps=' . count($approverIds));
         } else {
             audit('approval_edited', 'approval', $approvalId);
         }
@@ -1305,6 +1413,29 @@ final class Delegations
 
 final class Correspondence
 {
+    /** Open letters whose due date falls inside the given month (calendar). */
+    public static function forMonth(array $me, string $month): array
+    {
+        $params = [$month . '%', date('Y-m-d')];
+        $scope = "(c.assignee_id = ? OR c.department_id IN (SELECT department_id FROM users WHERE id = ? AND department_id IS NOT NULL))";
+        if (in_array($me['role'], ['admin', 'executive'], true)) {
+            $scope = '1 = 1';
+        } elseif ($me['role'] === 'manager') {
+            $params = array_merge([(int) $me['id']], $params);
+            $scope = "(c.assignee_id = ? OR c.department_id = ?)";
+            $params[] = $me['department_id'] ?: 0;
+        } else {
+            $params = [(int) $me['id'], (int) $me['id']];
+            $scope = '(c.assignee_id = ?)';
+        }
+        return Database::all(
+            "SELECT c.*, u.name AS assignee_name FROM correspondence c LEFT JOIN users u ON u.id = c.assignee_id
+             WHERE c.due_date LIKE ? AND c.due_date >= ? AND c.status <> 'archived' AND {$scope}
+             ORDER BY c.due_date ASC, c.id ASC",
+            $params
+        );
+    }
+
     private static function selectSql(): string
     {
         return 'SELECT c.*, u.name AS assignee_name,
@@ -1468,7 +1599,7 @@ final class Meetings
     public static function find(int $id): ?array
     {
         return Database::one(
-            'SELECT m.*, u.name AS organizer_name FROM meetings m LEFT JOIN users u ON u.id = m.organizer_id WHERE m.id = ?',
+            'SELECT m.*, u.name AS organizer_name, u.name_en AS organizer_name_en FROM meetings m LEFT JOIN users u ON u.id = m.organizer_id WHERE m.id = ?',
             [$id]
         );
     }
@@ -1476,7 +1607,7 @@ final class Meetings
     public static function attendees(int $meetingId): array
     {
         return Database::all(
-            'SELECT ma.*, u.name, u.role, u.job_title FROM meeting_attendees ma JOIN users u ON u.id = ma.user_id
+            'SELECT ma.*, u.name, u.name_en, u.role, u.job_title FROM meeting_attendees ma JOIN users u ON u.id = ma.user_id
              WHERE ma.meeting_id = ? ORDER BY u.name ASC',
             [$meetingId]
         );
@@ -1529,8 +1660,9 @@ final class Meetings
             $w .= ' AND m.starts_at >= ?';
             $params[] = date('Y-m-d 00:00:00');
         }
+        $w .= " AND m.status <> 'cancelled'";
         return Database::all(
-            'SELECT m.*, u.name AS organizer_name,
+            'SELECT m.*, u.name AS organizer_name, u.name_en AS organizer_name_en,
                     (SELECT COUNT(*) FROM meeting_attendees ma2 WHERE ma2.meeting_id = m.id) AS attendees_count
              FROM meetings m LEFT JOIN users u ON u.id = m.organizer_id
              WHERE ' . $w . ' ORDER BY m.starts_at ' . ($upcomingOnly ? 'ASC' : 'DESC') . ' LIMIT ' . (int) $limit,

@@ -40,6 +40,9 @@ $monthLink = static function (string $m): string {
 $items = [];
 
 foreach (Tasks::list(['sort' => 'due'], $me, 500, 0) as $t) {
+    if (in_array((string) $t['status'], ['completed', 'cancelled'], true)) {
+        continue; // finished tasks no longer count as due
+    }
     $due = substr((string) $t['due_date'], 0, 10);
     if ($due === '' || substr($due, 0, 7) !== $monthParam) {
         continue;
@@ -52,6 +55,9 @@ foreach (Tasks::list(['sort' => 'due'], $me, 500, 0) as $t) {
 }
 
 foreach (Approvals::list(['sort' => 'due'], $me, 500, 0) as $ap) {
+    if ((string) $ap['status'] !== 'pending') {
+        continue; // only requests still waiting count as due
+    }
     $due = substr((string) $ap['due_date'], 0, 10);
     if ($due === '' || substr($due, 0, 7) !== $monthParam) {
         continue;
@@ -64,6 +70,9 @@ foreach (Approvals::list(['sort' => 'due'], $me, 500, 0) as $ap) {
 }
 
 foreach (Meetings::listForUser($me, 200, false) as $m) {
+    if ((string) $m['status'] === 'cancelled') {
+        continue;
+    }
     $day = substr((string) $m['starts_at'], 0, 10);
     if ($day === '' || substr($day, 0, 7) !== $monthParam) {
         continue;
@@ -72,6 +81,18 @@ foreach (Meetings::listForUser($me, 200, false) as $m) {
         'type'  => 'meeting',
         'label' => (string) $m['title'],
         'href'  => u('meeting&id=' . (int) $m['id']),
+    ];
+}
+
+foreach (Correspondence::forMonth($me, $monthParam) as $c) {
+    $due = substr((string) $c['due_date'], 0, 10);
+    if ($due === '' || substr($due, 0, 7) !== $monthParam) {
+        continue;
+    }
+    $items[(int) substr($due, 8, 2)][] = [
+        'type'  => 'letter',
+        'label' => (string) $c['subject'],
+        'href'  => u('letter&id=' . (int) $c['id']),
     ];
 }
 
@@ -98,7 +119,7 @@ layout_header(t('cal.title'), 'calendar');
     </div>
   </div>
 
-  <div class="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr)">
+  <div class="cal-grid">
     <?php foreach ($weekdays as $wd): ?>
       <div class="cal-head"><?= e($wd) ?></div>
     <?php endforeach; ?>
@@ -118,8 +139,8 @@ layout_header(t('cal.title'), 'calendar');
           <span class="cell-muted" title="<?= e(t('cal.no_items')) ?>">—</span>
         <?php else: ?>
           <?php foreach ($dayItems as $it):
-              $cls = $it['type'] === 'task' ? 'cal-task' : ($it['type'] === 'approval' ? 'cal-approval' : 'cal-meeting');
-              $kind = $it['type'] === 'task' ? t('cal.task_due') : ($it['type'] === 'approval' ? t('cal.approval_due') : t('cal.meeting'));
+              $cls = $it['type'] === 'task' ? 'cal-task' : ($it['type'] === 'approval' ? 'cal-approval' : ($it['type'] === 'letter' ? 'cal-letter' : 'cal-meeting'));
+              $kind = $it['type'] === 'task' ? t('cal.task_due') : ($it['type'] === 'approval' ? t('cal.approval_due') : ($it['type'] === 'letter' ? t('cal.letter_due') : t('cal.meeting')));
               ?>
             <a class="cal-item <?= $cls ?>" href="<?= e($it['href']) ?>" title="<?= e($kind . ': ' . $it['label']) ?>"><?= e($it['label']) ?></a>
           <?php endforeach; ?>
@@ -133,6 +154,7 @@ layout_header(t('cal.title'), 'calendar');
     <span><span class="dot cal-task"></span><?= e(t('cal.task_due')) ?></span>
     <span><span class="dot cal-approval"></span><?= e(t('cal.approval_due')) ?></span>
     <span><span class="dot cal-meeting"></span><?= e(t('cal.meeting')) ?></span>
+    <span><span class="dot cal-letter"></span><?= e(t('cal.letters')) ?></span>
   </div>
 </section>
 

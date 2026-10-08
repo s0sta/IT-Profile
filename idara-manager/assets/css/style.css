@@ -1016,3 +1016,38 @@ textarea.input { resize: vertical; min-height: 90px; }
 [dir="rtl"] .progress-num { text-align: start; }
 [dir="rtl"] .chain-step, [dir="rtl"] .checklist li, [dir="rtl"] .timeline li { flex-direction: row; }
 [dir="rtl"] .inline-add .input { direction: rtl; }
+
+/* ==========================================================================
+   Idara v1.2 — avatars, linked stat cards, calendar polish
+   ========================================================================== */
+
+.avatar-img { border-radius: 50%; object-fit: cover; vertical-align: middle; background: var(--surface-2); }
+
+.avatar-picker { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 14px; align-items: center; }
+.avatar-picker label { position: relative; cursor: pointer; margin: 0; }
+.avatar-picker img { width: 52px; height: 52px; border-radius: 50%; border: 3px solid transparent; display: block; transition: border-color .15s, box-shadow .15s; }
+.avatar-picker input { position: absolute; opacity: 0; pointer-events: none; }
+.avatar-picker input:checked + img, .avatar-picker input:checked + .avatar-no {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-soft);
+}
+.avatar-no {
+  display: inline-flex; width: 52px; height: 52px; border-radius: 50%;
+  border: 3px solid var(--border-strong); background: var(--surface-2);
+  align-items: center; justify-content: center; font-size: 22px; color: var(--muted);
+}
+
+a.stat-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 4px; }
+a.stat-card:hover { border-color: var(--primary); transform: translateY(-1px); }
+a.stat-card .stat-value, a.stat-card .stat-label { color: inherit; }
+
+.cal-letter { background: #fff7ed; color: #c2410c; }
+[data-theme="dark"] .cal-letter { background: rgba(249,115,22,.14); color: #fdba74; }
+
+.cal-grid { grid-template-columns: repeat(7, minmax(0, 1fr)) !important; }
+.cal-cell { overflow: hidden; }
+.cal-item { max-width: 100%; }
+@media (max-width: 760px) {
+  .cal-cell { min-height: 60px; padding: 4px 5px; }
+  .cal-item { font-size: 10.5px; padding: 1px 4px; }
+}

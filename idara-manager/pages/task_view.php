@@ -7,11 +7,17 @@ $task   = Tasks::find($id);
 
 if (!$task) {
     http_response_code(404);
-    exit(t('e404.title'));
+    layout_header(t('e404.title'), '');
+    echo '<div class="panel"><h1 class="ticket-subject">404</h1><p class="muted-text">' . e(t('e404.text')) . '</p><a class="btn btn-primary" href="' . u('dashboard') . '">' . e(t('e404.back')) . '</a></div>';
+    layout_footer();
+    exit;
 }
 if (!Tasks::canView($task, $me)) {
     http_response_code(403);
-    exit(t('auth.denied'));
+    layout_header(t('auth.denied'), '');
+    echo '<div class="panel"><h1 class="ticket-subject">403</h1><p class="muted-text">' . e(t('auth.denied')) . '</p><a class="btn btn-primary" href="' . u('dashboard') . '">' . e(t('common.back')) . '</a></div>';
+    layout_footer();
+    exit;
 }
 
 $canEdit   = Tasks::canEdit($task, $me);

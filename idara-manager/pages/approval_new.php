@@ -18,6 +18,9 @@ $relatedTasks = Tasks::list(['sort' => 'updated'], $me, 100, 0);
 // Whitelist of ids that may appear in the chain (same list the chooser renders).
 $approverIds = [];
 foreach ($approvers as $a) {
+    if ((int) $a['id'] === (int) $me['id']) {
+        continue; // a requester can never approve their own request
+    }
     $approverIds[(int) $a['id']] = true;
 }
 
@@ -52,7 +55,10 @@ if ($isPost) {
         }
     }
     if (!$chain) {
-        $errors[] = t('approvals.err_approvers');
+        $submitted = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['approver_ids'] ?? [])), static fn (int $v): bool => $v > 0)));
+        $errors[] = count($submitted) === 1 && $submitted[0] === (int) $me['id']
+            ? t('approvals.err_self')
+            : t('approvals.err_approvers');
     }
 
     if ($relatedTaskId !== null) {
@@ -144,7 +150,7 @@ layout_header(t('approvals.new'), 'approvals');
     <p class="muted-text"><?= e(t('approvals.chain_hint')) ?></p>
     <select class="input input-select" id="approver_1" name="approver_ids[]" required>
       <option value=""><?= e(t('common.select')) ?></option>
-      <?php foreach ($approvers as $a): ?>
+      <?php foreach ($approvers as $a): ?><?php if ((int) $a['id'] === (int) $me['id']) { continue; } ?>
         <option value="<?= (int) $a['id'] ?>" <?= (int) ($vApprovers[0] ?? 0) === (int) $a['id'] ? 'selected' : '' ?>><?= e($a['name'] . ' — ' . (roles()[$a['role']] ?? $a['role'])) ?></option>
       <?php endforeach; ?>
     </select>
@@ -153,7 +159,7 @@ layout_header(t('approvals.new'), 'approvals');
     <?php for ($i = 1; $i <= 2; $i++): ?>
       <select class="input input-select" name="approver_ids[]">
         <option value=""><?= e(t('common.none')) ?></option>
-        <?php foreach ($approvers as $a): ?>
+        <?php foreach ($approvers as $a): ?><?php if ((int) $a['id'] === (int) $me['id']) { continue; } ?>
           <option value="<?= (int) $a['id'] ?>" <?= (int) ($vApprovers[$i] ?? 0) === (int) $a['id'] ? 'selected' : '' ?>><?= e($a['name'] . ' — ' . (roles()[$a['role']] ?? $a['role'])) ?></option>
         <?php endforeach; ?>
       </select>

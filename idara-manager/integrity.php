@@ -13,13 +13,113 @@ return array (
   ),
   'UPLOAD-INSTRUCTIONS.txt' => 
   array (
-    'size' => 9250,
-    'md5' => 'f14670a96f391c910390482d7e820348',
+    'size' => 10886,
+    'md5' => 'f21496bc5a38cebbe0b4825af074b70d',
+  ),
+  'assets/avatars/01.svg' => 
+  array (
+    'size' => 504,
+    'md5' => 'b570f1c537e35bfdeeb751c4bd17de00',
+  ),
+  'assets/avatars/02.svg' => 
+  array (
+    'size' => 504,
+    'md5' => '1673a7a1cdacea686d1920037cd4e7b3',
+  ),
+  'assets/avatars/03.svg' => 
+  array (
+    'size' => 631,
+    'md5' => 'e35c6b60d0e7a4ae200cf2cb72028b6e',
+  ),
+  'assets/avatars/04.svg' => 
+  array (
+    'size' => 504,
+    'md5' => '52a3bcdc6646ee4cd9e8dde88b22b27e',
+  ),
+  'assets/avatars/05.svg' => 
+  array (
+    'size' => 504,
+    'md5' => '81c4186c210e716abac30fdb6b9a2a56',
+  ),
+  'assets/avatars/06.svg' => 
+  array (
+    'size' => 504,
+    'md5' => 'ac773808dc9a8af4e47ae5434ab574b6',
+  ),
+  'assets/avatars/07.svg' => 
+  array (
+    'size' => 504,
+    'md5' => 'fe2c051f0e79211082159072fec4a457',
+  ),
+  'assets/avatars/08.svg' => 
+  array (
+    'size' => 659,
+    'md5' => 'd4e7e0e96afa21f3cde7842258f1ca9b',
+  ),
+  'assets/avatars/09.svg' => 
+  array (
+    'size' => 659,
+    'md5' => '658900641db09107ad3ab2504c055f75',
+  ),
+  'assets/avatars/10.svg' => 
+  array (
+    'size' => 631,
+    'md5' => '709ce3f881e88b4742f718d6790afccd',
+  ),
+  'assets/avatars/11.svg' => 
+  array (
+    'size' => 659,
+    'md5' => '28f748d1f634a2f6d0d6f3de72fd5d9d',
+  ),
+  'assets/avatars/12.svg' => 
+  array (
+    'size' => 631,
+    'md5' => '3ab489b3cb4eb2159478ad2375efee5b',
+  ),
+  'assets/avatars/13.svg' => 
+  array (
+    'size' => 504,
+    'md5' => 'bd65ef6d79db64f3ea8d789b265d0ec7',
+  ),
+  'assets/avatars/14.svg' => 
+  array (
+    'size' => 504,
+    'md5' => 'b67c8ad356e63d1c9c5700148e92111d',
+  ),
+  'assets/avatars/15.svg' => 
+  array (
+    'size' => 659,
+    'md5' => 'a77f083bca23d3ff0305da834aea1202',
+  ),
+  'assets/avatars/16.svg' => 
+  array (
+    'size' => 631,
+    'md5' => 'df373e6204626e74e9c6488f782b254a',
+  ),
+  'assets/avatars/17.svg' => 
+  array (
+    'size' => 504,
+    'md5' => 'c145ce56fdd8f3da93b819110e71205a',
+  ),
+  'assets/avatars/18.svg' => 
+  array (
+    'size' => 659,
+    'md5' => '63ad94a555072e8cb6e5c6268d9968e1',
+  ),
+  'assets/avatars/19.svg' => 
+  array (
+    'size' => 631,
+    'md5' => 'dfb93963c0fd251a4a719fdf69d95c63',
+  ),
+  'assets/avatars/20.svg' => 
+  array (
+    'size' => 504,
+    'md5' => 'cc0a25ca2308306bbaa1468947db7fa0',
   ),
   'assets/css/style.css' => 
   array (
-    'size' => 45573,
-    'md5' => '40e79a9f15755a55cfb9ab4f65140bd3',
+    'size' => 47398,
+    'md5' => '1fdb1a6e0d6a92f72990a841447fb2a5',
   ),
   'assets/js/app.js' => 
   array (
@@ -48,8 +148,8 @@ return array (
   ),
   'includes/helpers.php' => 
   array (
-    'size' => 12362,
-    'md5' => '0b594683e752500d2a6437fd2dfb7ab1',
+    'size' => 13347,
+    'md5' => 'fea14fc81b7c664e19675ca51f9e9293',
   ),
   'includes/i18n.php' => 
   array (
@@ -58,13 +158,13 @@ return array (
   ),
   'includes/layout.php' => 
   array (
-    'size' => 16927,
-    'md5' => 'f0bf2e3709637c640af77024777daf36',
+    'size' => 18143,
+    'md5' => '1fc13f263a200f1f1f33bb76cc784860',
   ),
   'includes/models.php' => 
   array (
-    'size' => 64823,
-    'md5' => 'fd80b6dd18fac85ccd6614bf6609ebb2',
+    'size' => 71440,
+    'md5' => '383b9976f208cc8bf8fe21f06bb75dfe',
   ),
   'index.php' => 
   array (
@@ -78,8 +178,8 @@ return array (
   ),
   'lang/ar.php' => 
   array (
-    'size' => 35252,
-    'md5' => 'ff7f7ad4f61e02e8c4efff48d99e4c44',
+    'size' => 37777,
+    'md5' => '6d206397cb254e8592b76a8508c27c67',
   ),
   'lang/doc-ar.php' => 
   array (
@@ -93,8 +193,8 @@ return array (
   ),
   'lang/en.php' => 
   array (
-    'size' => 29277,
-    'md5' => 'fd44b9769539a5d41c877cdd24bab79b',
+    'size' => 31364,
+    'md5' => '0d665d9deb97a7f33cb5b4ef6941c739',
   ),
   'pages/404.php' => 
   array (
@@ -103,18 +203,18 @@ return array (
   ),
   'pages/admin/audit.php' => 
   array (
-    'size' => 2606,
-    'md5' => '02d575a29900c249e426b57737815acb',
+    'size' => 2901,
+    'md5' => '4c762e2838281f7fe513cba9ef668a93',
   ),
   'pages/admin/categories.php' => 
   array (
-    'size' => 4375,
-    'md5' => '247cf67132018b18fa6897136877e7f7',
+    'size' => 4563,
+    'md5' => '0880cfe43945f38ff1294535d6480f49',
   ),
   'pages/admin/departments.php' => 
   array (
-    'size' => 6455,
-    'md5' => 'a5945b212e46567ee3fb5341f2bf7e11',
+    'size' => 6640,
+    'md5' => '9a3bf2c9da3114b02859be6fb6f9ca9d',
   ),
   'pages/admin/reports.php' => 
   array (
@@ -128,13 +228,13 @@ return array (
   ),
   'pages/admin/types.php' => 
   array (
-    'size' => 4350,
-    'md5' => '11a6b72d7c4122e612e8ab6245db1f9f',
+    'size' => 4537,
+    'md5' => '7c4a41020b29429c7f141749c697a6cb',
   ),
   'pages/admin/users.php' => 
   array (
-    'size' => 9525,
-    'md5' => 'fae64922774967b28e1a55c20105db8b',
+    'size' => 10821,
+    'md5' => '81aba8b8208294b4eae7fbab64e0dc8b',
   ),
   'pages/api.php' => 
   array (
@@ -143,13 +243,13 @@ return array (
   ),
   'pages/approval_new.php' => 
   array (
-    'size' => 7485,
-    'md5' => '767db010171faebf272b9b7f3a9d447a',
+    'size' => 8003,
+    'md5' => '4376f6b173755d8f0933a2f4c559f7a4',
   ),
   'pages/approval_view.php' => 
   array (
-    'size' => 13704,
-    'md5' => 'fb39cc2fd65371d52c17396146b508ad',
+    'size' => 14790,
+    'md5' => '3b8fa5af80c8b661cca4b383d2a8d4cc',
   ),
   'pages/approvals.php' => 
   array (
@@ -158,8 +258,8 @@ return array (
   ),
   'pages/calendar.php' => 
   array (
-    'size' => 5510,
-    'md5' => '96e3d7cfd45a9cb52353b129ba236115',
+    'size' => 6334,
+    'md5' => 'e30e815ccb2d342c8cdd9c9ab74eaa88',
   ),
   'pages/correspondence.php' => 
   array (
@@ -168,13 +268,13 @@ return array (
   ),
   'pages/dashboard.php' => 
   array (
-    'size' => 8615,
-    'md5' => 'e49aee897b8083f90e61e76dbb06cc6f',
+    'size' => 8853,
+    'md5' => '02062df5d75e61102c815083dc839299',
   ),
   'pages/delegations.php' => 
   array (
-    'size' => 8682,
-    'md5' => 'dfcdc10c0bbcf54faa8ffa76cbb3f17c',
+    'size' => 8252,
+    'md5' => 'dd478bb54855a21915f674bc2f7eb0ef',
   ),
   'pages/doc.php' => 
   array (
@@ -183,8 +283,8 @@ return array (
   ),
   'pages/download.php' => 
   array (
-    'size' => 2424,
-    'md5' => 'ce3b05226ef3f2a76b14e4dfe42aed58',
+    'size' => 3311,
+    'md5' => 'e9fd2d4c78b5efc797b228a963292255',
   ),
   'pages/letter_new.php' => 
   array (
@@ -193,8 +293,8 @@ return array (
   ),
   'pages/letter_view.php' => 
   array (
-    'size' => 8820,
-    'md5' => '70587c6678eb67b3be67543204d07fa3',
+    'size' => 9282,
+    'md5' => 'afaa59a009133d25db5a91257f7a8708',
   ),
   'pages/login.php' => 
   array (
@@ -208,13 +308,13 @@ return array (
   ),
   'pages/meeting_view.php' => 
   array (
-    'size' => 12066,
-    'md5' => '3632402d36e5c14247026355f3c6d2c7',
+    'size' => 12506,
+    'md5' => 'a1a1bcca70e8f8b182ec521b2821d988',
   ),
   'pages/meetings.php' => 
   array (
-    'size' => 6598,
-    'md5' => '22c6eae68d7b2d7d913c923913462bdd',
+    'size' => 6669,
+    'md5' => 'd0bb46d1a1cdfd9655df5197d07a8d6c',
   ),
   'pages/notifications.php' => 
   array (
@@ -223,8 +323,8 @@ return array (
   ),
   'pages/profile.php' => 
   array (
-    'size' => 4123,
-    'md5' => '16da047f48d04e58175664f0e17b3d41',
+    'size' => 8453,
+    'md5' => '79b86c878371bcc6b86d52712f2638b8',
   ),
   'pages/task_new.php' => 
   array (
@@ -233,18 +333,18 @@ return array (
   ),
   'pages/task_view.php' => 
   array (
-    'size' => 17922,
-    'md5' => '36679a7f922d385d4ac5f434c384e999',
+    'size' => 18434,
+    'md5' => '99189207c2beda88449401c5b93c8b5d',
   ),
   'pages/tasks.php' => 
   array (
-    'size' => 5415,
-    'md5' => 'e9054c2f57d616e969af840e15a0aac8',
+    'size' => 6032,
+    'md5' => 'c8bb3513510d6a52cb91e893a14079d4',
   ),
   'pages/team.php' => 
   array (
-    'size' => 4368,
-    'md5' => '2f1e288dedd350d51c75391fe1f2458e',
+    'size' => 4327,
+    'md5' => '6607f4e66f908db64bd3c26419abe50a',
   ),
   'seed.php' => 
   array (
@@ -253,12 +353,12 @@ return array (
   ),
   'sql/schema.mysql.sql' => 
   array (
-    'size' => 8977,
-    'md5' => '53cfb4b3eb82df56e1252c72710dae82',
+    'size' => 9105,
+    'md5' => '57cd6ac22ba26468fc6c33a9390ab3da',
   ),
   'sql/schema.sqlite.sql' => 
   array (
-    'size' => 7685,
-    'md5' => '833f53957d22eb79c88755620f490ba9',
+    'size' => 7791,
+    'md5' => '62bbefc3a9f403c9413b22ead27b9c78',
   ),
 );

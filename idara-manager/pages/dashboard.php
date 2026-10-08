@@ -42,39 +42,39 @@ layout_header($title, 'dashboard');
 <?php endif; ?>
 
 <section class="stats-grid">
-  <div class="stat-card">
+  <a class="stat-card" href="<?= u('tasks&mine=1') ?>">
     <span class="stat-value"><?= (int) $myStats['open'] ?></span>
     <span class="stat-label"><?= e(t('dash.my_open')) ?></span>
-  </div>
-  <div class="stat-card <?= $inboxCount ? 'stat-accent' : '' ?>">
+  </a>
+  <a class="stat-card <?= $inboxCount ? 'stat-accent' : '' ?>" href="<?= u('approvals&inbox=1') ?>">
     <span class="stat-value"><?= $inboxCount ?></span>
     <span class="stat-label"><?= e(t('dash.awaiting_me')) ?><?php if ($inboxOver): ?> · <?= (int) $inboxOver ?> <?= e(t('dash.overdue_approvals')) ?><?php endif; ?></span>
-  </div>
-  <div class="stat-card <?= $myStats['overdue'] ? 'stat-warn' : '' ?>">
+  </a>
+  <a class="stat-card <?= $myStats['overdue'] ? 'stat-warn' : '' ?>" href="<?= u('tasks&mine=1&overdue=1') ?>">
     <span class="stat-value"><?= (int) $myStats['overdue'] ?></span>
     <span class="stat-label"><?= e(t('dash.overdue_tasks')) ?></span>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a class="stat-card" href="<?= u('calendar') ?>">
     <span class="stat-value"><?= count($dueSoon) ?></span>
     <span class="stat-label"><?= e(t('dash.due_week')) ?></span>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a class="stat-card" href="<?= u('correspondence') ?>">
     <span class="stat-value"><?= $letters ?><?= $lettersLate ? ' ⚠' : '' ?></span>
     <span class="stat-label"><?= e(t('dash.open_letters')) ?></span>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a class="stat-card" href="<?= u('meetings') ?>">
     <span class="stat-value"><?= Meetings::upcomingCount($me) ?></span>
     <span class="stat-label"><?= e(t('dash.upcoming_meetings')) ?></span>
-  </div>
+  </a>
   <?php if ($isManager): ?>
-  <div class="stat-card">
+  <a class="stat-card" href="<?= u('team') ?>">
     <span class="stat-value"><?= count($team) ?></span>
     <span class="stat-label"><?= e(t('dash.team_members')) ?></span>
-  </div>
-  <div class="stat-card <?= $scopeStats['overdue'] ? 'stat-warn' : '' ?>">
+  </a>
+  <a class="stat-card <?= $scopeStats['overdue'] ? 'stat-warn' : '' ?>" href="<?= u('tasks&team=1&overdue=1') ?>">
     <span class="stat-value"><?= (int) $scopeStats['overdue'] ?></span>
     <span class="stat-label"><?= e(t('dash.team_overdue')) ?></span>
-  </div>
+  </a>
   <?php endif; ?>
 </section>
 
@@ -123,7 +123,7 @@ layout_header($title, 'dashboard');
   <div class="hbar-list">
     <?php foreach ($workload as $w): ?>
       <div class="hbar">
-        <span class="hbar-label"><?= e($w['name']) ?></span>
+        <span class="hbar-label"><?= e(user_name($w)) ?></span>
         <div class="hbar-track"><div class="hbar-fill hbar-load" style="width:<?= round((int) $w['open_now'] / $maxLoad * 100) ?>%"></div></div>
         <span class="hbar-value"><?= (int) $w['open_now'] ?><?= (int) $w['overdue'] ? ' ⚠' . (int) $w['overdue'] : '' ?></span>
       </div>

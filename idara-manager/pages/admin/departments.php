@@ -17,8 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'manager_id' => (int) ($_POST['manager_id'] ?? 0),
         ];
 
+        $excludeId = $action === 'update' ? (int) ($_POST['id'] ?? 0) : 0;
         if ($data['name_ar'] === '') {
             flash('error', t('ad.err_name'));
+        } elseif (Departments::isDuplicate($data, $excludeId)) {
+            flash('error', t('ad.err_dup'));
         } elseif ($action === 'add') {
             Departments::create($data);
             flash('success', t('ad.created'));
