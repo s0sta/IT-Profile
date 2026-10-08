@@ -1,0 +1,117 @@
+DAEM — IT HELP DESK
+Complete Hostinger guide — from zero to a working website
+Target URL: https://daem-helpdesk.s0sta.com/
+
+============================================================
+STEP 1 — Create the subdomain
+============================================================
+1. Hostinger hPanel → Websites → click "Manage" next to s0sta.com
+2. Left sidebar → "Subdomains"
+3. Create subdomain name:  daem-helpdesk
+4. Hostinger creates a folder for it, usually:  public_html/daem-helpdesk
+   (write down the exact folder path it shows)
+
+============================================================
+STEP 2 — Create the database (and reset the old one)
+============================================================
+A) RESET first (your previous attempts left half-created tables):
+   1. hPanel → Databases → phpMyAdmin
+   2. In the left panel click your database:  u565334670_daem
+   3. Click the "SQL" tab at the top
+   4. Paste this and press "Go":
+        DROP TABLE IF EXISTS attachments, ticket_replies, tickets,
+          notifications, kb_feedback, kb_articles, kb_categories,
+          audit_log, login_attempts, sla, settings, categories, users;
+   5. Result must show "13 tables dropped" (or "0" if already empty)
+
+B) Then verify the database + user exist:
+   1. hPanel → Databases → MySQL Databases
+   2. Your database is:  u565334670_daem
+   3. Make sure a MySQL user exists (create one if not) — it will be
+      named like:  u565334670_username
+   4. IMPORTANT: scroll to "Assign user to database", pick that user
+      and u565334670_daem, grant ALL PRIVILEGES, press Assign
+   5. Write down: host = localhost, database name, user name, password
+
+============================================================
+STEP 3 — Upload a FRESH copy of the files
+============================================================
+1. hPanel → Websites → Manage (s0sta.com) → Files → File Manager
+2. Open:  public_html
+3. DELETE the old daem-helpdesk folder completely
+   (right-click it → Delete) — we start clean
+4. Upload THIS ZIP into public_html
+5. Right-click the ZIP → Extract  (or Archive → Extract)
+6. After extraction you must see:  public_html/daem-helpdesk/index.php
+   - If you see public_html/daem-helpdesk/daem-helpdesk-upload/index.php
+     instead, MOVE the inner folder up one level so the path matches.
+
+============================================================
+STEP 4 — Install
+============================================================
+1. Open in the browser:  https://daem-helpdesk.s0sta.com/install.php
+2. Choose "MySQL — production"
+3. Fill:
+     MySQL host:      localhost
+     Port:            3306
+     Database name:   u565334670_daem        (exact name from hPanel)
+     Database user:   u565334670_username    (exact name from hPanel)
+     Database pass:   (the MySQL user's password)
+     Site name:       Daem
+     Admin account:   your name / username / email / password (min 8 chars)
+4. Press "Install Daem"
+5. You must see the green box:  "✅ Installation complete."
+6. Click "Open Daem and sign in"
+
+============================================================
+STEP 5 — Secure + finish
+============================================================
+1. In File Manager: DELETE install.php  (inside public_html/daem-helpdesk)
+2. Sign in at https://daem-helpdesk.s0sta.com/ as your admin
+3. Admin → SLA & Settings  (optional: adjust targets)
+4. Admin → Users → create your agents (role: Agent) and requesters
+5. Admin → Knowledge Base Admin → write a few articles
+6. New Ticket → test a ticket end-to-end
+
+(Optional demo data — only if you have SSH access:
+  hPanel → Advanced → SSH Terminal → run:
+    php ~/domains/s0sta.com/public_html/daem-helpdesk/seed.php
+  then delete seed.php. Demo logins are listed at the bottom.)
+
+============================================================
+TROUBLESHOOTING
+============================================================
+- "Access denied for user ... using password: YES"
+  → username/password wrong, OR user not assigned to the database.
+  Fix with Step 2-B (assign ALL PRIVILEGES) and copy names exactly.
+
+- "General error: 1005 ... Foreign key constraint is incorrectly formed"
+  → the OLD schema file was still on the server.
+  Fix with Step 3 (delete folder, re-extract THIS zip — it contains
+  the fixed schema without foreign keys) and Step 2-A (drop tables).
+
+- "This page isn't working — HTTP ERROR 500" right after uploading
+  → a data/config.php from another machine was uploaded together with the
+  files. This ZIP contains NO data/ folder — if you see one after extracting,
+  DELETE the whole data folder in File Manager, then re-run install.php.
+  (Or simply open install.php?reconfigure=1 and submit the database form.)
+
+- "Daem is already installed" but the site does not work
+  → open install.php?reconfigure=1 and submit the database form again; the
+  installer verifies the connection and repairs the configuration.
+
+- White page after install
+  → open install.php again; if it says "already installed", the config
+  exists. Open data/error.log (File Manager) for the exact error message,
+  or run diag.php?go=1 for a full self-check, then delete diag.php.
+
+- Everything works but looks plain (no design)
+  → assets/ folder missing or not extracted. Re-extract the zip.
+
+============================================================
+DEMO ACCOUNTS (only after running seed.php)
+============================================================
+Admin:      (the account you created in Step 4)
+Agent:      omar.ali / Agent@1234      fatima.noor / Agent@1234
+Requester:  khalid.salem / User@1234   sara.ahmed / User@1234
+            nasser.qahtani / User@1234

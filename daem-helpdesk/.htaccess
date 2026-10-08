@@ -1,0 +1,24 @@
+# Daem — IT Help Desk
+# Basic hardening (works on Apache / LiteSpeed — Hostinger)
+
+Options -Indexes
+
+<FilesMatch "^(config\.php|seed\.php|schema.*\.sql)$">
+  Require all denied
+</FilesMatch>
+
+RedirectMatch 403 ^/(includes|data|storage|sql|lang)/
+
+# Security headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "same-origin"
+</IfModule>
+
+# Basic caching for static assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 hour"
+  ExpiresByType application/javascript "access plus 1 hour"
+</IfModule>

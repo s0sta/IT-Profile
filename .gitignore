@@ -1,0 +1,16 @@
+# Local runtime data — never commit
+data/
+storage/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+error.log
+
+# Test/server logs
+php-server.log
+tests/php-server.log
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+*.swp

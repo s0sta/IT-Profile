@@ -1,0 +1,160 @@
+IDARA — MANAGER WORKSPACE
+Complete Hostinger guide — from zero to a working website
+Target URL (example): https://idara.s0sta.com/
+(use your own subdomain or a subfolder such as public_html/idara)
+
+============================================================
+STEP 1 — Create the subdomain (or choose a subfolder)
+============================================================
+1. Hostinger hPanel -> Websites -> click "Manage" next to your domain
+2. Left sidebar -> "Subdomains"
+3. Create subdomain name:  idara
+4. Hostinger creates a folder for it, usually:  public_html/idara
+   (write down the exact folder path it shows)
+
+   No subdomain? Use a subfolder instead, e.g. public_html/idara,
+   and open https://your-domain/idara/install.php later.
+
+============================================================
+STEP 2 — Create the MySQL database + user
+============================================================
+A) Create the database:
+   1. hPanel -> Databases -> MySQL Databases
+   2. Database name:      (example) u565334670_idara
+   3. MySQL user:         (example) u565334670_idara
+   4. Password:           choose a strong password and WRITE IT DOWN
+   5. Click "Create" (create the database and the user)
+
+B) Assign the user to the database (this is the step people forget):
+   1. Scroll to "Assign user to database"
+   2. Pick the user u565334670_idara and the database u565334670_idara
+   3. Grant ALL PRIVILEGES, then press "Assign"
+   4. Write down:
+        host = localhost
+        port = 3306
+        database name = u565334670_idara
+        user name     = u565334670_idara
+        password      = (the one you chose)
+
+C) Optional — reset an old/half-created installation:
+   1. hPanel -> Databases -> phpMyAdmin
+   2. Click your database, open the "SQL" tab, paste this and press "Go":
+        DROP TABLE IF EXISTS login_attempts, audit_log, notifications,
+          attachments, task_updates, task_items, approval_steps, approvals,
+          approval_types, delegations, correspondence, meetings,
+          meeting_attendees, tasks, task_categories, settings, users,
+          departments;
+   3. The result should say "18 tables dropped" (or "0" if already empty).
+      (Idara's schema uses no foreign keys, so the order is not critical.)
+
+============================================================
+STEP 3 — Upload a FRESH copy of the files
+============================================================
+1. hPanel -> Websites -> Manage -> Files -> File Manager
+2. Open:  public_html
+3. If an old idara folder exists, DELETE it completely and start clean
+4. Upload THIS ZIP into public_html
+5. Right-click the ZIP -> Extract (or Archive -> Extract)
+6. After extraction you must see:  public_html/idara/index.php
+   - If you see public_html/idara/idara-manager/index.php instead,
+     MOVE the inner folder up one level so the path matches.
+
+============================================================
+STEP 4 — Install Idara (MySQL)
+============================================================
+1. Open in the browser:  https://idara.s0sta.com/install.php
+2. Choose "MySQL — production"
+3. Fill the form exactly as written in Step 2:
+     MySQL host:      localhost
+     Port:            3306
+     Database name:   u565334670_idara      (exact name from hPanel)
+     Database user:   u565334670_idara      (exact user from hPanel)
+     Database pass:   (the MySQL user's password)
+     Site name:       إدارة  (or your authority's name)
+     Admin account:   your full name / username / email / password (min 8)
+     Timezone:        Asia/Riyadh
+4. Press "Install Idara"
+5. You must see the green box:  "Installation complete."
+6. Click "Open Idara and sign in"
+
+============================================================
+STEP 5 — Secure + finish
+============================================================
+1. In File Manager: DELETE install.php  (inside public_html/idara)
+2. Rename htaccess.txt to .htaccess if the extractor skipped dotfiles
+   (many ZIP tools hide dotfiles; the installer also recreates .htaccess
+   automatically when it is missing — check that it exists either way)
+3. Sign in at https://idara.s0sta.com/ with the admin account from Step 4
+4. First configuration, in this order:
+     a. Admin -> Departments   (add the real departments and their managers)
+     b. Admin -> Users         (create users, set role, department and
+                                direct manager — this drives the visibility)
+     c. Admin -> Categories    (task categories)
+     d. Admin -> Types         (approval types)
+     e. Admin -> Settings      (site name + document prefixes: task,
+                                approval, incoming and outgoing letter)
+5. Create a test task and a test approval to confirm the workflow
+
+(Optional demo data — only if you have SSH access:
+  hPanel -> Advanced -> SSH Terminal -> run:
+    php ~/domains/s0sta.com/public_html/idara/seed.php
+  then DELETE seed.php. This loads 8 departments, 10 users, 12 tasks,
+  8 approvals, 6 letters, 4 meetings and 1 delegation.
+  Demo logins are listed at the bottom of this file.)
+
+============================================================
+TROUBLESHOOTING
+============================================================
+- "Access denied for user 'u565334670_idara'@'localhost' (using password: YES)"
+  -> the username/password is wrong, OR the user is not assigned to the
+     database yet. Fix with Step 2-B: assign the FULL prefixed username
+     (u565334670_idara, not "idara") and grant ALL PRIVILEGES. Copy the
+     names and password from hPanel exactly.
+
+- "HTTP ERROR 500" right after uploading
+  -> a data/ folder (with config.php and/or the SQLite file) from another
+     machine was uploaded together with the files. This ZIP contains NO
+     data/ folder — if you see one after extracting, DELETE the whole
+     data folder in File Manager, then open install.php again.
+     (Or simply open install.php?reconfigure=1 and submit the database
+     form; the installer verifies the connection and rewrites config.php.)
+     For the exact PHP error, open data/error.log in File Manager or run
+     diag.php?go=1, then delete diag.php.
+
+- "Idara is already installed and its database connection works"
+  -> open install.php?reconfigure=1 and submit the database form again.
+     The installer re-checks the connection and repairs data/config.php
+     instead of dead-ending.
+
+- Everything works but looks plain (no design)
+  -> the assets/ folder was not extracted. Re-extract the ZIP so that
+     assets/css/style.css and assets/js/app.js exist, then hard-refresh
+     the browser (Ctrl/Cmd + Shift + R).
+
+- "Database error: ... Unknown database" or missing tables
+  -> the database name or user in install.php does not match hPanel, or
+     the schema step failed. Re-run install.php?reconfigure=1 with the
+     exact names, or drop the tables (Step 2-C) and install again.
+
+- Blank page after install
+  -> open install.php again; if it says "already installed", the config
+     exists. Open data/error.log for the exact message, or run
+     diag.php?go=1 for a full self-check (extensions, file integrity,
+     database, writable data/ and storage/ folders), then delete diag.php.
+
+============================================================
+DEMO ACCOUNTS (only after running seed.php)
+============================================================
+Admin (System Administrator):  admin / Admin@1234
+Executive:                     abdullah.harbi / Manager@1234
+Managers:                      sarah.qahtani / Manager@1234
+                               mohammed.otaibi / Manager@1234
+                               hind.anazi / Manager@1234
+Employees:                     noura.shammari / User@1234
+                               fahad.dosari / User@1234
+                               reem.zahrani / User@1234
+                               khalid.ghamdi / User@1234
+                               mona.subaie / User@1234
+
+WARNING: change these passwords or delete the demo accounts before going
+live. Never leave seed.php or install.php on a production server.
