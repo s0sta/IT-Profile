@@ -8,19 +8,41 @@ Plain **PHP 8 + PDO** (SQLite *or* MySQL) with vanilla JS/CSS — no frameworks,
 
 ## Projects
 
+### 🎫 Daem — IT Help Desk
+
+**A complete help desk for IT teams.** Requesters submit tickets, agents work a queue with SLA targets, managers watch live dashboards and reports.
+
+| | |
+|---|---|
+| **Purpose** | Incident and service-request management for an IT department |
+| **Highlights** | Tickets with categories, priorities and **SLA targets** (first-response and resolution tracking, breach warnings) · internal notes vs. public replies · automatic reopen when the requester answers a solved ticket · knowledge base with live suggestions while typing a ticket · file attachments · dashboards, agent workload and 14-day volume charts · reports with **SLA-compliance %** and CSV export · full audit log |
+| **Roles** | Administrator · Agent · Requester |
+| **Languages** | English · **Deutsch** · **العربية (RTL)** |
+| **Stack** | PHP 8 · PDO (SQLite demo / MySQL production) · vanilla JS/CSS |
+| **Docs** | [Project README](daem-helpdesk/README.md) · [deployment guide](daem-helpdesk/UPLOAD-INSTRUCTIONS.txt) |
+| **Tests** | `tests/smoke.sh` (39 checks) · `tests/i18n-smoke.sh` (43 checks) · `diag.php?go=1` self-check |
+
+```bash
+cd daem-helpdesk
+php -S localhost:8000        # open http://localhost:8000/install.php  (choose SQLite)
+php seed.php                 # optional demo data
+```
+
+---
+
 ### 🏛 Idara — Manager Workspace
 
 **إدارة** — the daily work space of a department manager: his own tasks, his team's tasks, and the approvals that land on his desk.
 
 | | |
 |---|---|
-| **Purpose** | Task management, team follow-up, multi-step approval workflow, official correspondence, meetings with minutes, deadlines calendar and reports — built for a government/institutional setting (Investment Authority departments in the demo data) |
-| **Highlights** | Own tasks with checklists that update progress automatically · team workload view · **approval chains** (approve / return for revision / reject, with mandatory notes) · delegation during absence · correspondence register with due dates · meetings, attendance and minutes · deadline calendar · reports with CSV export · full audit log |
+| **Purpose** | Task management, team follow-up, multi-step approval workflow, correspondence, meetings and reports — built for a government/institutional setting (Investment Authority departments in the demo data) |
+| **Highlights** | Own tasks with **checklists that update progress automatically** · team workload monitoring · **approval chains** (approve / return for revision / reject, with mandatory notes) · **delegation** during absence · official correspondence register with due dates · meetings with attendance and minutes · deadline calendar · reports with CSV export · full audit log |
 | **Roles** | System Administrator · Executive Leadership · Department Manager · Employee — with row-level visibility (a manager sees his team and department, an employee only his own work) |
-| **Languages** | **Arabic (RTL, default)** + English — with a beginner guide at `?p=doc` written in very simple language |
+| **Languages** | **Arabic (RTL, default)** + English, with a beginner guide at `?p=doc` in very simple language |
 | **Stack** | PHP 8 · PDO (SQLite demo / MySQL production) · vanilla JS/CSS |
 | **Docs** | [Project README](idara-manager/README.md) · [deployment guide](idara-manager/UPLOAD-INSTRUCTIONS.txt) |
-| **Tests** | `tests/smoke.sh` (end-to-end) · `tests/i18n-smoke.sh` (bilingual) · `diag.php?go=1` self-check · `integrity.php` release manifest |
+| **Tests** | `tests/smoke.sh` (end-to-end) · `tests/i18n-smoke.sh` (bilingual) · `diag.php?go=1` self-check |
 
 ```bash
 cd idara-manager
@@ -34,12 +56,12 @@ Demo sign-ins: `admin / Admin@1234` · `sarah.qahtani / Manager@1234` (departmen
 
 ## What the systems have in common
 
-- **Zero dependencies** — no composer, no node, no build step; upload and run.
-- **Web installer** — choose SQLite (instant demo) or MySQL/MariaDB (production), create the first administrator, self-repairs a broken configuration (`install.php?reconfigure=1`).
+- **Zero dependencies** — no composer, no node, no build step; upload the folder and run.
+- **Web installer** — choose SQLite (instant demo) or MySQL/MariaDB (production), create the first administrator, and self-repair a broken configuration (`install.php?reconfigure=1`).
 - **Security by default** — PDO prepared statements everywhere, `password_hash`, CSRF tokens on every form, login throttling, hardened sessions, upload whitelist with size limits, `.htaccess` blocking of `data/`, `storage/`, `includes/`, `sql/`, `lang/`.
 - **Accountability** — an audit log records every action (who, what, when, from which IP).
-- **Operations ready** — in-app notifications, CSV exports, `diag.php?go=1` deployment self-check, `integrity.php` release manifest, and shell test suites.
-- **Arabic-first, bilingual** — right-to-left layout, Arabic master language file and English translation, with an A1-level guide inside the app for non-technical staff.
+- **Operations ready** — in-app notifications, CSV exports, `diag.php?go=1` deployment self-check, `integrity.php` release manifest and shell test suites.
+- **Bilingual** — right-to-left layout support, an Arabic master language file with English (and German, in Daem) translations, plus an A1-level guide inside the app for non-technical staff.
 
 ---
 
@@ -47,6 +69,8 @@ Demo sign-ins: `admin / Admin@1234` · `sarah.qahtani / Manager@1234` (departmen
 
 ```
 .
+├── daem-helpdesk/           IT help desk (tickets · SLA · knowledge base · reports · 3 languages)
+│   └── ...
 └── idara-manager/           Manager workspace (tasks · team · approvals · correspondence · meetings)
     ├── index.php            front controller (routes + role guards)
     ├── install.php          web installer (SQLite / MySQL) — delete after installing

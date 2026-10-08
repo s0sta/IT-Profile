@@ -20,20 +20,20 @@ STEP 2 — Create the MySQL database + user
 ============================================================
 A) Create the database:
    1. hPanel -> Databases -> MySQL Databases
-   2. Database name:      (example) u565334670_idara
-   3. MySQL user:         (example) u565334670_idara
+   2. Database name:      (example) uXXXXXXXXX_idara
+   3. MySQL user:         (example) uXXXXXXXXX_idara
    4. Password:           choose a strong password and WRITE IT DOWN
    5. Click "Create" (create the database and the user)
 
 B) Assign the user to the database (this is the step people forget):
    1. Scroll to "Assign user to database"
-   2. Pick the user u565334670_idara and the database u565334670_idara
+   2. Pick the user uXXXXXXXXX_idara and the database uXXXXXXXXX_idara
    3. Grant ALL PRIVILEGES, then press "Assign"
    4. Write down:
         host = localhost
         port = 3306
-        database name = u565334670_idara
-        user name     = u565334670_idara
+        database name = uXXXXXXXXX_idara
+        user name     = uXXXXXXXXX_idara
         password      = (the one you chose)
 
 C) Optional — reset an old/half-created installation:
@@ -67,8 +67,8 @@ STEP 4 — Install Idara (MySQL)
 3. Fill the form exactly as written in Step 2:
      MySQL host:      localhost
      Port:            3306
-     Database name:   u565334670_idara      (exact name from hPanel)
-     Database user:   u565334670_idara      (exact user from hPanel)
+     Database name:   uXXXXXXXXX_idara      (exact name from hPanel)
+     Database user:   uXXXXXXXXX_idara      (exact user from hPanel)
      Database pass:   (the MySQL user's password)
      Site name:       إدارة  (or your authority's name)
      Admin account:   your full name / username / email / password (min 8)
@@ -105,10 +105,10 @@ STEP 5 — Secure + finish
 ============================================================
 TROUBLESHOOTING
 ============================================================
-- "Access denied for user 'u565334670_idara'@'localhost' (using password: YES)"
+- "Access denied for user 'uXXXXXXXXX_idara'@'localhost' (using password: YES)"
   -> the username/password is wrong, OR the user is not assigned to the
      database yet. Fix with Step 2-B: assign the FULL prefixed username
-     (u565334670_idara, not "idara") and grant ALL PRIVILEGES. Copy the
+     (uXXXXXXXXX_idara, not "idara") and grant ALL PRIVILEGES. Copy the
      names and password from hPanel exactly.
 
 - "HTTP ERROR 500" right after uploading
