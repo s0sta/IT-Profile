@@ -36,13 +36,20 @@ function dept(string $ar, string $en, string $code, int $sort): int
     );
 }
 
-function user(string $name, string $en, string $login, string $pass, string $role, ?int $deptId, string $job, ?int $mgr = null): int
+function user(string $name, string $en, string $login, string $pass, string $role, ?int $deptId, string $job, ?int $mgr = null, int $avatar = 0): int
 {
     $e = Database::value('SELECT id FROM users WHERE username = ?', [$login]);
-    return $e ? (int) $e : Database::insert(
-        'INSERT INTO users (name, name_en, username, email, password_hash, role, department_id, job_title, phone, manager_id, active, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)',
-        [$name, $en, $login, $login . '@idara.local', password_hash($pass, PASSWORD_DEFAULT), $role, $deptId, $job, '', $mgr, dt('-90 days')]
+    $pic = $avatar > 0 ? sprintf('builtin:%02d.webp', $avatar) : '';
+    if ($e) {
+        if ($pic !== '' && (string) Database::value('SELECT avatar FROM users WHERE id = ?', [(int) $e]) === '') {
+            Database::exec('UPDATE users SET avatar = ? WHERE id = ?', [$pic, (int) $e]);
+        }
+        return (int) $e;
+    }
+    return Database::insert(
+        'INSERT INTO users (name, name_en, username, email, password_hash, role, department_id, job_title, phone, manager_id, active, avatar, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)',
+        [$name, $en, $login, $login . '@idara.local', password_hash($pass, PASSWORD_DEFAULT), $role, $deptId, $job, '', $mgr, $pic, dt('-90 days')]
     );
 }
 
@@ -132,16 +139,16 @@ dept('العلاقات الدولية', 'International Relations', 'INT', 7);
 $it   = dept('تقنية المعلومات', 'Information Technology', 'IT', 8);
 
 // ---------------------------------------------------------------- users
-user('مسؤول النظام', 'System Administrator', 'admin', 'Admin@1234', 'admin', $it, 'مسؤول النظام');
-$exec = user('عبدالله الحربي', 'Abdullah Al-Harbi', 'abdullah.harbi', 'Manager@1234', 'executive', $hq, 'وكيل الوزارة المساعد للاستثمار');
-$mLic = user('سارة القحطاني', 'Sarah Al-Qahtani', 'sarah.qahtani', 'Manager@1234', 'manager', $lic, 'مدير إدارة التراخيص الاستثمارية', $exec);
-$mFdi = user('محمد العتيبي', 'Mohammed Al-Otaibi', 'mohammed.otaibi', 'Manager@1234', 'manager', $fdi, 'مدير إدارة الاستثمار الأجنبي', $exec);
-$mInv = user('هند العنزي', 'Hind Al-Anazi', 'hind.anazi', 'Manager@1234', 'manager', $inv, 'مدير إدارة خدمات المستثمرين', $exec);
-$nora = user('نورة الشمري', 'Noura Al-Shammari', 'noura.shammari', 'User@1234', 'member', $lic, 'أخصائية تراخيص استثمارية', $mLic);
-$fahd = user('فهد الدوسري', 'Fahad Al-Dosari', 'fahad.dosari', 'User@1234', 'member', $fdi, 'محلل استثمار أجنبي', $mFdi);
-$reem = user('ريم الزهراني', 'Reem Al-Zahrani', 'reem.zahrani', 'User@1234', 'member', $leg, 'باحثة قانونية', $mLic);
-$khal = user('خالد الغامدي', 'Khalid Al-Ghamdi', 'khalid.ghamdi', 'User@1234', 'member', $it, 'مطوّر نظم', $mLic);
-$mona = user('منى السبيعي', 'Mona Al-Subaie', 'mona.subaie', 'User@1234', 'member', $inv, 'مسؤولة علاقات المستثمرين', $mInv);
+user('مسؤول النظام', 'System Administrator', 'admin', 'Admin@1234', 'admin', $it, 'مسؤول النظام', null, 24);
+$exec = user('عبدالله الحربي', 'Abdullah Al-Harbi', 'abdullah.harbi', 'Manager@1234', 'executive', $hq, 'وكيل الوزارة المساعد للاستثمار', null, 6);
+$mLic = user('سارة القحطاني', 'Sarah Al-Qahtani', 'sarah.qahtani', 'Manager@1234', 'manager', $lic, 'مدير إدارة التراخيص الاستثمارية', $exec, 7);
+$mFdi = user('محمد العتيبي', 'Mohammed Al-Otaibi', 'mohammed.otaibi', 'Manager@1234', 'manager', $fdi, 'مدير إدارة الاستثمار الأجنبي', $exec, 14);
+$mInv = user('هند العنزي', 'Hind Al-Anazi', 'hind.anazi', 'Manager@1234', 'manager', $inv, 'مدير إدارة خدمات المستثمرين', $exec, 27);
+$nora = user('نورة الشمري', 'Noura Al-Shammari', 'noura.shammari', 'User@1234', 'member', $lic, 'أخصائية تراخيص استثمارية', $mLic, 16);
+$fahd = user('فهد الدوسري', 'Fahad Al-Dosari', 'fahad.dosari', 'User@1234', 'member', $fdi, 'محلل استثمار أجنبي', $mFdi, 13);
+$reem = user('ريم الزهراني', 'Reem Al-Zahrani', 'reem.zahrani', 'User@1234', 'member', $leg, 'باحثة قانونية', $mLic, 17);
+$khal = user('خالد الغامدي', 'Khalid Al-Ghamdi', 'khalid.ghamdi', 'User@1234', 'member', $it, 'مطوّر نظم', $mLic, 18);
+$mona = user('منى السبيعي', 'Mona Al-Subaie', 'mona.subaie', 'User@1234', 'member', $inv, 'مسؤولة علاقات المستثمرين', $mInv, 15);
 
 // ---------------------------------------------------------------- reference data
 $cProj = (int) (Database::value('SELECT id FROM task_categories WHERE name_ar = ?', ['مشاريع']) ?: Database::insert('INSERT INTO task_categories (name_ar, name_en, active, sort_order) VALUES (?, ?, 1, 1)', ['مشاريع', 'Projects']));

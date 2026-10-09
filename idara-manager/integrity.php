@@ -16,105 +16,165 @@ return array (
     'size' => 10886,
     'md5' => 'f21496bc5a38cebbe0b4825af074b70d',
   ),
-  'assets/avatars/01.svg' => 
+  'assets/avatars/01.webp' => 
   array (
-    'size' => 504,
-    'md5' => 'b570f1c537e35bfdeeb751c4bd17de00',
+    'size' => 4860,
+    'md5' => '8a3582b30e9b07f7eb8020e467122e82',
   ),
-  'assets/avatars/02.svg' => 
+  'assets/avatars/02.webp' => 
   array (
-    'size' => 504,
-    'md5' => '1673a7a1cdacea686d1920037cd4e7b3',
+    'size' => 4558,
+    'md5' => 'd8476b7b9ee785b9364bcc334dd6810e',
   ),
-  'assets/avatars/03.svg' => 
+  'assets/avatars/03.webp' => 
   array (
-    'size' => 631,
-    'md5' => 'e35c6b60d0e7a4ae200cf2cb72028b6e',
+    'size' => 6944,
+    'md5' => 'b32cb815f2078d237a620b6095e0783a',
   ),
-  'assets/avatars/04.svg' => 
+  'assets/avatars/04.webp' => 
   array (
-    'size' => 504,
-    'md5' => '52a3bcdc6646ee4cd9e8dde88b22b27e',
+    'size' => 5342,
+    'md5' => '26d34c08ddc9928a45c71fef9fb31f09',
   ),
-  'assets/avatars/05.svg' => 
+  'assets/avatars/05.webp' => 
   array (
-    'size' => 504,
-    'md5' => '81c4186c210e716abac30fdb6b9a2a56',
+    'size' => 6798,
+    'md5' => 'c1cf3a7781187694de40a2577f11cdec',
   ),
-  'assets/avatars/06.svg' => 
+  'assets/avatars/06.webp' => 
   array (
-    'size' => 504,
-    'md5' => 'ac773808dc9a8af4e47ae5434ab574b6',
+    'size' => 9674,
+    'md5' => '4368980cd09490ce2b95934ffa4f709b',
   ),
-  'assets/avatars/07.svg' => 
+  'assets/avatars/07.webp' => 
   array (
-    'size' => 504,
-    'md5' => 'fe2c051f0e79211082159072fec4a457',
+    'size' => 4324,
+    'md5' => 'c40e1668d69bbc50eb29856107e56758',
   ),
-  'assets/avatars/08.svg' => 
+  'assets/avatars/08.webp' => 
   array (
-    'size' => 659,
-    'md5' => 'd4e7e0e96afa21f3cde7842258f1ca9b',
+    'size' => 4926,
+    'md5' => 'c56eaa5e34fc5c80bfae000f71edd812',
   ),
-  'assets/avatars/09.svg' => 
+  'assets/avatars/09.webp' => 
   array (
-    'size' => 659,
-    'md5' => '658900641db09107ad3ab2504c055f75',
+    'size' => 6546,
+    'md5' => '96ab911b3e18c06e74c90116894646aa',
   ),
-  'assets/avatars/10.svg' => 
+  'assets/avatars/10.webp' => 
   array (
-    'size' => 631,
-    'md5' => '709ce3f881e88b4742f718d6790afccd',
+    'size' => 5460,
+    'md5' => '860e52004c6cda4cd42b5728ac539973',
   ),
-  'assets/avatars/11.svg' => 
+  'assets/avatars/11.webp' => 
   array (
-    'size' => 659,
-    'md5' => '28f748d1f634a2f6d0d6f3de72fd5d9d',
+    'size' => 5142,
+    'md5' => 'c419a123212e13205ccbc04a78a8353b',
   ),
-  'assets/avatars/12.svg' => 
+  'assets/avatars/12.webp' => 
   array (
-    'size' => 631,
-    'md5' => '3ab489b3cb4eb2159478ad2375efee5b',
+    'size' => 5360,
+    'md5' => '5f454c0921b029e5d5a1583ff7e4353e',
   ),
-  'assets/avatars/13.svg' => 
+  'assets/avatars/13.webp' => 
   array (
-    'size' => 504,
-    'md5' => 'bd65ef6d79db64f3ea8d789b265d0ec7',
+    'size' => 7454,
+    'md5' => '67b0880afb890931cfc5484998a7c1cc',
   ),
-  'assets/avatars/14.svg' => 
+  'assets/avatars/14.webp' => 
   array (
-    'size' => 504,
-    'md5' => 'b67c8ad356e63d1c9c5700148e92111d',
+    'size' => 5518,
+    'md5' => '395d1ceb4b55a0005178b4db9fe2e4e3',
   ),
-  'assets/avatars/15.svg' => 
+  'assets/avatars/15.webp' => 
   array (
-    'size' => 659,
-    'md5' => 'a77f083bca23d3ff0305da834aea1202',
+    'size' => 4884,
+    'md5' => 'd50705cc86cdef86d7703110fb8e91ba',
   ),
-  'assets/avatars/16.svg' => 
+  'assets/avatars/16.webp' => 
   array (
-    'size' => 631,
-    'md5' => 'df373e6204626e74e9c6488f782b254a',
+    'size' => 4148,
+    'md5' => '7a9e37183387f072d35e0c292812516b',
   ),
-  'assets/avatars/17.svg' => 
+  'assets/avatars/17.webp' => 
   array (
-    'size' => 504,
-    'md5' => 'c145ce56fdd8f3da93b819110e71205a',
+    'size' => 4622,
+    'md5' => 'e51340268ba437481ae861d71161091c',
   ),
-  'assets/avatars/18.svg' => 
+  'assets/avatars/18.webp' => 
   array (
-    'size' => 659,
-    'md5' => '63ad94a555072e8cb6e5c6268d9968e1',
+    'size' => 6094,
+    'md5' => 'e6c3b8be6c3139cbf2edc64be86fc70f',
   ),
-  'assets/avatars/19.svg' => 
+  'assets/avatars/19.webp' => 
   array (
-    'size' => 631,
-    'md5' => 'dfb93963c0fd251a4a719fdf69d95c63',
+    'size' => 6596,
+    'md5' => '50ea4c87a8a21e9118cc3ba60202b72d',
   ),
-  'assets/avatars/20.svg' => 
+  'assets/avatars/20.webp' => 
   array (
-    'size' => 504,
-    'md5' => 'cc0a25ca2308306bbaa1468947db7fa0',
+    'size' => 5772,
+    'md5' => '01d67ee86ad6fc203090f0285dcb3bef',
+  ),
+  'assets/avatars/21.webp' => 
+  array (
+    'size' => 6894,
+    'md5' => '856174a68fa8579acae59c9fb8835ebe',
+  ),
+  'assets/avatars/22.webp' => 
+  array (
+    'size' => 5304,
+    'md5' => '7410542267da642c24717995e1229e5d',
+  ),
+  'assets/avatars/23.webp' => 
+  array (
+    'size' => 5506,
+    'md5' => '75509817e06d0def8edf19b157462acc',
+  ),
+  'assets/avatars/24.webp' => 
+  array (
+    'size' => 5436,
+    'md5' => '2b81121c6d286d259282aff3aadd7b04',
+  ),
+  'assets/avatars/25.webp' => 
+  array (
+    'size' => 4438,
+    'md5' => '00f80b7c756e4e92f686ce48e59c4af0',
+  ),
+  'assets/avatars/26.webp' => 
+  array (
+    'size' => 4316,
+    'md5' => '4ab8394d3cc7609caf4ba00327746abe',
+  ),
+  'assets/avatars/27.webp' => 
+  array (
+    'size' => 3924,
+    'md5' => '688fae06f458554a649e0dd74fe78546',
+  ),
+  'assets/avatars/28.webp' => 
+  array (
+    'size' => 4282,
+    'md5' => '46ef4e486dc2791d05d1ae74a62bf681',
+  ),
+  'assets/avatars/29.webp' => 
+  array (
+    'size' => 3756,
+    'md5' => '0a8a9c1c42f4c0c12c6c8ed7ff987760',
+  ),
+  'assets/avatars/30.webp' => 
+  array (
+    'size' => 5224,
+    'md5' => '04b705c3e35daace0ef02f1567f8983b',
+  ),
+  'assets/avatars/31.webp' => 
+  array (
+    'size' => 4304,
+    'md5' => '671233500e990687971613f2cdd00127',
+  ),
+  'assets/avatars/32.webp' => 
+  array (
+    'size' => 5890,
+    'md5' => 'f650a9ef32ba6971b46f6ae7d23cde94',
   ),
   'assets/css/style.css' => 
   array (
@@ -323,8 +383,8 @@ return array (
   ),
   'pages/profile.php' => 
   array (
-    'size' => 8453,
-    'md5' => '79b86c878371bcc6b86d52712f2638b8',
+    'size' => 8463,
+    'md5' => 'd0b02baaad11c866352ad6d4ebdaf0cb',
   ),
   'pages/task_new.php' => 
   array (
@@ -348,8 +408,8 @@ return array (
   ),
   'seed.php' => 
   array (
-    'size' => 26603,
-    'md5' => '3ac23ea7f5003bb4c49ee31a9c3779cd',
+    'size' => 27000,
+    'md5' => '4f71d69e5bdcfa60ce86604e88a68a39',
   ),
   'sql/schema.mysql.sql' => 
   array (

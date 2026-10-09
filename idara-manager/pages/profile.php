@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $birth  = trim((string) ($_POST['birthdate'] ?? ''));
         $errors = [];
 
-        if ($avatar !== '' && !preg_match('/^builtin:(0[1-9]|1[0-9]|20)\.svg$/', $avatar)) {
+        if ($avatar !== '' && !preg_match('/^builtin:(0[1-9]|[12][0-9]|3[0-2])\.webp$/', $avatar)) {
             $avatar = (string) ($me['avatar'] ?? ''); // keep the current photo on bad input
         }
         $photo = $_FILES['photo'] ?? null;
@@ -103,10 +103,10 @@ layout_header(t('profile.title'), 'profile');
 
     <label class="field-label"><?= e(t('profile.avatar_pick')) ?></label>
     <div class="avatar-picker">
-      <?php for ($i = 1; $i <= 20; $i++): $av = sprintf('builtin:%02d.svg', $i); ?>
+      <?php for ($i = 1; $i <= 32; $i++): $av = sprintf('builtin:%02d.webp', $i); ?>
         <label>
           <input type="radio" name="avatar" value="<?= e($av) ?>" <?= (string) $me['avatar'] === $av ? 'checked' : '' ?>>
-          <img src="assets/avatars/<?= sprintf('%02d', $i) ?>.svg" alt="<?= $i ?>" width="52" height="52">
+          <img src="assets/avatars/<?= sprintf('%02d', $i) ?>.webp" alt="<?= $i ?>" width="52" height="52">
         </label>
       <?php endfor; ?>
       <label title="<?= e(t('profile.no_avatar')) ?>">

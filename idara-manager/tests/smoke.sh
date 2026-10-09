@@ -381,8 +381,8 @@ check "B13 attendee hint is shown" "$(val meetings.hint_attendees)" "$MF"
 echo "== 27. v1.2 fixes — live-test notes =="
 
 # static: the 20 built-in avatars ship
-AV=$(ls assets/avatars/*.svg 2>/dev/null | wc -l | tr -d ' ')
-check "20 built-in avatar photos ship" "^20$" "$AV"
+AV=$(ls assets/avatars/*.webp 2>/dev/null | wc -l | tr -d ' ')
+check "32 built-in avatar photos ship" "^32$" "$AV"
 
 # item 9: a requester cannot approve their own request
 AP=$(curl -s -b $JN "$BASE/index.php?p=new-approval")
@@ -470,11 +470,11 @@ check "a user with history cannot be deleted" "$(val au.err_has_history)" "$DH"
 # profile: avatar picker, bio, birthdate
 PR=$(curl -s -b $JAR "$BASE/index.php?p=profile")
 T=$(echo "$PR" | csrf)
-PF=$(curl -s -L -b $JAR --data-urlencode "csrf=$T" -d "action=profile" -d "avatar=builtin:03.svg" --data-urlencode "bio=نبذة فحص" -d "birthdate=1990-05-20" "$BASE/index.php?p=profile")
+PF=$(curl -s -L -b $JAR --data-urlencode "csrf=$T" -d "action=profile" -d "avatar=builtin:03.webp" --data-urlencode "bio=نبذة فحص" -d "birthdate=1990-05-20" "$BASE/index.php?p=profile")
 check "profile update is confirmed" "$(val profile.profile_updated)" "$PF"
 AV2=$(php -r 'define("APP_ROOT", __DIR__); require "includes/db.php"; Database::init((require "data/config.php")["db"]); echo (string) Database::value("SELECT avatar FROM users WHERE id = 3");')
-check "profile avatar persisted" "^builtin:03.svg$" "$AV2"
-check "profile page shows the chosen avatar" "assets/avatars/03.svg" "$(curl -s -b $JAR "$BASE/index.php?p=profile")"
+check "profile avatar persisted" "^builtin:03.webp$" "$AV2"
+check "profile page shows the chosen avatar" "assets/avatars/03.webp" "$(curl -s -b $JAR "$BASE/index.php?p=profile")"
 
 echo "== 28. Login throttle (last — it blocks this IP for 15 minutes) =="
 JTH=/tmp/idara-throttle.jar; rm -f $JTH
