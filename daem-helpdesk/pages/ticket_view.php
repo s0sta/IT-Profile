@@ -4,12 +4,10 @@ declare(strict_types=1);
 $id     = (int) ($_GET['id'] ?? 0);
 $ticket = Tickets::find($id);
 if (!$ticket) {
-    http_response_code(404);
-    exit(t('e404.title'));
+    render_error_page(404, t('e404.title'), t('e404.text'));
 }
 if (!Tickets::canView($ticket)) {
-    http_response_code(403);
-    exit(t('auth.denied'));
+    render_error_page(403, t('auth.denied'), t('e404.forbidden'));
 }
 
 $staff = Auth::isStaff();

@@ -5,12 +5,10 @@ $slug = trim((string) ($_GET['slug'] ?? ''));
 $article = $slug !== '' ? Kb::articleBySlug($slug) : null;
 
 if (!$article) {
-    http_response_code(404);
-    exit(t('kb.not_found'));
+    render_error_page(404, t('e404.title'), t('kb.not_found'));
 }
 if (!$article['published'] && !Auth::isStaff()) {
-    http_response_code(404);
-    exit(t('kb.not_found'));
+    render_error_page(404, t('e404.title'), t('kb.not_found'));
 }
 
 // Feedback vote (POST), once per user per article.

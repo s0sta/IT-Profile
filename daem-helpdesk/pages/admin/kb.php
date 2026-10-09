@@ -9,13 +9,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = trim((string) ($_POST['name'] ?? ''));
         if ($name === '') {
             flash('error', t('ak.err_name'));
+        } elseif (!Kb::categoryCreate($name, trim((string) ($_POST['description'] ?? '')))) {
+            flash('error', t('ak.err_duplicate'));
         } else {
-            Kb::categoryCreate($name, trim((string) ($_POST['description'] ?? '')));
             flash('success', t('ak.cat_created'));
         }
     } elseif ($action === 'cat_update') {
-        Kb::categoryUpdate((int) ($_POST['id'] ?? 0), trim((string) ($_POST['name'] ?? '')), trim((string) ($_POST['description'] ?? '')));
-        flash('success', t('ak.cat_updated'));
+        $name = trim((string) ($_POST['name'] ?? ''));
+        if ($name === '') {
+            flash('error', t('ak.err_name'));
+        } elseif (!Kb::categoryUpdate((int) ($_POST['id'] ?? 0), $name, trim((string) ($_POST['description'] ?? '')))) {
+            flash('error', t('ak.err_duplicate'));
+        } else {
+            flash('success', t('ak.cat_updated'));
+        }
     } elseif ($action === 'cat_delete') {
         Kb::categoryDelete((int) ($_POST['id'] ?? 0));
         flash('success', t('ak.cat_deleted'));

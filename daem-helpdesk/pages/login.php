@@ -17,6 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $user = Auth::attempt($login, $password);
         if ($user) {
+            // A one-time password from an administrator must be replaced first.
+            if (!empty($user['must_change_password'])) {
+                flash('warning', t('profile.must_change'));
+                redirect('profile&force=1');
+            }
             redirect('dashboard');
         }
         $error = t('auth.invalid') . (Auth::throttled($login, $ip) ? ' ' . t('auth.too_many') : '');

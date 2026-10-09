@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 $me = Auth::current();
+$forced = !empty($me['must_change_password']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
@@ -16,7 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($new !== $confirm) {
         flash('error', t('profile.err_match'));
     } else {
+        // Saving a new password also clears the forced-change flag.
         Users::setPassword((int) $me['id'], $new);
+        if ($forced) {
+            flash('success', t('profile.must_change_done'));
+            redirect('dashboard');
+        }
         flash('success', t('profile.changed'));
     }
     redirect('profile');
@@ -24,6 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 layout_header(t('profile.title'), 'profile');
 ?>
+
+<?php if ($forced): ?>
+  <div class="flash flash-warning"><?= e(t('profile.must_change')) ?></div>
+<?php endif; ?>
 
 <section class="grid-2">
   <div class="panel">

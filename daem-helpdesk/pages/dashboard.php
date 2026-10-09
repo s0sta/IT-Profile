@@ -36,32 +36,32 @@ layout_header($staff ? t('dash.title_staff') : t('dash.title_requester'), 'dashb
 ?>
 
 <section class="stats-grid">
-  <div class="stat-card">
+  <a class="stat-card stat-card-link" href="<?= u('tickets') ?>">
     <span class="stat-value"><?= $openTotal ?></span>
     <span class="stat-label"><?= e(t('dash.open')) ?></span>
-  </div>
-  <div class="stat-card <?= $overdue ? 'stat-warn' : '' ?>">
+  </a>
+  <a class="stat-card stat-card-link <?= $overdue ? 'stat-warn' : '' ?>" href="<?= u('tickets&sort=due') ?>">
     <span class="stat-value"><?= $overdue ?></span>
     <span class="stat-label"><?= e(t('dash.overdue')) ?></span>
-  </div>
+  </a>
   <?php if ($staff): ?>
-  <div class="stat-card">
+  <a class="stat-card stat-card-link" href="<?= u('tickets&assignee=none') ?>">
     <span class="stat-value"><?= $unassigned ?></span>
     <span class="stat-label"><?= e(t('dash.unassigned')) ?></span>
-  </div>
+  </a>
   <?php endif; ?>
-  <div class="stat-card">
+  <a class="stat-card stat-card-link" href="<?= u('tickets&sort=created') ?>">
     <span class="stat-value"><?= $createdT ?></span>
     <span class="stat-label"><?= e(t('dash.created_today')) ?></span>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a class="stat-card stat-card-link" href="<?= u('tickets&status=resolved') ?>">
     <span class="stat-value"><?= $resolved30 ?></span>
     <span class="stat-label"><?= e(t('dash.resolved_30')) ?></span>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a class="stat-card stat-card-link" href="<?= u(Auth::isAdmin() ? 'admin/reports' : 'tickets') ?>">
     <span class="stat-value"><?= $avgRes === null ? '—' : $avgRes . 'h' ?></span>
     <span class="stat-label"><?= e(t('dash.avg_resolution')) ?></span>
-  </div>
+  </a>
 </section>
 
 <section class="grid-2">

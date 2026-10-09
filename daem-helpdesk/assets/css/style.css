@@ -871,3 +871,21 @@ textarea.input { resize: vertical; min-height: 90px; }
   body.sidebar-open [dir="rtl"] .sidebar { transform: none; }
 }
 
+/* ============================== v1.3 polish ============================== */
+
+/* Clickable dashboard stat cards */
+a.stat-card-link {
+  display: flex;
+  text-decoration: none !important;
+  color: inherit;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .15s ease, border-color .15s ease;
+}
+a.stat-card-link:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--primary); }
+a.stat-card-link:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Styled error pages */
+.error-card .error-title { font-size: 19px; font-weight: 750; color: var(--text); margin: 0 0 8px; }
+.error-card p { color: var(--muted); margin: 0 0 18px; }
+
+

@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
   department    TEXT NOT NULL DEFAULT '',
   phone         TEXT NOT NULL DEFAULT '',
   active        INTEGER NOT NULL DEFAULT 1,
+  must_change_password INTEGER NOT NULL DEFAULT 0,
   last_login_at TEXT,
   created_at    TEXT NOT NULL
 );

@@ -34,9 +34,12 @@ Zero frameworks, zero composer, zero build step: plain **PHP 8 + PDO** (SQLite *
 - `password_hash()` / `password_verify()`, min-8-char passwords
 - Per-session CSRF tokens on every form
 - **Login throttling** — 5 failed attempts / 15 min per username or IP
+- **One-time passwords** — an administrator reset generates a random password that is shown once and **must be changed at the next sign-in** (the user is sent straight to the profile page until they do)
 - XSS-escaped output, hardened session cookies (HttpOnly, SameSite, strict mode, 2-hour idle timeout)
 - File uploads: extension whitelist, 5 MB cap, randomized stored names, auth-checked downloads
-- Security headers + `.htaccess` that blocks `data/`, `storage/`, `includes/`, `sql/`
+- **Duplicate protection** — two ticket categories or two KB categories can never share a name (a friendly message instead of a database error)
+- Security headers + `.htaccess` that blocks `data/`, `storage/`, `includes/`, `sql/`, `lang/`, `diag.php`, `integrity.php`, `README.md`, `UPLOAD-INSTRUCTIONS.txt`, unsets `X-Powered-By` and sends HSTS
+- **No blank error pages** — fatal errors are logged to `data/error.log` and shown as a styled page
 
 ---
 

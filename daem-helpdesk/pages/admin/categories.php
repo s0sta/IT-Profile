@@ -9,13 +9,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = trim((string) ($_POST['name'] ?? ''));
         if ($name === '') {
             flash('error', t('ac.err_name'));
+        } elseif (!Categories::create($name, trim((string) ($_POST['description'] ?? '')))) {
+            flash('error', t('ac.err_duplicate'));
         } else {
-            Categories::create($name, trim((string) ($_POST['description'] ?? '')));
             flash('success', t('ac.created'));
         }
     } elseif ($action === 'update') {
-        Categories::update((int) ($_POST['id'] ?? 0), trim((string) ($_POST['name'] ?? '')), trim((string) ($_POST['description'] ?? '')));
-        flash('success', t('ac.updated'));
+        $name = trim((string) ($_POST['name'] ?? ''));
+        if ($name === '') {
+            flash('error', t('ac.err_name'));
+        } elseif (!Categories::update((int) ($_POST['id'] ?? 0), $name, trim((string) ($_POST['description'] ?? '')))) {
+            flash('error', t('ac.err_duplicate'));
+        } else {
+            flash('success', t('ac.updated'));
+        }
     } elseif ($action === 'toggle') {
         Categories::toggleActive((int) ($_POST['id'] ?? 0));
         flash('success', t('ac.toggled'));

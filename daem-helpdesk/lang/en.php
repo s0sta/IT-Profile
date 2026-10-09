@@ -255,7 +255,7 @@ return [
     'au.reset'                  => 'Reset password',
     'au.activate'               => 'Activate',
     'au.deactivate'             => 'Deactivate',
-    'au.confirm_reset'          => 'Reset this password to Temp12345?',
+    'au.confirm_reset' => 'Generate a new one-time password for this user?',
     'au.created'                => 'The user is created.',
     'au.updated'                => 'The user is saved.',
     'au.reset_done'             => 'The password is reset.',
@@ -400,4 +400,12 @@ return [
     'notif.msg_assigned' => 'Ticket {ref} is assigned to you',
     'notif.msg_status' => 'Status of {ref} is now {status}',
     'notif.msg_reopened' => 'Ticket {ref} was opened again by the requester',
+
+    // ------------------------------------------------ hardening (v1.3)
+    'e404.forbidden' => 'You do not have permission to open this page.',
+    'ac.err_duplicate' => 'A category with this name already exists.',
+    'ak.err_duplicate' => 'A knowledge-base category with this name already exists.',
+    'au.reset_generated' => 'New one-time password for {name}: {password} — the user must change it at the next sign-in.',
+    'profile.must_change' => 'You must choose a new password before you can continue.',
+    'profile.must_change_done' => 'Your password is changed and your account is active again.',
 ];

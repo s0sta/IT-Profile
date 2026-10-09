@@ -16,7 +16,7 @@ STEP 2 — Create the database (and reset the old one)
 ============================================================
 A) RESET first (your previous attempts left half-created tables):
    1. hPanel → Databases → phpMyAdmin
-   2. In the left panel click your database:  uXXXXXXXXX_daem
+   2. In the left panel click your database:  u565334670_daem
    3. Click the "SQL" tab at the top
    4. Paste this and press "Go":
         DROP TABLE IF EXISTS attachments, ticket_replies, tickets,
@@ -26,11 +26,11 @@ A) RESET first (your previous attempts left half-created tables):
 
 B) Then verify the database + user exist:
    1. hPanel → Databases → MySQL Databases
-   2. Your database is:  uXXXXXXXXX_daem
+   2. Your database is:  u565334670_daem
    3. Make sure a MySQL user exists (create one if not) — it will be
-      named like:  uXXXXXXXXX_username
+      named like:  u565334670_username
    4. IMPORTANT: scroll to "Assign user to database", pick that user
-      and uXXXXXXXXX_daem, grant ALL PRIVILEGES, press Assign
+      and u565334670_daem, grant ALL PRIVILEGES, press Assign
    5. Write down: host = localhost, database name, user name, password
 
 ============================================================
@@ -54,8 +54,8 @@ STEP 4 — Install
 3. Fill:
      MySQL host:      localhost
      Port:            3306
-     Database name:   uXXXXXXXXX_daem        (exact name from hPanel)
-     Database user:   uXXXXXXXXX_username    (exact name from hPanel)
+     Database name:   u565334670_daem        (exact name from hPanel)
+     Database user:   u565334670_username    (exact name from hPanel)
      Database pass:   (the MySQL user's password)
      Site name:       Daem
      Admin account:   your name / username / email / password (min 8 chars)
@@ -77,6 +77,30 @@ STEP 5 — Secure + finish
   hPanel → Advanced → SSH Terminal → run:
     php ~/domains/s0sta.com/public_html/daem-helpdesk/seed.php
   then delete seed.php. Demo logins are listed at the bottom.)
+
+============================================================
+UPGRADING AN EXISTING INSTALLATION (v1.2 → v1.3)
+============================================================
+1. Upload this ZIP over the existing files (extract in place).
+   The site keeps working even before step 2 runs.
+2. One SQL step — hPanel → Databases → phpMyAdmin → your database → SQL:
+     ALTER TABLE users ADD must_change_password TINYINT(1) NOT NULL DEFAULT 0;
+   (This enables the one-time-password flow for administrator resets.)
+3. Make sure `.htaccess` exists — the new rules also block diag.php,
+   integrity.php, README.md and UPLOAD-INSTRUCTIONS.txt. If the extractor
+   skipped the dotfile, rename `htaccess.txt` to `.htaccess`.
+4. Delete `diag.php` from the server.
+
+What changed in v1.3
+- Administrator password reset now issues a random ONE-TIME password
+  (shown once) and forces the user to choose a new one at next sign-in.
+- Duplicate ticket categories / KB categories are refused with a message
+  (previously a database error).
+- 404 and 403 pages are now fully styled (with the menu and a back button).
+- Dashboard statistic cards are clickable and jump to the matching list.
+- `.htaccess` hardening: diag.php / integrity.php / README / UPLOAD-INSTRUCTIONS
+  blocked, X-Powered-By removed, HSTS added.
+- Get-filter forms keep the route (?p=…) — clicking Filter stays on the list.
 
 ============================================================
 TROUBLESHOOTING

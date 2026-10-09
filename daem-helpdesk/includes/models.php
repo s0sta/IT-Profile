@@ -56,13 +56,16 @@ final class Users
         audit('user_updated', 'user', $id, 'username=' . $d['username'] . ' role=' . $d['role']);
     }
 
-    public static function setPassword(int $id, string $plain): void
+    public static function setPassword(int $id, string $plain, bool $mustChange = false): void
     {
         Database::exec(
             'UPDATE users SET password_hash = ? WHERE id = ?',
             [password_hash($plain, PASSWORD_DEFAULT), $id]
         );
-        audit('user_password_reset', 'user', $id);
+        if (column_exists('users', 'must_change_password')) {
+            Database::exec('UPDATE users SET must_change_password = ? WHERE id = ?', [$mustChange ? 1 : 0, $id]);
+        }
+        audit($mustChange ? 'user_password_reset' : 'user_password_changed', 'user', $id);
     }
 
     public static function toggleActive(int $id): void
@@ -94,20 +97,30 @@ final class Categories
         return Database::one('SELECT * FROM categories WHERE id = ?', [$id]);
     }
 
-    public static function create(string $name, string $description): void
+    /** @return bool false when a category with this name already exists. */
+    public static function create(string $name, string $description): bool
     {
+        if (Database::value('SELECT COUNT(*) FROM categories WHERE LOWER(name) = LOWER(?)', [$name])) {
+            return false;
+        }
         $sort = (int) Database::value('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM categories');
         $id = Database::insert(
             'INSERT INTO categories (name, description, active, sort_order) VALUES (?, ?, 1, ?)',
             [$name, $description, $sort]
         );
         audit('category_created', 'category', $id, 'name=' . $name);
+        return true;
     }
 
-    public static function update(int $id, string $name, string $description): void
+    /** @return bool false when another category already uses this name. */
+    public static function update(int $id, string $name, string $description): bool
     {
+        if (Database::value('SELECT COUNT(*) FROM categories WHERE LOWER(name) = LOWER(?) AND id <> ?', [$name, $id])) {
+            return false;
+        }
         Database::exec('UPDATE categories SET name = ?, description = ? WHERE id = ?', [$name, $description, $id]);
         audit('category_updated', 'category', $id, 'name=' . $name);
+        return true;
     }
 
     public static function toggleActive(int $id): void
@@ -570,17 +583,27 @@ final class Kb
         return Database::one('SELECT * FROM kb_categories WHERE id = ?', [$id]);
     }
 
-    public static function categoryCreate(string $name, string $description): void
+    /** @return bool false when a KB category with this name already exists. */
+    public static function categoryCreate(string $name, string $description): bool
     {
+        if (Database::value('SELECT COUNT(*) FROM kb_categories WHERE LOWER(name) = LOWER(?)', [$name])) {
+            return false;
+        }
         $sort = (int) Database::value('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM kb_categories');
         $id = Database::insert('INSERT INTO kb_categories (name, description, sort_order) VALUES (?, ?, ?)', [$name, $description, $sort]);
         audit('kb_category_created', 'kb_category', $id, 'name=' . $name);
+        return true;
     }
 
-    public static function categoryUpdate(int $id, string $name, string $description): void
+    /** @return bool false when another KB category already uses this name. */
+    public static function categoryUpdate(int $id, string $name, string $description): bool
     {
+        if (Database::value('SELECT COUNT(*) FROM kb_categories WHERE LOWER(name) = LOWER(?) AND id <> ?', [$name, $id])) {
+            return false;
+        }
         Database::exec('UPDATE kb_categories SET name = ?, description = ? WHERE id = ?', [$name, $description, $id]);
         audit('kb_category_updated', 'kb_category', $id, 'name=' . $name);
+        return true;
     }
 
     public static function categoryDelete(int $id): void

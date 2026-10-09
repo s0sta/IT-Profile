@@ -32,7 +32,7 @@ $htaccessRules = <<<'RULES'
 
 Options -Indexes
 
-<FilesMatch "^(config\.php|seed\.php|schema.*\.sql)$">
+<FilesMatch "^(config\.php|seed\.php|schema.*\.sql|diag\.php|integrity\.php|README\.md|UPLOAD-INSTRUCTIONS\.txt)$">
   Require all denied
 </FilesMatch>
 
@@ -40,9 +40,11 @@ RedirectMatch 403 ^/(includes|data|storage|sql|lang)/
 
 # Security headers
 <IfModule mod_headers.c>
+  Header always unset X-Powered-By
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set Referrer-Policy "same-origin"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 </IfModule>
 
 # Basic caching for static assets

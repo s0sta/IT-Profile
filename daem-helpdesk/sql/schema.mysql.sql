@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
   department    VARCHAR(120) NOT NULL DEFAULT '',
   phone         VARCHAR(40)  NOT NULL DEFAULT '',
   active        TINYINT(1)   NOT NULL DEFAULT 1,
+  must_change_password TINYINT(1) NOT NULL DEFAULT 0,
   last_login_at DATETIME NULL,
   created_at    DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -55,13 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } elseif ($action === 'reset_password') {
-        $id = (int) ($_POST['id'] ?? 0);
-        $pw = (string) ($_POST['password'] ?? '');
-        if (strlen($pw) < 8) {
-            flash('error', t('au.err_password'));
-        } elseif ($id) {
-            Users::setPassword($id, $pw);
-            flash('success', t('au.reset_done'));
+        $id   = (int) ($_POST['id'] ?? 0);
+        $user = $id ? Users::find($id) : null;
+        if (!$user) {
+            flash('error', t('au.err_name'));
+        } else {
+            // One-time password, shown once to the administrator; the user must change it at next sign-in.
+            $temp = bin2hex(random_bytes(4));
+            Users::setPassword($id, $temp, true);
+            flash('success', t('au.reset_generated', ['name' => $user['name'], 'password' => $temp]));
         }
         redirect('admin/users');
     } elseif ($action === 'toggle') {
@@ -140,7 +142,6 @@ layout_header(t('au.title'), 'admin/users');
                   <?= csrf_field() ?>
                   <input type="hidden" name="action" value="reset_password">
                   <input type="hidden" name="id" value="<?= (int) $u['id'] ?>">
-                  <input type="hidden" name="password" value="Temp12345">
                   <button class="btn btn-ghost btn-sm" type="submit"><?= e(t('au.reset')) ?></button>
                 </form>
                 <?php if ((int) $u['id'] !== Auth::id() && $u['role'] !== 'admin'): ?>

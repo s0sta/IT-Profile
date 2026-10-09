@@ -139,7 +139,50 @@ curl -s -b $JAR4 -c $JAR4 -o /dev/null -d "csrf=$T&login=admin&password=Admin@56
 C=$(curl -s -b $JAR4 -o /dev/null -w "%{http_code}" -d "csrf=WRONG&action=reply&body=x" "$BASE/index.php?p=ticket&id=$NEWID")
 check "bad CSRF → 403" "403" "$C"
 
+echo "== 13. Duplicate guards + styled error pages =="
+# NOTE: admin is already signed in as JAR4 (section 11) — reuse the session, but take a FRESH csrf token.
+T4=$(curl -s -b $JAR4 "$BASE/index.php?p=admin/categories" | csrf)
+DUP=$(curl -s -b $JAR4 -L -d "csrf=$T4&action=add&name=Hardware&description=duplicate+test" "$BASE/index.php?p=admin/categories")
+check "duplicate category refused (no 500)" "already exists" "$DUP"
+DUP2=$(curl -s -b $JAR4 -L -d "csrf=$T4&action=cat_add&name=Getting+Started&description=dup" "$BASE/index.php?p=admin/kb")
+check "duplicate KB category refused" "already exists" "$DUP2"
+
+NOTFOUND=$(curl -s -b $JAR4 "$BASE/index.php?p=ticket&id=999999")
+check "missing ticket renders styled 404" "error-card" "$NOTFOUND"
+check "missing ticket is HTTP 404" "404" "$(curl -s -o /dev/null -w '%{http_code}' -b $JAR4 "$BASE/index.php?p=ticket&id=999999")"
+MISSING_ARTICLE=$(curl -s -b $JAR4 "$BASE/index.php?p=article&slug=no-such-article")
+check "missing article renders styled 404" "error-card" "$MISSING_ARTICLE"
+FORB=$(curl -s -b $JAR2 "$BASE/index.php?p=ticket&id=5")
+check "other user's ticket → styled 403" "error-card" "$FORB"
+check "other user's ticket is HTTP 403" "403" "$(curl -s -o /dev/null -w '%{http_code}' -b $JAR2 "$BASE/index.php?p=ticket&id=5")"
+
+echo "== 14. One-time password + forced change (khalid.salem = user 4) =="
+RESET=$(curl -s -b $JAR4 -L -d "csrf=$T4&action=reset_password&id=4" "$BASE/index.php?p=admin/users")
+check "reset shows a one-time password" "one-time password" "$RESET"
+OTP=$(echo "$RESET" | grep -oE '[0-9a-f]{8}' | head -1)
+if [ -n "$OTP" ]; then PASS=$((PASS+1)); echo "  ✓ one-time password generated"; else FAIL=$((FAIL+1)); echo "  ✗ no one-time password in the flash"; fi
+JAR8=/tmp/daem-otp.jar; rm -f $JAR8
+H=$(curl -s -c $JAR8 "$BASE/index.php?p=login")
+T8=$(echo "$H" | csrf)
+OTPFLOW=$(curl -s -b $JAR8 -c $JAR8 -L -d "csrf=$T8&login=khalid.salem&password=$OTP" "$BASE/index.php?p=login")
+check "forced to profile after one-time login" "must choose a new password" "$OTPFLOW"
+T8=$(echo "$OTPFLOW" | csrf)
+CHANGED=$(curl -s -b $JAR8 -c $JAR8 -L -d "csrf=$T8&current_password=$OTP&new_password=NewPass@2026&confirm_password=NewPass@2026" "$BASE/index.php?p=profile")
+check "forced password change accepted" "password is changed" "$CHANGED"
+AFTER=$(curl -s -b $JAR8 "$BASE/index.php?p=dashboard")
+check "dashboard reachable after change" "My Support" "$AFTER"
+
+echo "== 15. Hardening rules present (static) =="
+check ".htaccess denies diag.php" "diag" "$(cat .htaccess)"
+check ".htaccess denies integrity.php" "integrity" "$(cat .htaccess)"
+check ".htaccess denies README" "README" "$(cat .htaccess)"
+check ".htaccess unsets X-Powered-By" "unset X-Powered-By" "$(cat .htaccess)"
+check ".htaccess sets HSTS" "Strict-Transport-Security" "$(cat .htaccess)"
+check "htaccess.txt stays in sync" "Strict-Transport-Security" "$(cat htaccess.txt)"
+check "installer template stays in sync" "Strict-Transport-Security" "$(cat install.php)"
+
 echo "== 12. Login throttling =="
+
 JAR5=/tmp/daem-throttle.jar; rm -f $JAR5
 H=$(curl -s -c $JAR5 "$BASE/index.php?p=login")
 T=$(echo "$H" | csrf)

@@ -328,3 +328,37 @@ function keep_query(array $except = []): string
     }
     return http_build_query($qs);
 }
+
+/**
+ * True when a column exists — lets the app run both before and after a schema
+ * upgrade (SQLite and MySQL/MariaDB). Result is cached per request.
+ */
+function column_exists(string $table, string $column): bool
+{
+    static $cache = [];
+    $key = $table . '.' . $column;
+    if (array_key_exists($key, $cache)) {
+        return $cache[$key];
+    }
+    $found = false;
+    try {
+        $driver = (string) Database::pdo()->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'sqlite') {
+            foreach (Database::all('PRAGMA table_info(' . $table . ')') as $row) {
+                if (($row['name'] ?? '') === $column) {
+                    $found = true;
+                    break;
+                }
+            }
+        } else {
+            $found = (bool) Database::value(
+                'SELECT COUNT(*) FROM information_schema.columns
+                 WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?',
+                [$table, $column]
+            );
+        }
+    } catch (Throwable $e) {
+        $found = false;
+    }
+    return $cache[$key] = $found;
+}

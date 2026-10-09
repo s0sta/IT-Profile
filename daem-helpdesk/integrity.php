@@ -3,23 +3,23 @@
 return array (
   '.htaccess' => 
   array (
-    'size' => 656,
-    'md5' => '521bc17139247a7633f902f6d46d3e7c',
+    'size' => 836,
+    'md5' => 'ba9333934205c971e40778d9d04c46e7',
   ),
   'README.md' => 
   array (
-    'size' => 7787,
-    'md5' => '425c0d8a89131c27518bfd2262268b63',
+    'size' => 8356,
+    'md5' => '5e282abc190f522ba59082145f97189f',
   ),
   'UPLOAD-INSTRUCTIONS.txt' => 
   array (
-    'size' => 5725,
-    'md5' => '8aacbadf968b6fe6cbb2f721f3bbea96',
+    'size' => 7117,
+    'md5' => '253dde8e6881f859f059a1cc37991804',
   ),
   'assets/css/style.css' => 
   array (
-    'size' => 34223,
-    'md5' => '70f8a941e9b31b93368219c13a59018f',
+    'size' => 34923,
+    'md5' => 'dcd345baad609c946514368d19318712',
   ),
   'assets/js/app.js' => 
   array (
@@ -28,8 +28,8 @@ return array (
   ),
   'htaccess.txt' => 
   array (
-    'size' => 656,
-    'md5' => '521bc17139247a7633f902f6d46d3e7c',
+    'size' => 836,
+    'md5' => 'ba9333934205c971e40778d9d04c46e7',
   ),
   'includes/auth.php' => 
   array (
@@ -48,8 +48,8 @@ return array (
   ),
   'includes/helpers.php' => 
   array (
-    'size' => 9315,
-    'md5' => '33e66ec8e0c8c027cfe7932f635f955d',
+    'size' => 10423,
+    'md5' => '6884b11f503ea6f147f57e43aca4e7bb',
   ),
   'includes/i18n.php' => 
   array (
@@ -58,13 +58,13 @@ return array (
   ),
   'includes/layout.php' => 
   array (
-    'size' => 10925,
-    'md5' => '202a42a0c943a9ef85199c0468399e77',
+    'size' => 12353,
+    'md5' => 'f7e48e5f064be9901d7813e646bec735',
   ),
   'includes/models.php' => 
   array (
-    'size' => 29071,
-    'md5' => 'be5b3c42e94907049fac2904cdc0590d',
+    'size' => 30319,
+    'md5' => '59db8cd4cd19909e8025ce27b2b60f40',
   ),
   'index.php' => 
   array (
@@ -73,18 +73,18 @@ return array (
   ),
   'install.php' => 
   array (
-    'size' => 16654,
-    'md5' => '459822cadaf0aea876440535bc068611',
+    'size' => 16834,
+    'md5' => 'a4aef6cd6972ce77dd48dbb0df5d52d4',
   ),
   'lang/ar.php' => 
   array (
-    'size' => 26319,
-    'md5' => '30761f5f611e0af0c682999a2fb2b62f',
+    'size' => 27073,
+    'md5' => 'b4be6d439b87bf068991fac9d5db14c1',
   ),
   'lang/de.php' => 
   array (
-    'size' => 23549,
-    'md5' => '5921932fa271aceeeac772539761ec39',
+    'size' => 24206,
+    'md5' => '39fafdf0f1152e62712a0c68e33ed6ee',
   ),
   'lang/doc-ar.php' => 
   array (
@@ -103,13 +103,13 @@ return array (
   ),
   'lang/en.php' => 
   array (
-    'size' => 21934,
-    'md5' => 'd74aa65020e8f7ba25c7ac2c245f5eaa',
+    'size' => 22552,
+    'md5' => 'b0b3c61ab1e3d2ffcdad835a41e3fc32',
   ),
   'pages/404.php' => 
   array (
-    'size' => 592,
-    'md5' => 'a03727003f57b5209035c81d6a3a1b9b',
+    'size' => 166,
+    'md5' => '233a380893b4d829f3aaacfe906288d5',
   ),
   'pages/admin/audit.php' => 
   array (
@@ -118,13 +118,13 @@ return array (
   ),
   'pages/admin/categories.php' => 
   array (
-    'size' => 3667,
-    'md5' => '162edf49c2bb7004aca8b1fbb08bcca8',
+    'size' => 3919,
+    'md5' => '4d7028fb66cf36f6d8c14dafe34cdea1',
   ),
   'pages/admin/kb.php' => 
   array (
-    'size' => 6770,
-    'md5' => 'd6b69dbfa38cf852135c2b9e9303d286',
+    'size' => 7022,
+    'md5' => 'f743777fd2adef5859382efcaae73cb0',
   ),
   'pages/admin/reports.php' => 
   array (
@@ -138,8 +138,8 @@ return array (
   ),
   'pages/admin/users.php' => 
   array (
-    'size' => 7717,
-    'md5' => 'a114d39f59353cf4daa231e6509b33f3',
+    'size' => 7835,
+    'md5' => '1ae854fd13aae266eae1936b40a41dba',
   ),
   'pages/api.php' => 
   array (
@@ -148,13 +148,13 @@ return array (
   ),
   'pages/article.php' => 
   array (
-    'size' => 3058,
-    'md5' => '8dc41bfb259c9a4ce09c37d9bd081b54',
+    'size' => 3070,
+    'md5' => '7af8f1e463d67228f25da80689fa466e',
   ),
   'pages/dashboard.php' => 
   array (
-    'size' => 6045,
-    'md5' => 'f95d6500f3be2d9728b8fc0a200dc7d1',
+    'size' => 6361,
+    'md5' => '8319b114015122ebd68ad312baf996c0',
   ),
   'pages/doc.php' => 
   array (
@@ -173,8 +173,8 @@ return array (
   ),
   'pages/login.php' => 
   array (
-    'size' => 2890,
-    'md5' => '44056a12bc2fb57c8e1a545d6783661f',
+    'size' => 3147,
+    'md5' => '3cefdc1c71d8c376b6afaac54f468914',
   ),
   'pages/logout.php' => 
   array (
@@ -188,8 +188,8 @@ return array (
   ),
   'pages/profile.php' => 
   array (
-    'size' => 3208,
-    'md5' => 'aebc63a672f1fceed392a91e3cd0c64c',
+    'size' => 3569,
+    'md5' => 'e4afcabc080943b276cfd3c4af92ac4b',
   ),
   'pages/ticket_new.php' => 
   array (
@@ -198,8 +198,8 @@ return array (
   ),
   'pages/ticket_view.php' => 
   array (
-    'size' => 11445,
-    'md5' => '9b4b2d4bd4145fb0b13196271257c084',
+    'size' => 11460,
+    'md5' => '62a17373bc25dea259c87a5e1bc593d7',
   ),
   'pages/tickets.php' => 
   array (
@@ -213,12 +213,12 @@ return array (
   ),
   'sql/schema.mysql.sql' => 
   array (
-    'size' => 6061,
-    'md5' => 'f1313bf6c00bf2431c5dd709f44b85bb',
+    'size' => 6115,
+    'md5' => '87478e74d76d3d4015e7115466a66679',
   ),
   'sql/schema.sqlite.sql' => 
   array (
-    'size' => 5331,
-    'md5' => '0f8cd9ecc902e87e6046566f5cca7076',
+    'size' => 5382,
+    'md5' => 'f097f244269e7f7a5d3c26213f1f97f2',
   ),
 );

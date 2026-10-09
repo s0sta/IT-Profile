@@ -255,7 +255,7 @@ return [
     'au.reset'                  => 'Passwort zurücksetzen',
     'au.activate'               => 'Aktivieren',
     'au.deactivate'             => 'Deaktivieren',
-    'au.confirm_reset'          => 'Dieses Passwort auf Temp12345 zurücksetzen?',
+    'au.confirm_reset' => 'Neues Einmal-Passwort für diesen Benutzer erzeugen?',
     'au.created'                => 'Der Benutzer ist erstellt.',
     'au.updated'                => 'Der Benutzer ist gespeichert.',
     'au.reset_done'             => 'Das Passwort ist zurückgesetzt.',
@@ -400,4 +400,12 @@ return [
     'notif.msg_assigned' => 'Ticket {ref} ist Ihnen zugewiesen',
     'notif.msg_status' => 'Status von {ref} ist jetzt {status}',
     'notif.msg_reopened' => 'Ticket {ref} wurde vom Anfragenden wieder geöffnet',
+
+    // ------------------------------------------------ hardening (v1.3)
+    'e404.forbidden' => 'Sie haben keine Berechtigung für diese Seite.',
+    'ac.err_duplicate' => 'Eine Kategorie mit diesem Namen gibt es schon.',
+    'ak.err_duplicate' => 'Eine Wissensdatenbank-Kategorie mit diesem Namen gibt es schon.',
+    'au.reset_generated' => 'Neues Einmal-Passwort für {name}: {password} — der Benutzer muss es bei der nächsten Anmeldung ändern.',
+    'profile.must_change' => 'Sie müssen ein neues Passwort wählen, bevor Sie weiterarbeiten können.',
+    'profile.must_change_done' => 'Ihr Passwort ist geändert und Ihr Konto ist wieder aktiv.',
 ];

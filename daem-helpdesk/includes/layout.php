@@ -153,7 +153,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(err){}})();
       <?php endif; ?>
     </nav>
     <a class="btn btn-primary sidebar-new" href="<?= u('new') ?>"><?= icon('plus') ?> <?= e(t('nav.new_ticket')) ?></a>
-    <div class="sidebar-foot">v1.1 · by s0sta</div>
+    <div class="sidebar-foot">v1.3 · by s0sta</div>
   </aside>
 
   <div class="main">
@@ -196,4 +196,43 @@ function layout_footer(): void
 </body>
 </html>
 <?php
+}
+
+/**
+ * Full styled error page (404 / 403 / 500) — used by the router and by detail
+ * pages that cannot show their record. Renders its own page shell and exits.
+ */
+function render_error_page(int $code, string $title, string $message): void
+{
+    http_response_code($code);
+    $site = setting('site_name', 'Daem');
+    $back = Auth::current() ? u('dashboard') : u('login');
+    $label = Auth::current() ? t('e404.back') : t('auth.sign_in');
+    ?>
+<!doctype html>
+<html lang="<?= e(daem_current_lang()) ?>" dir="<?= e(daem_lang_dir()) ?>" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= e($title) ?> · <?= e($site) ?></title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/css/style.css?v=2">
+<script>
+(function(){try{var t=localStorage.getItem('daem-theme');
+if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
+document.documentElement.setAttribute('data-theme',t);}catch(err){}})();
+</script>
+</head>
+<body class="standalone">
+  <div class="login-lang"><?= daem_lang_switcher() ?></div>
+  <div class="error-card">
+    <h1><?= e((string) $code) ?></h1>
+    <p class="error-title"><?= e($title) ?></p>
+    <p><?= e($message) ?></p>
+    <a class="btn btn-primary" href="<?= e($back) ?>"><?= e($label) ?></a>
+  </div>
+</body>
+</html>
+<?php
+    exit;
 }
