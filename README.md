@@ -20,7 +20,7 @@ Plain **PHP 8 + PDO** (SQLite *or* MySQL) with vanilla JS/CSS — no frameworks,
 | **Languages** | English · **Deutsch** · **العربية (RTL)** |
 | **Stack** | PHP 8 · PDO (SQLite demo / MySQL production) · vanilla JS/CSS |
 | **Docs** | [Project README](daem-helpdesk/README.md) · [deployment guide](daem-helpdesk/UPLOAD-INSTRUCTIONS.txt) |
-| **Tests** | `tests/smoke.sh` (39 checks) · `tests/i18n-smoke.sh` (43 checks) · `diag.php?go=1` self-check |
+| **Tests** | `tests/smoke.sh` (58 checks) · `tests/i18n-smoke.sh` (43 checks) · `diag.php?go=1` self-check |
 
 ```bash
 cd daem-helpdesk
