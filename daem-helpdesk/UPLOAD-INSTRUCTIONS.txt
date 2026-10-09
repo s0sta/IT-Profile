@@ -16,7 +16,7 @@ STEP 2 — Create the database (and reset the old one)
 ============================================================
 A) RESET first (your previous attempts left half-created tables):
    1. hPanel → Databases → phpMyAdmin
-   2. In the left panel click your database:  u565334670_daem
+   2. In the left panel click your database:  uXXXXXXXXX_daem
    3. Click the "SQL" tab at the top
    4. Paste this and press "Go":
         DROP TABLE IF EXISTS attachments, ticket_replies, tickets,
@@ -26,11 +26,11 @@ A) RESET first (your previous attempts left half-created tables):
 
 B) Then verify the database + user exist:
    1. hPanel → Databases → MySQL Databases
-   2. Your database is:  u565334670_daem
+   2. Your database is:  uXXXXXXXXX_daem
    3. Make sure a MySQL user exists (create one if not) — it will be
-      named like:  u565334670_username
+      named like:  uXXXXXXXXX_username
    4. IMPORTANT: scroll to "Assign user to database", pick that user
-      and u565334670_daem, grant ALL PRIVILEGES, press Assign
+      and uXXXXXXXXX_daem, grant ALL PRIVILEGES, press Assign
    5. Write down: host = localhost, database name, user name, password
 
 ============================================================
@@ -54,8 +54,8 @@ STEP 4 — Install
 3. Fill:
      MySQL host:      localhost
      Port:            3306
-     Database name:   u565334670_daem        (exact name from hPanel)
-     Database user:   u565334670_username    (exact name from hPanel)
+     Database name:   uXXXXXXXXX_daem        (exact name from hPanel)
+     Database user:   uXXXXXXXXX_username    (exact name from hPanel)
      Database pass:   (the MySQL user's password)
      Site name:       Daem
      Admin account:   your name / username / email / password (min 8 chars)
