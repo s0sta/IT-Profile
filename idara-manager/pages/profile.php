@@ -28,10 +28,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $photo = $_FILES['photo'] ?? null;
         if (is_array($photo) && ($photo['error'] ?? 0) === UPLOAD_ERR_OK && (int) ($photo['size'] ?? 0) > 0) {
             $ext = strtolower(pathinfo((string) ($photo['name'] ?? ''), PATHINFO_EXTENSION));
-            if ((int) $photo['size'] > 2 * 1024 * 1024) {
+            $size = (int) $photo['size'];
+            $info = @getimagesize((string) $photo['tmp_name']);
+            $validType = is_array($info)
+                && in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)
+                && in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true);
+            if ($size > 2 * 1024 * 1024) {
                 $errors[] = t('profile.err_avatar_size');
-            } elseif (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
-                $errors[] = t('profile.err_avatar_type');
+            } elseif (!$validType) {
+                // extension, or the actual bytes, are not a real image
+                $errors[] = t('profile.err_avatar_invalid');
             } else {
                 @mkdir(APP_ROOT . '/storage/avatars', 0750, true);
                 $newName = 'u' . (int) $me['id'] . '_' . time() . '.' . $ext;
@@ -42,9 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             @unlink($oldFile);
                         }
                     }
-                    $avatar = 'up:' . $newName;
+                    $avatar = 'up:' . $newName; // an uploaded photo always wins over the picker
                 } else {
-                    $errors[] = t('profile.err_avatar_type');
+                    $errors[] = t('profile.err_avatar_save');
                 }
             }
         }

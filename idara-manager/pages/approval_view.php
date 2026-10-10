@@ -46,9 +46,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($decision !== 'approved' && $note === '') {
             flash('error', t('approvals.err_note'));
         } else {
-            Approvals::decide($id, $decision, $note);
+            $outcome = Approvals::decide($id, $decision, $note);
             handle_uploads(null, null, $id, (int) $me['id']);
-            $key = $decision === 'approved' ? 'approvals.approved_msg' : ($decision === 'rejected' ? 'approvals.rejected_msg' : 'approvals.returned_msg');
+            if ($decision === 'approved') {
+                $key = $outcome === 'advanced' ? 'approvals.step_approved_msg' : 'approvals.approved_msg';
+            } else {
+                $key = $decision === 'rejected' ? 'approvals.rejected_msg' : 'approvals.returned_msg';
+            }
             flash('success', t($key));
         }
         redirect('approval&id=' . $id);
@@ -70,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $priority = (string) $approval['priority'];
         }
         $approverIds = array_values(array_unique(array_filter(
-            array_map('intval', (array) ($_POST['approvers'] ?? [])),
+            array_map('intval', (array) ($_POST['approver_ids'] ?? [])),
             static fn (int $v): bool => $v > 0
         )));
         $due = (string) ($_POST['due_date'] ?? '');
@@ -199,7 +203,7 @@ layout_header($approval['ref'] . ' — ' . $approval['title'], 'approvals');
           <input class="input" id="e-due" name="due_date" type="date" value="<?= e((string) ($approval['due_date'] ?? '')) ?>">
 
           <label class="field-label" for="e-approvers"><?= e(t('approvals.chain')) ?></label>
-          <select class="input" id="e-approvers" name="approvers[]" multiple size="5" required>
+          <select class="input" id="e-approvers" name="approver_ids[]" multiple size="5" required>
             <?php foreach ($approvers as $u): ?><?php if ((int) $u['id'] === (int) $me['id']) { continue; } ?>
               <option value="<?= (int) $u['id'] ?>" <?= in_array((int) $u['id'], $chainIds, true) ? 'selected' : '' ?>>
                 <?= e($u['name']) ?><?= $u['job_title'] !== '' ? ' — ' . e($u['job_title']) : '' ?>

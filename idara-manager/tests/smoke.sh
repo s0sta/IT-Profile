@@ -124,7 +124,7 @@ check "approval shows 'you decide' badge" "$(val approvals.you_decide)" "$AV"
 T2=$(echo "$AV" | csrf)
 RAV=$(curl -s -L -b $JAR --data-urlencode "csrf=$T2" --data-urlencode "action=decide" \
   -d "decision=approved" --data-urlencode "note=موافقة فحص الدخان" "$BASE/index.php?p=approval&id=$AID")
-check "approve shows the success message" "$(val approvals.approved_msg)" "$RAV"
+check "approve shows the step-message (chain continues)" "$(val approvals.step_approved_msg)" "$RAV"
 check "approve: her step becomes approved" "badge-step badge-step-approved" "$RAV"
 check "approve: the next step becomes pending" "badge-step badge-step-pending" "$RAV"
 check "approve: approval itself stays pending" "badge-appr badge-appr-pending" "$RAV"
@@ -291,7 +291,7 @@ T=$(echo "$AP" | csrf)
 EID=$(curl -s -b $JN --data-urlencode "csrf=$T" --data-urlencode "title=طلب فحص التعديل" --data-urlencode "description=قبل التعديل" -d "type_id=1" -d "priority=high" -d "due_date=" -d "approver_ids[]=3" -d "approver_ids[]=2" -o /dev/null -w "%{redirect_url}" "$BASE/index.php?p=new-approval" | grep -o '[0-9]*$')
 EV=$(curl -s -b $JN "$BASE/index.php?p=approval&id=$EID")
 T=$(echo "$EV" | csrf)
-ER=$(curl -s -L -b $JN --data-urlencode "csrf=$T" -d "action=edit" --data-urlencode "title=طلب فحص التعديل — بعد" --data-urlencode "description=بعد التعديل" -d "type_id=" -d "priority=high" -d "due_date=" -d "approvers[]=3" -d "approvers[]=2" "$BASE/index.php?p=approval&id=$EID")
+ER=$(curl -s -L -b $JN --data-urlencode "csrf=$T" -d "action=edit" --data-urlencode "title=طلب فحص التعديل — بعد" --data-urlencode "description=بعد التعديل" -d "type_id=" -d "priority=high" -d "due_date=" -d "approver_ids[]=3" -d "approver_ids[]=2" "$BASE/index.php?p=approval&id=$EID")
 check "B7 approval edit is confirmed" "$(val approvals.edit_ok)" "$ER"
 check "B7 edited title is shown" "طلب فحص التعديل — بعد" "$ER"
 STEPS=$(php -r 'define("APP_ROOT", __DIR__); require "includes/db.php"; Database::init((require "data/config.php")["db"]); echo (int) Database::value("SELECT COUNT(*) FROM approval_steps WHERE approval_id = ?", [(int) $argv[1]]);' "$EID")
@@ -315,7 +315,9 @@ PV=$(curl -s -b $JAR "$BASE/index.php?p=task&id=$RID")
 T=$(echo "$PV" | csrf)
 RP=$(curl -s -L -b $JAR --data-urlencode "csrf=$T" -d "action=status" -d "status=in_progress" "$BASE/index.php?p=task&id=$RID")
 check "B4 reopened task shows the in-progress badge" "$(val tstatus.in_progress)" "$RP"
-checknot "B4 reopened task no longer shows 100%" "100%" "$RP"
+# the progress bar must not read 100% after reopening (assert the bar value, not any "100%" on the page)
+checknot "B4 reopened progress bar is no longer 100%" 'progress-num">100%' "$RP"
+check "B4 reopened progress bar shows a value below 100%" 'progress-num">' "$RP"
 
 echo "== 22. B7 — organizer edits a meeting =="
 MV=$(curl -s -b $JAR "$BASE/index.php?p=meetings")
@@ -405,7 +407,7 @@ check "item 1 return decision is confirmed" "$(val approvals.returned_msg)" "$(c
 NV=$(curl -s -b $JN "$BASE/index.php?p=approval&id=$FIRST")
 check "item 1 returned request shows the resubmit hint" "$(val approvals.resubmit_hint)" "$NV"
 T=$(echo "$NV" | csrf)
-RR=$(curl -s -L -b $JN --data-urlencode "csrf=$T" -d "action=edit" --data-urlencode "title=اعتماد إصدار ترخيص استثماري — بعد التعديل" -d "type_id=1" -d "priority=high" -d "due_date=" -d "approvers[]=3" -d "approvers[]=2" "$BASE/index.php?p=approval&id=$FIRST")
+RR=$(curl -s -L -b $JN --data-urlencode "csrf=$T" -d "action=edit" --data-urlencode "title=اعتماد إصدار ترخيص استثماري — بعد التعديل" -d "type_id=1" -d "priority=high" -d "due_date=" -d "approver_ids[]=3" -d "approver_ids[]=2" "$BASE/index.php?p=approval&id=$FIRST")
 check "item 1 resubmission is confirmed" "$(val approvals.resubmitted_ok)" "$RR"
 PEN=$(php -r 'define("APP_ROOT", __DIR__); require "includes/db.php"; Database::init((require "data/config.php")["db"]); echo Database::value("SELECT status FROM approvals WHERE id = ?", [(int) $argv[1]]);' "$FIRST")
 check "item 1 resubmitted request is pending again" "^pending$" "$PEN"
@@ -476,7 +478,52 @@ AV2=$(php -r 'define("APP_ROOT", __DIR__); require "includes/db.php"; Database::
 check "profile avatar persisted" "^builtin:03.webp$" "$AV2"
 check "profile page shows the chosen avatar" "assets/avatars/03.webp" "$(curl -s -b $JAR "$BASE/index.php?p=profile")"
 
-echo "== 28. Login throttle (last — it blocks this IP for 15 minutes) =="
+echo "== 28. v1.4 fixes — photo upload, flashes, audit, field naming =="
+
+# N1: a real PNG upload is stored and served
+python3 -c "import base64; open('/tmp/idara-real.png','wb').write(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='))"
+python3 -c "open('/tmp/idara-fake.png','w').write('this is not an image')"
+PR=$(curl -s -b $JAR "$BASE/index.php?p=profile")
+T=$(echo "$PR" | csrf)
+UP=$(curl -s -L -b $JAR -F "csrf=$T" -F "action=profile" -F "avatar=builtin:01.webp" -F "photo=@/tmp/idara-real.png;type=image/png" -F "bio=" -F "birthdate=" "$BASE/index.php?p=profile")
+check "N1 valid photo upload is confirmed" "$(val profile.profile_updated)" "$UP"
+UPV=$(php -r 'define("APP_ROOT", __DIR__); require "includes/db.php"; Database::init((require "data/config.php")["db"]); echo (string) Database::value("SELECT avatar FROM users WHERE id = 3");')
+check "N1 uploaded photo is stored (up: prefix)" "^up:" "$UPV"
+AVNAME=$(echo "$UPV" | sed 's/^up://')
+check "N1 uploaded photo is served as an image" "^image/png$" "$(curl -s -b $JAR -o /dev/null -w '%{content_type}' "$BASE/index.php?p=download&avatar=$AVNAME")"
+# N1: a fake image is refused with the right message
+T2=$(curl -s -b $JAR "$BASE/index.php?p=profile" | csrf)
+FUP=$(curl -s -L -b $JAR -F "csrf=$T2" -F "action=profile" -F "avatar=builtin:01.webp" -F "photo=@/tmp/idara-fake.png;type=image/png" -F "bio=" -F "birthdate=" "$BASE/index.php?p=profile")
+check "N1 a non-image file is refused" "$(val profile.err_avatar_invalid)" "$FUP"
+
+# N3: step-1 approve flashes the honest message on a 2-step chain
+AP=$(curl -s -b $JN "$BASE/index.php?p=new-approval")
+T=$(echo "$AP" | csrf)
+SID=$(curl -s -b $JN --data-urlencode "csrf=$T" --data-urlencode "title=فحص رسالة الخطوة" -d "type_id=1" -d "priority=low" -d "due_date=" -d "approver_ids[]=3" -d "approver_ids[]=2" -o /dev/null -w "%{redirect_url}" "$BASE/index.php?p=new-approval" | grep -o '[0-9]*$')
+SV=$(curl -s -b $JAR "$BASE/index.php?p=approval&id=$SID")
+T=$(echo "$SV" | csrf)
+SR=$(curl -s -L -b $JAR --data-urlencode "csrf=$T" -d "action=decide" -d "decision=approved" --data-urlencode "note=خطوة أولى" "$BASE/index.php?p=approval&id=$SID")
+check "N3 approver flash says the request moves to the next step" "$(val approvals.step_approved_msg)" "$SR"
+
+# N3b: a 1-step chain still flashes the final approve message
+AP2=$(curl -s -b $JN "$BASE/index.php?p=new-approval")
+T=$(echo "$AP2" | csrf)
+OID=$(curl -s -b $JN --data-urlencode "csrf=$T" --data-urlencode "title=فحص خطوة واحدة" -d "type_id=1" -d "priority=low" -d "due_date=" -d "approver_ids[]=3" -o /dev/null -w "%{redirect_url}" "$BASE/index.php?p=new-approval" | grep -o '[0-9]*$')
+OV=$(curl -s -b $JAR "$BASE/index.php?p=approval&id=$OID")
+T=$(echo "$OV" | csrf)
+OR=$(curl -s -L -b $JAR --data-urlencode "csrf=$T" -d "action=decide" -d "decision=approved" --data-urlencode "note=اعتماد نهائي" "$BASE/index.php?p=approval&id=$OID")
+check "N3 1-step approve flashes the final message" "$(val approvals.approved_msg)" "$OR"
+
+# N5: the edit panel uses the same field name as the create form
+EV=$(curl -s -b $JN "$BASE/index.php?p=approval&id=$SID")
+check "N5 edit panel uses approver_ids[]" 'name="approver_ids' "$EV"
+
+# N4: the audit log keeps the deleted user's name
+AUD=$(curl -s -b $JA "$BASE/index.php?p=admin/audit")
+check "N4 audit shows the deleted user's name" "مستخدم حذف" "$AUD"
+checknot "N4 no raw entity mix-up on the audit page" "user deleted user #" "$AUD"
+
+echo "== 29. Login throttle (last — it blocks this IP for 15 minutes) =="
 JTH=/tmp/idara-throttle.jar; rm -f $JTH
 T=$(curl -s -c $JTH "$BASE/index.php?p=login" | csrf)
 for i in 1 2 3 4 5 6; do

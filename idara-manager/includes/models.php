@@ -178,7 +178,7 @@ final class Users
             return $blocks;
         }
         Database::exec('DELETE FROM users WHERE id = ?', [$id]);
-        audit('user_deleted', 'user', (string) $u['name']);
+        audit('user_deleted', 'user', (string) $id, 'name=' . $u['name']);
         return [];
     }
 
@@ -985,13 +985,18 @@ final class Approvals
     }
 
     /** Approve / reject / return the current step, then advance or close. */
-    public static function decide(int $approvalId, string $decision, string $note): void
+    /**
+     * Decide the current step. Returns the outcome: 'advanced' (the chain
+     * moved to the next step), 'closed' (final approve / reject / return).
+     */
+    public static function decide(int $approvalId, string $decision, string $note): string
     {
         $approval = self::find($approvalId);
         $step = self::currentStep($approvalId);
         if (!$approval || !$step) {
-            return;
+            return 'none';
         }
+        $outcome = 'closed';
         Database::exec(
             'UPDATE approval_steps SET status = ?, note = ?, decided_at = ? WHERE id = ?',
             [$decision, $note, now(), (int) $step['id']]
@@ -1012,6 +1017,7 @@ final class Approvals
                 if ((int) $approval['requester_id'] !== Auth::id()) {
                     notify((int) $approval['requester_id'], t('notif.msg_approval_step', ['title' => excerpt((string) $approval['title'], 50), 'step' => (int) $step['step_order'], 'next' => (int) $next['step_order']]), u('approval&id=' . $approvalId));
                 }
+                $outcome = 'advanced';
             } else {
                 Database::exec(
                     "UPDATE approvals SET status = 'approved', updated_at = ?, closed_at = ? WHERE id = ?",
@@ -1043,6 +1049,7 @@ final class Approvals
                 notify((int) $approval['requester_id'], t($msgKey, ['title' => excerpt((string) $approval['title'], 50)]), u('approval&id=' . $approvalId));
             }
         }
+        return $outcome;
     }
 
     /**

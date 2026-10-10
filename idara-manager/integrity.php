@@ -178,13 +178,13 @@ return array (
   ),
   'assets/css/style.css' => 
   array (
-    'size' => 47398,
-    'md5' => '1fdb1a6e0d6a92f72990a841447fb2a5',
+    'size' => 50078,
+    'md5' => '71ee4b1ea9e298d4a24142285b8e5414',
   ),
   'assets/js/app.js' => 
   array (
-    'size' => 4429,
-    'md5' => '330be7084740458d8760553743dd8931',
+    'size' => 5808,
+    'md5' => 'f8cb7079e7eec9c2067c0509f525d82c',
   ),
   'htaccess.txt' => 
   array (
@@ -223,8 +223,8 @@ return array (
   ),
   'includes/models.php' => 
   array (
-    'size' => 71440,
-    'md5' => '383b9976f208cc8bf8fe21f06bb75dfe',
+    'size' => 71724,
+    'md5' => 'ab33be851c5e061290bf5d34f4b07159',
   ),
   'index.php' => 
   array (
@@ -238,8 +238,8 @@ return array (
   ),
   'lang/ar.php' => 
   array (
-    'size' => 37777,
-    'md5' => '6d206397cb254e8592b76a8508c27c67',
+    'size' => 38117,
+    'md5' => '69565b8525b12f2a7e07c69ba131d92a',
   ),
   'lang/doc-ar.php' => 
   array (
@@ -253,8 +253,8 @@ return array (
   ),
   'lang/en.php' => 
   array (
-    'size' => 31364,
-    'md5' => '0d665d9deb97a7f33cb5b4ef6941c739',
+    'size' => 31646,
+    'md5' => '7c2e7dbe8f941f5a162edd1c02024847',
   ),
   'pages/404.php' => 
   array (
@@ -263,8 +263,8 @@ return array (
   ),
   'pages/admin/audit.php' => 
   array (
-    'size' => 2901,
-    'md5' => '4c762e2838281f7fe513cba9ef668a93',
+    'size' => 3257,
+    'md5' => '410d4f88064e7b5cb8ba389acbae908a',
   ),
   'pages/admin/categories.php' => 
   array (
@@ -308,8 +308,8 @@ return array (
   ),
   'pages/approval_view.php' => 
   array (
-    'size' => 14790,
-    'md5' => '3b8fa5af80c8b661cca4b383d2a8d4cc',
+    'size' => 14941,
+    'md5' => '2df591332f772816f1bf57fab11ba544',
   ),
   'pages/approvals.php' => 
   array (
@@ -383,8 +383,8 @@ return array (
   ),
   'pages/profile.php' => 
   array (
-    'size' => 8463,
-    'md5' => 'd0b02baaad11c866352ad6d4ebdaf0cb',
+    'size' => 8843,
+    'md5' => 'c0ec280ab4a7ef25c2649443c7954df7',
   ),
   'pages/task_new.php' => 
   array (
@@ -393,8 +393,8 @@ return array (
   ),
   'pages/task_view.php' => 
   array (
-    'size' => 18434,
-    'md5' => '99189207c2beda88449401c5b93c8b5d',
+    'size' => 19241,
+    'md5' => '89eff4bfabdf07e961a1df047bf00db5',
   ),
   'pages/tasks.php' => 
   array (

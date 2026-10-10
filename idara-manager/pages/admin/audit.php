@@ -41,7 +41,19 @@ layout_header(t('al.title'), 'admin/audit');
             <td class="cell-muted"><?= e(fmt_dt($a['created_at'])) ?></td>
             <td><?= e($a['username']) ?></td>
             <td><span class="badge badge-audit"><?= e(str_replace('_', ' ', $a['action'])) ?></span></td>
-            <td><?php if (($a['entity'] ?? '') === 'user' && isset($nameMap[(int) $a['entity_id']])): ?><?= e($nameMap[(int) $a['entity_id']]) ?><?php else: ?><?= e($a['entity'] ?? '—') ?><?= $a['entity_id'] ? ' #' . e((string) $a['entity_id']) : '' ?><?php endif; ?></td>
+            <td><?php
+                if (($a['entity'] ?? '') === 'user') {
+                    $uid   = (int) $a['entity_id'];
+                    $label = $nameMap[$uid] ?? null;
+                    if ($label === null && preg_match('/name=([^;]+)/', (string) ($a['details'] ?? ''), $m)) {
+                        $label = trim($m[1]);
+                    }
+                    echo $label !== null ? e($label) : 'user #' . $uid;
+                } else {
+                    echo e($a['entity'] ?? '—');
+                    echo $a['entity_id'] ? ' #' . e((string) $a['entity_id']) : '';
+                }
+            ?></td>
             <td class="cell-muted"><?= e($a['details'] ?? '') ?></td>
             <td class="cell-muted"><?= e($a['ip']) ?></td>
           </tr>

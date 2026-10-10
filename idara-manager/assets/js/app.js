@@ -110,3 +110,39 @@
     grow();
   });
 })();
+
+
+  /* ---------------------------------------------------- progress editor (task updates) */
+  (function () {
+    var toggle = document.querySelector('[data-progress-toggle]');
+    var box = document.querySelector('[data-progress-edit]');
+    if (!toggle || !box) { return; }
+    var range = box.querySelector('[data-progress-range]');
+    var number = box.querySelector('[data-progress-number]');
+    var chips = box.querySelectorAll('[data-progress-set]');
+
+    function clamp(v) {
+      v = parseInt(v, 10);
+      if (isNaN(v)) { return 0; }
+      return Math.max(0, Math.min(100, v));
+    }
+    function paint(v) {
+      v = clamp(v);
+      range.value = v;
+      number.value = v;
+      chips.forEach(function (c) {
+        c.classList.toggle('is-on', clamp(c.getAttribute('data-progress-set')) === v);
+      });
+    }
+    toggle.addEventListener('change', function () {
+      box.hidden = !toggle.checked;
+      number.disabled = !toggle.checked;
+      if (toggle.checked) { paint(number.value); number.focus(); }
+    });
+    range.addEventListener('input', function () { paint(range.value); });
+    number.addEventListener('input', function () { range.value = clamp(number.value); });
+    chips.forEach(function (c) {
+      c.addEventListener('click', function () { paint(c.getAttribute('data-progress-set')); number.focus(); });
+    });
+    paint(number.value);
+  })();

@@ -165,7 +165,7 @@ layout_header($task['ref'] . ' — ' . $task['title'], 'tasks');
     <?php if ($canEdit): ?>
       <form method="post" action="<?= u('task&id=' . $id) ?>" class="inline-form">
         <?= csrf_field() ?><input type="hidden" name="action" value="progress">
-        <input class="input input-sm" type="number" name="progress" min="0" max="100" step="5" value="<?= (int) $task['progress'] ?>" aria-label="<?= e(t('common.progress')) ?>">
+        <input class="input progress-input" type="number" name="progress" min="0" max="100" step="5" value="<?= (int) $task['progress'] ?>" aria-label="<?= e(t('common.progress')) ?>">
         <button class="btn btn-ghost btn-sm" type="submit"><?= e(t('common.save')) ?></button>
       </form>
     <?php endif; ?>
@@ -335,14 +335,28 @@ layout_header($task['ref'] . ' — ' . $task['title'], 'tasks');
       <?= csrf_field() ?><input type="hidden" name="action" value="add_update">
       <label class="field-label"><?= e(t('tasks.add_update')) ?></label>
       <textarea class="input" name="body" rows="4" required placeholder="<?= e(t('tasks.update_placeholder')) ?>"></textarea>
+      <label class="switch-label">
+        <input type="checkbox" data-progress-toggle>
+        <span class="switch" aria-hidden="true"></span>
+        <span><?= e(t('tasks.update_progress')) ?></span>
+      </label>
+      <div class="progress-edit" data-progress-edit hidden>
+        <input class="pe-range" type="range" min="0" max="100" step="5" value="<?= (int) $task['progress'] ?>" data-progress-range aria-label="<?= e(t('common.progress')) ?>">
+        <div class="pe-number">
+          <input class="pe-input" type="number" name="progress" min="0" max="100" step="5" value="<?= (int) $task['progress'] ?>" data-progress-number disabled aria-label="<?= e(t('common.progress')) ?>">
+          <span class="pe-suffix">%</span>
+        </div>
+        <div class="pe-quick">
+          <?php foreach ([0, 25, 50, 75, 100] as $pe): ?>
+            <button type="button" class="pe-chip" data-progress-set="<?= (int) $pe ?>"><?= (int) $pe ?>%</button>
+          <?php endforeach; ?>
+        </div>
+      </div>
       <div class="reply-bar">
         <div class="reply-left">
           <label class="file-label">
             <input type="file" name="attachments[]" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.txt,.csv,.doc,.docx,.xls,.xlsx,.zip">
             📎 <?= e(t('common.attach')) ?> <span class="cell-muted">(<?= e(t('common.max_size')) ?>)</span>
-          </label>
-          <label class="check-label"><?= e(t('tasks.update_progress')) ?>
-            <input class="input input-sm" type="number" name="progress" min="0" max="100" step="5" placeholder="%">
           </label>
         </div>
         <button class="btn btn-primary" type="submit"><?= e(t('tasks.post_update')) ?></button>
