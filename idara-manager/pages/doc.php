@@ -102,7 +102,7 @@ ob_start();
   </section>
 <?php endforeach; ?>
 
-<p class="doc-foot"><?= e(t('nav.footer', ['year' => date('Y'), 'site' => $site])) ?></p>
+<p class="doc-foot"><?= e(t('nav.footer', ['year' => date('Y'), 'site' => $site])) ?> · <?= e(t('nav.footer_by')) ?> <a class="footer-link" href="https://s0sta.com" target="_blank" rel="noopener">s0sta.com</a></p>
 <?php
 $content = (string) ob_get_clean();
 
@@ -119,7 +119,7 @@ if ($authed) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($docTitle) ?> · <?= e($site) ?></title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="stylesheet" href="assets/css/style.css?v=1">
+<link rel="stylesheet" href="assets/css/style.css?v=2">
 <script>
 (function(){try{var t=localStorage.getItem('daem-theme');
 if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
@@ -140,7 +140,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(err){}})();
   <main class="doc-wrap">
     <?= $content ?>
   </main>
-<script src="assets/js/app.js?v=1"></script>
+<script src="assets/js/app.js?v=2"></script>
 </body>
 </html>
 <?php

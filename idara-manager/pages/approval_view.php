@@ -47,7 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash('error', t('approvals.err_note'));
         } else {
             $outcome = Approvals::decide($id, $decision, $note);
-            handle_uploads(null, null, $id, (int) $me['id']);
+            $uploads = handle_uploads(null, null, $id, (int) $me['id']);
+            foreach ($uploads['errors'] as $uploadError) {
+                flash('warning', (string) $uploadError);
+            }
             if ($decision === 'approved') {
                 $key = $outcome === 'advanced' ? 'approvals.step_approved_msg' : 'approvals.approved_msg';
             } else {
@@ -92,8 +95,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'due_date'        => preg_match('/^\d{4}-\d{2}-\d{2}$/', $due) ? $due : null,
                 'related_task_id' => (int) ($_POST['related_task_id'] ?? 0),
             ], $approverIds, $me);
-            handle_uploads(null, null, $id, (int) $me['id']);
+            $uploads = handle_uploads(null, null, $id, (int) $me['id']);
             flash('success', $wasReturnedBefore ? t('approvals.resubmitted_ok') : t('approvals.edit_ok'));
+            foreach ($uploads['errors'] as $uploadError) {
+                flash('warning', (string) $uploadError);
+            }
         }
         redirect('approval&id=' . $id);
     }

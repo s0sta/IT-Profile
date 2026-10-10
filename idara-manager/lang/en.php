@@ -11,7 +11,7 @@ return [
     // ---------------------------------------------------------------- Application
     'app.name'        => 'Idara',
     'app.tagline'     => 'Manager Workspace',
-    'app.version'     => 'Version 1.0 · prepared by s0sta',
+    'app.version'     => 'Version 1.6',
 
     // ---------------------------------------------------------------- Common
     'common.save'          => 'Save',
@@ -77,6 +77,7 @@ return [
     'common.due_in'        => 'Due in {n} days',
     'common.too_big'       => 'Exceeds the maximum allowed size',
     'common.type_not_allowed' => 'File type not allowed',
+    'common.storage_warning'  => 'Storage folder is not writable: {folders} — set its permissions to 755 or 775 in File Manager.',
     'common.upload_failed' => 'The file could not be saved',
     'common.no_results'    => 'No results found.',
     'common.progress'      => 'Progress',
@@ -120,7 +121,8 @@ return [
     'nav.sign_out'       => 'Sign Out',
     'nav.theme'          => 'Change Theme',
     'nav.language'       => 'Language',
-    'nav.footer'         => '{year} {site} — Manager Workspace · prepared by s0sta',
+    'nav.footer'         => '{year} {site} — Manager Workspace',
+    'nav.footer_by'      => 'prepared by',
 
     // ---------------------------------------------------------------- Sign-in
     'auth.title'          => 'Sign In',

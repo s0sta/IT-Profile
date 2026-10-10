@@ -523,7 +523,50 @@ AUD=$(curl -s -b $JA "$BASE/index.php?p=admin/audit")
 check "N4 audit shows the deleted user's name" "مستخدم حذف" "$AUD"
 checknot "N4 no raw entity mix-up on the audit page" "user deleted user #" "$AUD"
 
-echo "== 29. Login throttle (last — it blocks this IP for 15 minutes) =="
+echo "== 28b. v1.5 fixes — task attachments, upload errors, asset versioning =="
+# a task with an update that carries an attachment
+T=$(curl -s -b $JAR "$BASE/index.php?p=new-task" | csrf)
+curl -s -b $JAR -o /dev/null -d "csrf=$T" -d "title=ATT attachment task" -d "category_id=1" -d "priority=low" \
+  -d "assignee_id=1" -d "department_id=1" -d "start_date=2026-10-10" -d "due_date=2026-10-30" "$BASE/index.php?p=new-task"
+ATID=$(curl -s -b $JAR "$BASE/index.php?p=tasks" | grep -oE 'task&id=[0-9]+' | head -1 | grep -o '[0-9]*')
+printf 'attachment smoke test\n' > /tmp/idara-att.txt
+T=$(curl -s -b $JAR "$BASE/index.php?p=task&id=$ATID" | csrf)
+RESP=$(curl -s -L -b $JAR -F "csrf=$T" -F "action=add_update" -F "body=Update with attachment" \
+  -F "attachments[]=@/tmp/idara-att.txt;type=text/plain" "$BASE/index.php?p=task&id=$ATID")
+# the top bar also has a ?p=download&avatar=… link, so match the attachment form (&id=)
+ATURL=$(echo "$RESP" | grep -oE 'index.php\?p=download&(amp;)?id=[0-9]+' | head -1)
+ATURL=${ATURL//&amp;/&}   # HTML-escaped ampersands must be unescaped before curling
+check "attachment upload is stored and linked" "p=download&id=" "$ATURL"
+if [ -n "$ATURL" ]; then
+  check "attachment downloads as a file" "200" "$(curl -s -b $JAR -o /dev/null -w '%{http_code}' "$BASE/$ATURL")"
+  check "attachment content type is text/plain" "text/plain" "$(curl -s -b $JAR -o /dev/null -w '%{content_type}' "$BASE/$ATURL")"
+fi
+# a blocked extension must produce a visible warning instead of silence
+printf 'MZ fake exe\n' > /tmp/idara-bad.exe
+T=$(curl -s -b $JAR "$BASE/index.php?p=task&id=$ATID" | csrf)
+BAD=$(curl -s -L -b $JAR -F "csrf=$T" -F "action=add_update" -F "body=Update with bad file" \
+  -F "attachments[]=@/tmp/idara-bad.exe;type=application/octet-stream" "$BASE/index.php?p=task&id=$ATID")
+check "blocked file type shows an error" "$(val common.type_not_allowed)" "$BAD"
+# asset cache-busting
+LOGINHTML=$(curl -s "$BASE/index.php?p=login")
+check "stylesheet is versioned v2" "style.css?v=2" "$LOGINHTML"
+check "script is versioned v2" "app.js?v=2" "$LOGINHTML"
+# a healthy install shows no storage warning
+JARV15=/tmp/idara-v15-admin.jar; login admin 'Admin@1234' $JARV15
+SETTINGS=$(curl -s -b $JARV15 "$BASE/index.php?p=admin/settings")
+check "admin settings page loads for the storage check" "$(val as.general)" "$SETTINGS"
+checknot "no storage warning on a healthy install" "$(val common.storage_warning | cut -c1-20)" "$SETTINGS"
+# clean up the attachment task
+T=$(curl -s -b $JAR "$BASE/index.php?p=task&id=$ATID" | csrf)
+curl -s -b $JAR -o /dev/null -d "csrf=$T" -d "action=delete" "$BASE/index.php?p=task&id=$ATID"
+
+echo "== 29. v1.6 branding — version + s0sta.com link =="
+DASH=$(curl -s -b $JAR "$BASE/index.php?p=dashboard")
+check "footer links to s0sta.com" 'href="https://s0sta.com"' "$DASH"
+check "version label shows 1.6" "$(val app.version)" "$DASH"
+checknot "old duplicated branding is gone" "prepared by s0sta" "$DASH"
+
+echo "== 30. Login throttle (last — it blocks this IP for 15 minutes) =="
 JTH=/tmp/idara-throttle.jar; rm -f $JTH
 T=$(curl -s -c $JTH "$BASE/index.php?p=login" | csrf)
 for i in 1 2 3 4 5 6; do

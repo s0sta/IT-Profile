@@ -383,13 +383,24 @@ function handle_uploads(?int $taskId, ?int $updateId, ?int $approvalId, int $upl
             continue;
         }
         $bucket = $taskId ?: ($approvalId ? 'approvals' : 'misc');
-        $dir = APP_ROOT . '/storage/uploads/' . $bucket;
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0750, true);
+        $base = APP_ROOT . '/storage/uploads';
+        $dir = $base . '/' . $bucket;
+        // Create the folder if needed and make sure it is really writable before moving the file.
+        foreach ([$base, $dir] as $candidate) {
+            if (!is_dir($candidate)) {
+                @mkdir($candidate, 0755, true);
+                if (!is_dir($candidate)) {
+                    @mkdir($candidate, 0775, true);
+                }
+            }
+        }
+        if (!is_dir($dir) || !is_writable($dir)) {
+            $out['errors'][] = e((string) $name) . ' — ' . t('common.storage_warning', ['folders' => 'storage/uploads/' . $bucket]);
+            continue;
         }
         $stored = bin2hex(random_bytes(8)) . '.' . $ext;
         if (!move_uploaded_file($f['tmp_name'][$i], $dir . '/' . $stored)) {
-            $out['errors'][] = t('common.upload_failed');
+            $out['errors'][] = e((string) $name) . ' — ' . t('common.upload_failed');
             continue;
         }
         Database::exec(
@@ -408,10 +419,14 @@ function handle_uploads(?int $taskId, ?int $updateId, ?int $approvalId, int $upl
 
 function attachmentsFor(?int $taskId = null, ?int $updateId = null, ?int $approvalId = null): array
 {
+    // Most specific first: an update attachment is looked up by its own id and
+    // must also work when no task id is passed (that was the bug: the function
+    // returned [] for attachmentsFor(null, $updateId), so files were stored but
+    // never shown).
+    if ($updateId !== null) {
+        return Database::all('SELECT * FROM attachments WHERE update_id = ? ORDER BY id ASC', [$updateId]);
+    }
     if ($taskId !== null) {
-        if ($updateId !== null) {
-            return Database::all('SELECT * FROM attachments WHERE update_id = ? ORDER BY id ASC', [$updateId]);
-        }
         return Database::all('SELECT * FROM attachments WHERE task_id = ? AND update_id IS NULL ORDER BY id ASC', [$taskId]);
     }
     if ($approvalId !== null) {
@@ -423,6 +438,28 @@ function attachmentsFor(?int $taskId = null, ?int $updateId = null, ?int $approv
 function attachment_path(string $bucket, string $stored): string
 {
     return APP_ROOT . '/storage/uploads/' . $bucket . '/' . $stored;
+}
+
+/**
+ * Which storage folders are missing or not writable? Empty array = all good.
+ * Used by the admin settings page so a broken folder is visible in the UI
+ * instead of silently swallowing every upload.
+ */
+function storage_problems(): array
+{
+    $problems = [];
+    foreach (['storage', 'storage/uploads', 'storage/avatars'] as $rel) {
+        $path = APP_ROOT . '/' . $rel;
+        if (!is_dir($path)) {
+            @mkdir($path, 0755, true);
+        }
+        if (!is_dir($path)) {
+            $problems[] = $rel . ' (missing)';
+        } elseif (!is_writable($path)) {
+            $problems[] = $rel . ' (not writable)';
+        }
+    }
+    return $problems;
 }
 
 // ---------------------------------------------------------------- misc

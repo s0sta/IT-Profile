@@ -40,6 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 layout_header(t('as.title'), 'admin/settings');
 ?>
 
+<?php $storageProblems = storage_problems(); ?>
+<?php if ($storageProblems): ?>
+  <div class="flash flash-warning">
+    <?= e(t('common.storage_warning', ['folders' => implode(', ', $storageProblems)])) ?>
+  </div>
+<?php endif; ?>
+
 <section class="grid-2">
   <div class="panel">
     <h2 class="panel-title"><?= e(t('as.general')) ?></h2>

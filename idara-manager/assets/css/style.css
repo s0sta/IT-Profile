@@ -1085,3 +1085,7 @@ a.stat-card .stat-value, a.stat-card .stat-label { color: inherit; }
 .pe-chip:hover { border-color: var(--primary); color: var(--primary); }
 .pe-chip.is-on { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
 @media (max-width: 640px) { .pe-input { width: 76px; } .pe-range { flex-basis: 100%; } }
+
+/* footer hyperlink to the main website */
+.footer-link { color: inherit; font-weight: 650; text-decoration: underline; text-underline-offset: 2px; }
+.footer-link:hover { color: var(--primary); }

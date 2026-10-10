@@ -254,7 +254,7 @@ function layout_header(string $title, string $active = ''): void
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?> · <?= e($site) ?></title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="stylesheet" href="assets/css/style.css?v=1">
+<link rel="stylesheet" href="assets/css/style.css?v=2">
 <script>
 (function(){try{var t=localStorage.getItem('daem-theme');
 if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
@@ -318,10 +318,10 @@ function layout_footer(): void
 {
     ?>
     </main>
-    <footer class="footer">© <?= e(t('nav.footer', ['year' => date('Y'), 'site' => setting('site_name', t('app.name'))])) ?></footer>
+    <footer class="footer">© <?= e(t('nav.footer', ['year' => date('Y'), 'site' => setting('site_name', t('app.name'))])) ?> · <?= e(t('nav.footer_by')) ?> <a class="footer-link" href="https://s0sta.com" target="_blank" rel="noopener">s0sta.com</a></footer>
   </div>
 </div>
-<script src="assets/js/app.js?v=1"></script>
+<script src="assets/js/app.js?v=2"></script>
 </body>
 </html>
 <?php

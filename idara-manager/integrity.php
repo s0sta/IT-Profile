@@ -178,8 +178,8 @@ return array (
   ),
   'assets/css/style.css' => 
   array (
-    'size' => 50078,
-    'md5' => '71ee4b1ea9e298d4a24142285b8e5414',
+    'size' => 50275,
+    'md5' => '1bd24bf54c9d1b7aa9a5b74bc87e9716',
   ),
   'assets/js/app.js' => 
   array (
@@ -208,8 +208,8 @@ return array (
   ),
   'includes/helpers.php' => 
   array (
-    'size' => 13347,
-    'md5' => 'fea14fc81b7c664e19675ca51f9e9293',
+    'size' => 14836,
+    'md5' => '192d12a4dc27aa3d54c082f0e05a62d6',
   ),
   'includes/i18n.php' => 
   array (
@@ -218,8 +218,8 @@ return array (
   ),
   'includes/layout.php' => 
   array (
-    'size' => 18143,
-    'md5' => '1fc13f263a200f1f1f33bb76cc784860',
+    'size' => 18268,
+    'md5' => '8eec3b950b8ecd7c010ee0c6b4003267',
   ),
   'includes/models.php' => 
   array (
@@ -238,8 +238,8 @@ return array (
   ),
   'lang/ar.php' => 
   array (
-    'size' => 38117,
-    'md5' => '69565b8525b12f2a7e07c69ba131d92a',
+    'size' => 38303,
+    'md5' => 'dbedba47ae17366a93f70ef64d58102b',
   ),
   'lang/doc-ar.php' => 
   array (
@@ -253,13 +253,13 @@ return array (
   ),
   'lang/en.php' => 
   array (
-    'size' => 31646,
-    'md5' => '7c2e7dbe8f941f5a162edd1c02024847',
+    'size' => 31780,
+    'md5' => '5abffc89ffe2cc90b095f00e6e7cbead',
   ),
   'pages/404.php' => 
   array (
     'size' => 907,
-    'md5' => 'e55749c86449ef048f75b35feb20df9a',
+    'md5' => 'c2429c532b41c1b497914232bb53f10a',
   ),
   'pages/admin/audit.php' => 
   array (
@@ -283,8 +283,8 @@ return array (
   ),
   'pages/admin/settings.php' => 
   array (
-    'size' => 3038,
-    'md5' => '56a158a5cd4dae78be9951cda61df558',
+    'size' => 3270,
+    'md5' => '0331d5a04fd4ff268c7a4ed0b083c336',
   ),
   'pages/admin/types.php' => 
   array (
@@ -308,8 +308,8 @@ return array (
   ),
   'pages/approval_view.php' => 
   array (
-    'size' => 14941,
-    'md5' => '2df591332f772816f1bf57fab11ba544',
+    'size' => 15223,
+    'md5' => 'c4ec783290f4cda8d59afaf974eccfb0',
   ),
   'pages/approvals.php' => 
   array (
@@ -338,8 +338,8 @@ return array (
   ),
   'pages/doc.php' => 
   array (
-    'size' => 5332,
-    'md5' => 'c997be42f7c0ee0e973c0e7faf5bdaad',
+    'size' => 5457,
+    'md5' => '6cbec6b15b8ce466d1e0607ee2370c42',
   ),
   'pages/download.php' => 
   array (
@@ -359,7 +359,7 @@ return array (
   'pages/login.php' => 
   array (
     'size' => 2895,
-    'md5' => '4f1945c492a4c67cfbebea6a67a21f39',
+    'md5' => 'e2c683cbc5251f548f8d78f49fe9d2e7',
   ),
   'pages/logout.php' => 
   array (
@@ -393,8 +393,8 @@ return array (
   ),
   'pages/task_view.php' => 
   array (
-    'size' => 19241,
-    'md5' => '89eff4bfabdf07e961a1df047bf00db5',
+    'size' => 19382,
+    'md5' => '3f4e7e32f60cff2946b3faa8e100b371',
   ),
   'pages/tasks.php' => 
   array (

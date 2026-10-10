@@ -33,7 +33,7 @@ $ipBlocked = Auth::throttled('', $_SERVER['REMOTE_ADDR'] ?? 'unknown');
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e(t('auth.title')) ?> · <?= e($site) ?></title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="stylesheet" href="assets/css/style.css?v=1">
+<link rel="stylesheet" href="assets/css/style.css?v=2">
 <script>
 (function(){try{var t=localStorage.getItem('daem-theme');
 if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}
@@ -65,6 +65,6 @@ document.documentElement.setAttribute('data-theme',t);}catch(err){}})();
       <p class="login-foot"><a href="<?= u('doc') ?>"><?= e(t('nav.doc')) ?> →</a></p>
     </div>
   </div>
-<script src="assets/js/app.js?v=1"></script>
+<script src="assets/js/app.js?v=2"></script>
 </body>
 </html>

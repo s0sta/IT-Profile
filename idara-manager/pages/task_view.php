@@ -59,8 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $progress = ($_POST['progress'] ?? '') === '' ? null : (int) $_POST['progress'];
             $updateId = Tasks::addUpdate($id, $body, $progress);
-            handle_uploads($id, $updateId, null, (int) $me['id']);
+            $uploads = handle_uploads($id, $updateId, null, (int) $me['id']);
             flash('success', t('tasks.update_added'));
+            foreach ($uploads['errors'] as $uploadError) {
+                flash('warning', (string) $uploadError);
+            }
         }
     } elseif ($canManage && $action === 'edit') {
         $title = trim((string) ($_POST['title'] ?? ''));
