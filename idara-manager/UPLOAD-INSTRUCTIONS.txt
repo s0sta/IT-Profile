@@ -154,6 +154,34 @@ To upgrade a live site:
 3. Delete diag.php if it is still there.
 
 ============================================================
+============================================================
+UPGRADING to v1.7 (hardening per the production-readiness report)
+============================================================
+v1.7 adds: two-step verification (TOTP via Google Authenticator etc.),
+a stronger password policy (10+ characters, letters and numbers), email
+notifications (SMTP settings in Admin -> Settings; in-app notifications
+keep working without email), printable official letters and meeting
+minutes (A4, with Gregorian + Hijri dates), Hijri (Umm al-Qura) dates
+in the top bar, CSV task import (Admin -> Import tasks), a page-jump and
+20/50/100 per-page selector on all lists, and the performance indexes
+for very large task lists.
+
+To upgrade a live site:
+1. Upload EVERYTHING from this ZIP over the existing files.
+2. Run this SQL once (hPanel -> Databases -> phpMyAdmin -> SQL):
+     ALTER TABLE users
+       ADD mfa_secret VARCHAR(64) NOT NULL DEFAULT '',
+       ADD mfa_enabled TINYINT(1) NOT NULL DEFAULT 0;
+   (The site keeps working before you run it; two-step verification
+   simply cannot be enabled until the columns exist.)
+3. (Optional, only past ~10,000 tasks) run idara-production-indexes.sql
+   in phpMyAdmin - the fresh schema already contains these indexes.
+4. Configure email (optional): Admin -> Settings -> Email notifications:
+   enable + SMTP host/port/user/password/sender. Leaving it disabled keeps
+   the current in-app-only behaviour.
+5. Delete diag.php if it is still there.
+
+============================================================
 TROUBLESHOOTING
 ============================================================
 - "Access denied for user 'uXXXXXXXXX_idara'@'localhost' (using password: YES)"

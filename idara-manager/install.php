@@ -122,8 +122,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!filter_var($admin['email'], FILTER_VALIDATE_EMAIL)) {
         $errors[] = 'Enter a valid administrator email.';
     }
-    if (strlen($admin['password']) < 8) {
-        $errors[] = 'Administrator password must be at least 8 characters.';
+    if (strlen($admin['password']) < 10 || !preg_match('/\p{L}/u', $admin['password']) || !preg_match('/\d/', $admin['password'])) {
+        $errors[] = 'Administrator password must be at least 10 characters and contain letters and numbers.';
     }
     if (!in_array($tz, timezone_identifiers_list(), true)) {
         $errors[] = 'Invalid timezone.';

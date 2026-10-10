@@ -73,14 +73,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('profile');
     }
 
+    if ($action === 'mfa_enable') {
+        // Generate a fresh secret and store it (enabled stays 0 until verified).
+        $secret = totp_secret();
+        Database::exec('UPDATE users SET mfa_secret = ?, mfa_enabled = 0 WHERE id = ?', [$secret, (int) $me['id']]);
+        audit('mfa_secret_created', 'user', (int) $me['id']);
+        flash('info', t('profile.mfa_secret_hint'));
+        redirect('profile');
+    }
+
+    if ($action === 'mfa_verify') {
+        $code = trim((string) ($_POST['code'] ?? ''));
+        if (totp_verify((string) $me['mfa_secret'], $code)) {
+            Database::exec('UPDATE users SET mfa_enabled = 1 WHERE id = ?', [(int) $me['id']]);
+            audit('mfa_enabled', 'user', (int) $me['id']);
+            flash('success', t('profile.mfa_enabled_ok'));
+        } else {
+            flash('error', t('profile.mfa_bad_code'));
+        }
+        redirect('profile');
+    }
+
+    if ($action === 'mfa_disable') {
+        $pw = (string) ($_POST['password'] ?? '');
+        if (!password_verify($pw, (string) $me['password_hash'])) {
+            flash('error', t('profile.mfa_bad_password'));
+        } else {
+            Database::exec("UPDATE users SET mfa_secret = '', mfa_enabled = 0 WHERE id = ?", [(int) $me['id']]);
+            audit('mfa_disabled', 'user', (int) $me['id']);
+            flash('success', t('profile.mfa_disabled_ok'));
+        }
+        redirect('profile');
+    }
+
     $current = (string) ($_POST['current_password'] ?? '');
     $new     = (string) ($_POST['new_password'] ?? '');
     $confirm = (string) ($_POST['confirm_password'] ?? '');
 
     if (!password_verify($current, (string) $me['password_hash'])) {
         flash('error', t('profile.err_current'));
-    } elseif (mb_strlen($new, 'UTF-8') < 8) {
-        flash('error', t('profile.err_short'));
+    } elseif (!valid_password($new)) {
+        flash('error', t('profile.err_policy'));
     } elseif ($new !== $confirm) {
         flash('error', t('profile.err_match'));
     } else {
@@ -132,6 +165,41 @@ layout_header(t('profile.title'), 'profile');
 
     <p><button class="btn btn-primary" type="submit"><?= e(t('common.save')) ?></button></p>
   </form>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title"><?= e(t('profile.mfa')) ?></h2>
+  <?php $mfaOn = (int) ($me['mfa_enabled'] ?? 0) === 1; ?>
+  <p class="muted-text">
+    <?= e(t('common.status')) ?>:
+    <strong><?= $mfaOn ? e(t('profile.mfa_status_on')) : e(t('profile.mfa_status_off')) ?></strong>
+  </p>
+
+  <?php if ($mfaOn): ?>
+    <form method="post" action="<?= u('profile') ?>">
+      <?= csrf_field() ?>
+      <input type="hidden" name="action" value="mfa_disable">
+      <label class="field-label" for="mfa-pw"><?= e(t('profile.mfa_confirm_disable')) ?></label>
+      <input class="input" id="mfa-pw" name="password" type="password" required autocomplete="current-password">
+      <button class="btn btn-ghost text-danger" type="submit"><?= e(t('profile.mfa_disable')) ?></button>
+    </form>
+  <?php elseif (trim((string) ($me['mfa_secret'] ?? '')) !== ''): ?>
+    <p class="muted-text"><?= e(t('profile.mfa_secret_hint')) ?></p>
+    <div class="ref-pill"><?= e($me['mfa_secret']) ?></div>
+    <form method="post" action="<?= u('profile') ?>">
+      <?= csrf_field() ?>
+      <input type="hidden" name="action" value="mfa_verify">
+      <label class="field-label" for="mfa-code"><?= e(t('profile.mfa_code_hint')) ?></label>
+      <input class="input" id="mfa-code" name="code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" required>
+      <button class="btn btn-primary" type="submit"><?= e(t('common.verify')) ?></button>
+    </form>
+  <?php else: ?>
+    <form method="post" action="<?= u('profile') ?>">
+      <?= csrf_field() ?>
+      <input type="hidden" name="action" value="mfa_enable">
+      <button class="btn btn-primary" type="submit"><?= e(t('profile.mfa_enable')) ?></button>
+    </form>
+  <?php endif; ?>
 </section>
 
 <section class="grid-2">

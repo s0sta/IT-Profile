@@ -282,6 +282,218 @@ function is_closed_status(?string $status): bool
     return in_array($status, ['completed', 'cancelled', 'archived'], true);
 }
 
+// ---------------------------------------------------------------- security helpers
+
+/** Password policy: at least 10 chars, containing letters and digits. */
+function valid_password(string $pw): bool
+{
+    return mb_strlen($pw, 'UTF-8') >= 10
+        && preg_match('/\p{L}/u', $pw) === 1
+        && preg_match('/\d/', $pw) === 1;
+}
+
+/** New base32 secret for TOTP (RFC 4648 alphabet, 20 random bytes). */
+function totp_secret(): string
+{
+    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    $bytes = random_bytes(20);
+    $out = '';
+    $buffer = 0;
+    $bits = 0;
+    foreach (str_split($bytes) as $chr) {
+        $buffer = ($buffer << 8) | ord($chr);
+        $bits += 8;
+        while ($bits >= 5) {
+            $bits -= 5;
+            $out .= $alphabet[($buffer >> $bits) & 31];
+        }
+    }
+    if ($bits > 0) {
+        $out .= $alphabet[($buffer << (5 - $bits)) & 31];
+    }
+    return $out;
+}
+
+/** RFC 6238 TOTP check with a ±1 time-step window. */
+function totp_verify(string $secret, string $code, int $window = 1): bool
+{
+    $code = preg_replace('/\D/', '', $code);
+    if (strlen($code) !== 6) {
+        return false;
+    }
+    $base32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    $secret = strtoupper(preg_replace('/[^A-Z2-7]/', '', $secret));
+    $bin = '';
+    foreach (str_split($secret) as $chr) {
+        $val = strpos($base32, $chr);
+        if ($val === false) {
+            return false;
+        }
+        $bin .= str_pad(decbin($val), 5, '0', STR_PAD_LEFT);
+    }
+    $bytes = '';
+    foreach (str_split($bin, 8) as $chunk) {
+        if (strlen($chunk) < 8) {
+            $chunk = str_pad($chunk, 8, '0');
+        }
+        $bytes .= chr(bindec($chunk));
+    }
+    $time = (int) floor(time() / 30);
+    for ($i = -$window; $i <= $window; $i++) {
+        $counter = pack('N*', $time + $i);
+        $hash = hash_hmac('sha1', $counter, $bytes, true);
+        $offset = ord($hash[19]) & 0x0F;
+        $value = ((ord($hash[$offset]) & 0x7F) << 24)
+               | ((ord($hash[$offset + 1]) & 0xFF) << 16)
+               | ((ord($hash[$offset + 2]) & 0xFF) << 8)
+               | (ord($hash[$offset + 3]) & 0xFF);
+        if (str_pad((string) ($value % 1000000), 6, '0', STR_PAD_LEFT) === $code) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Hijri date (Umm al-Qura) via ext-intl; falls back to the Gregorian date
+ * when intl is unavailable. Returns e.g. "1448/05/12".
+ */
+function hijri_date(string $ymd): string
+{
+    if (!class_exists('IntlDateFormatter')) {
+        return '';
+    }
+    $ts = strtotime($ymd);
+    if ($ts === false) {
+        return '';
+    }
+    $fmt = new IntlDateFormatter(
+        'ar-SA@calendar=islamic-umalqura',
+        IntlDateFormatter::NONE,
+        IntlDateFormatter::NONE,
+        'Asia/Riyadh',
+        IntlDateFormatter::TRADITIONAL,
+        'yyyy/MM/dd'
+    );
+    $h = $fmt->format($ts);
+    if (!is_string($h)) {
+        return '';
+    }
+    // In English mode render Latin digits (the ar-SA formatter outputs
+    // Arabic-Indic digits 0-9).
+    if (daem_current_lang() !== 'ar') {
+        $map = ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+                '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9'];
+        $h = strtr($h, $map);
+    }
+    return $h;
+}
+
+/** Gregorian + Hijri pair for print headers, e.g. "2026/10/10 · 1448/04/19 هـ". */
+function both_dates(?string $ymd): string
+{
+    $ymd = substr((string) $ymd, 0, 10);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $ymd)) {
+        return '';
+    }
+    $g = str_replace('-', '/', $ymd);
+    $h = hijri_date($ymd);
+    return $h !== '' ? $g . ' · ' . $h . ' ' . t('print.hijri_suffix') : $g;
+}
+
+// ---------------------------------------------------------------- email transport
+
+/**
+ * Send an email through the configured SMTP settings; falls back to PHP
+ * mail() when no SMTP host is configured. Never throws: failures are logged
+ * to data/error.log and the request continues.
+ */
+function send_email(string $to, string $subject, string $body): void
+{
+    $enabled = setting('smtp_enabled', '0') === '1';
+    if (!$enabled) {
+        return;
+    }
+    $from = setting('smtp_from', 'noreply@' . (isset($_SERVER['HTTP_HOST']) ? (string) $_SERVER['HTTP_HOST'] : 'localhost'));
+    $host = setting('smtp_host', '');
+    $port = (int) setting('smtp_port', '587');
+    $user = setting('smtp_user', '');
+    $pass = setting('smtp_pass', '');
+
+    $headers = "From: " . setting('site_name', 'Idara') . " <{$from}>
+"
+             . "MIME-Version: 1.0
+"
+             . "Content-Type: text/plain; charset=UTF-8
+";
+
+    try {
+        if ($host !== '') {
+            $errno = 0;
+            $errstr = '';
+            $fp = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, 10);
+            if (!$fp) {
+                throw new RuntimeException("SMTP connect failed: {$errstr}");
+            }
+            $read = static function () use ($fp): string {
+                $data = '';
+                while ($line = fgets($fp, 515)) {
+                    $data .= $line;
+                    if (isset($line[3]) && $line[3] === ' ') {
+                        break;
+                    }
+                }
+                return $data;
+            };
+            $cmd = static function (string $line) use ($fp): void {
+                fwrite($fp, $line . "
+");
+            };
+            $read();
+            $cmd('EHLO ' . (isset($_SERVER['SERVER_NAME']) ? (string) $_SERVER['SERVER_NAME'] : 'localhost'));
+            while (str_starts_with($resp = $read(), '250-')) {
+                // consume multiline EHLO
+            }
+            if ($port === 465) {
+                stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+            } else {
+                $cmd('STARTTLS');
+                $read();
+                stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+                $cmd('EHLO ' . (isset($_SERVER['SERVER_NAME']) ? (string) $_SERVER['SERVER_NAME'] : 'localhost'));
+                $read();
+            }
+            if ($user !== '') {
+                $cmd('AUTH LOGIN');
+                $read();
+                $cmd(base64_encode($user));
+                $read();
+                $cmd(base64_encode($pass));
+                $read();
+            }
+            $cmd('MAIL FROM:<' . $from . '>');
+            $read();
+            $cmd('RCPT TO:<' . $to . '>');
+            $read();
+            $cmd('DATA');
+            $read();
+            $cmd('Subject: ' . mb_encode_mimeheader($subject, 'UTF-8'));
+            $cmd($headers . "
+" . str_replace("
+.", "
+..", $body));
+            $cmd('.');
+            $read();
+            $cmd('QUIT');
+            fclose($fp);
+        } else {
+            @mail($to, mb_encode_mimeheader($subject, 'UTF-8'), $body, $headers);
+        }
+    } catch (Throwable $e) {
+        error_log('[mail] ' . $e->getMessage());
+    }
+}
+
 // ---------------------------------------------------------------- audit + notify
 
 function audit(string $action, ?string $entity = null, $entityId = null, ?string $details = null): void
@@ -308,6 +520,19 @@ function notify(int $userId, string $message, ?string $link = null): void
         'INSERT INTO notifications (user_id, message, link, created_at) VALUES (?, ?, ?, ?)',
         [$userId, $message, $link, now()]
     );
+    // Optional email transport (no-op until enabled in Admin → Settings).
+    if (setting('smtp_enabled', '0') === '1') {
+        $user = Users::find($userId);
+        if ($user && !empty($user['email']) && filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+            send_email(
+                (string) $user['email'],
+                setting('site_name', t('app.name')) . ': ' . strip_tags($message),
+                $message . ($link !== null ? "
+
+" . 'https://' . ($_SERVER['HTTP_HOST'] ?? '') . '/' . ltrim($link, '/') : '')
+            );
+        }
+    }
 }
 
 // ---------------------------------------------------------------- text
@@ -469,6 +694,17 @@ function paginate(int $total, int $page, int $perPage): array
     $pages = max(1, (int) ceil($total / $perPage));
     $page  = max(1, min($page, $pages));
     return [$page, $pages];
+}
+
+/**
+ * Build a pagination link for a route while keeping the active filters.
+ * keep_query() returns '' when nothing is filtered, so appending it blindly
+ * produced links like "tasks&&page=2" — this joins the parts correctly.
+ */
+function page_url(string $route, int $page): string
+{
+    $qs = keep_query();
+    return u($route . ($qs !== '' ? '&' . $qs : '') . '&page=' . max(1, (int) $page));
 }
 
 function keep_query(array $except = []): string

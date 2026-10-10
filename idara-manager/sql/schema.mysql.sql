@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS users (
   active        TINYINT(1)   NOT NULL DEFAULT 1,
   must_change_password TINYINT(1) NOT NULL DEFAULT 0,
   avatar        VARCHAR(60)  NOT NULL DEFAULT '',
+  mfa_secret    VARCHAR(64)  NOT NULL DEFAULT '',
+  mfa_enabled   TINYINT(1)   NOT NULL DEFAULT 0,
   bio           VARCHAR(1000) NOT NULL DEFAULT '',
   birthdate     DATE NULL,
   last_login_at DATETIME NULL,
@@ -236,3 +238,9 @@ CREATE TABLE IF NOT EXISTS login_attempts (
   attempted_at DATETIME NOT NULL,
   INDEX idx_attempts_lookup (attempted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Performance indexes for large task lists (production-readiness report §6.4)
+CREATE INDEX IF NOT EXISTS idx_tasks_creator  ON tasks(creator_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_category ON tasks(category_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
+CREATE INDEX IF NOT EXISTS idx_tasks_updated  ON tasks(updated_at);

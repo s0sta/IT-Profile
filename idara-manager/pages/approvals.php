@@ -20,7 +20,10 @@ $f = [
 ];
 
 $page    = max(1, (int) ($_GET['page'] ?? 1));
-$perPage = 20;
+$perPage = (int) ($_GET['pp'] ?? 20);
+if (!in_array($perPage, [20, 50, 100], true)) {
+    $perPage = 20;
+}
 
 $total = Approvals::count($f, $me);
 [$page, $pages] = paginate($total, $page, $perPage);
@@ -83,17 +86,7 @@ layout_header(t('approvals.title'), 'approvals');
 
   <?php approval_table($rows); ?>
 
-  <?php if ($pages > 1): ?>
-    <div class="pagination">
-      <?php if ($page > 1): ?>
-        <a class="page-btn" href="<?= u('approvals') ?>&<?= e(keep_query()) ?>&page=<?= $page - 1 ?>">← <?= e(t('common.prev')) ?></a>
-      <?php endif; ?>
-      <span class="page-info"><?= e(t('common.page')) ?> <?= $page ?> <?= e(t('common.of')) ?> <?= $pages ?></span>
-      <?php if ($page < $pages): ?>
-        <a class="page-btn" href="<?= u('approvals') ?>&<?= e(keep_query()) ?>&page=<?= $page + 1 ?>"><?= e(t('common.next')) ?> →</a>
-      <?php endif; ?>
-    </div>
-  <?php endif; ?>
+  <?php pagination_ui('approvals', $page, $pages, $perPage, $total); ?>
 </section>
 
 <?php layout_footer(); ?>

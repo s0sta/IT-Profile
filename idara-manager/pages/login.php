@@ -16,11 +16,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $blocked = true;
     } else {
         $user = Auth::attempt($login, $password);
-        if ($user) {
+        if ($user === 'mfa') {
+            redirect('login'); // the TOTP form takes over below
+        } elseif ($user) {
             redirect('dashboard');
+        } else {
+            $error = t('auth.invalid') . (Auth::throttled($login, $ip) ? ' ' . t('auth.too_many') : '');
         }
-        $error = t('auth.invalid') . (Auth::throttled($login, $ip) ? ' ' . t('auth.too_many') : '');
     }
+}
+
+// -------- two-step verification: the second factor of the sign-in
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['mfa_code'] ?? '') !== '') {
+    csrf_check();
+    if (Auth::verifyMfa((string) $_POST['mfa_code'])) {
+        redirect('dashboard');
+    }
+    $error = t('auth.mfa_bad');
 }
 
 $site = setting('site_name', t('app.name'));
@@ -50,6 +62,16 @@ document.documentElement.setAttribute('data-theme',t);}catch(err){}})();
       <?php if ($error): ?><div class="flash flash-error"><?= e($error) ?></div><?php endif; ?>
       <?php if ($blocked): ?><div class="flash flash-error"><?= e(t('auth.too_many')) ?></div><?php endif; ?>
 
+      <?php if (Auth::pendingMfa() > 0): ?>
+      <div class="flash flash-info"><?= e(t('auth.mfa_required')) ?></div>
+      <form method="post" action="<?= u('login') ?>" autocomplete="off">
+        <?= csrf_field() ?>
+        <label class="field-label" for="mfa_code"><?= e(t('auth.mfa_prompt')) ?></label>
+        <input class="input" id="mfa_code" name="mfa_code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" required autofocus>
+        <button class="btn btn-primary btn-block" type="submit"><?= e(t('common.verify')) ?></button>
+      </form>
+      <p class="login-foot"><a href="<?= u('logout') ?>"><?= e(t('common.cancel')) ?></a></p>
+      <?php else: ?>
       <form method="post" action="<?= u('login') ?>" autocomplete="off">
         <?= csrf_field() ?>
         <label class="field-label" for="login"><?= e(t('auth.username_or_email')) ?></label>
@@ -60,6 +82,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(err){}})();
 
         <button class="btn btn-primary btn-block" type="submit"><?= e(t('auth.sign_in')) ?></button>
       </form>
+      <?php endif; ?>
 
       <p class="login-foot"><?= e(t('auth.provisioned')) ?></p>
       <p class="login-foot"><a href="<?= u('doc') ?>"><?= e(t('nav.doc')) ?> →</a></p>

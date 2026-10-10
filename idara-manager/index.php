@@ -37,6 +37,9 @@ $routes = [
     'admin/settings'   => ['pages/admin/settings.php', 'admin'],
     'admin/audit'      => ['pages/admin/audit.php', 'admin'],
     'admin/reports'    => ['pages/admin/reports.php', 'admin'],
+    'admin/import'     => ['pages/admin/import.php', 'admin'],
+    'print-letter'     => ['pages/print_letter.php', 'user'],
+    'print-meeting'    => ['pages/print_meeting.php', 'user'],
     'api'              => ['pages/api.php', 'any'],
     'download'         => ['pages/download.php', 'user'],
 ];

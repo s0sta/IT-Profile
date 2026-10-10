@@ -244,6 +244,7 @@ function layout_header(string $title, string $active = ''): void
             ['admin/settings', t('nav.settings'), 'sliders'],
             ['admin/audit', t('nav.audit'), 'list'],
             ['admin/reports', t('nav.reports'), 'chart'],
+            ['admin/import', t('nav.import'), 'share'],
         ];
     }
     ?>
@@ -291,6 +292,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(err){}})();
       <h1 class="page-title"><?= e($title) ?></h1>
       <div class="topbar-actions">
         <?= daem_lang_switcher() ?>
+        <span class="today-chip" title="<?= e(t('nav.today')) ?>"><?= e(both_dates(date('Y-m-d'))) ?></span>
         <button class="icon-btn" id="theme-toggle" aria-label="<?= e(t('nav.theme')) ?>"><?= icon('moon') ?></button>
         <a class="icon-btn bell" href="<?= u('notifications') ?>" aria-label="<?= e(t('nav.notifications')) ?>"><?= icon('bell') ?><?php if ($unread): ?><span class="bell-badge"><?= $unread > 99 ? '99+' : $unread ?></span><?php endif; ?></a>
         <div class="user-menu" id="user-menu">
@@ -312,6 +314,45 @@ document.documentElement.setAttribute('data-theme',t);}catch(err){}})();
         <div class="flash flash-<?= e($f['type']) ?>"><?= e($f['msg']) ?></div>
       <?php endforeach; ?>
 <?php
+}
+
+/** Pagination toolbar with per-page selector and a jump box. */
+function pagination_ui(string $route, int $page, int $pages, int $perPage, int $total): void
+{
+    if ($total <= $perPage && $pages <= 1) {
+        return;
+    }
+    $qs = [];
+    parse_str(keep_query(), $qs);
+    unset($qs['p'], $qs['page'], $qs['pp']);
+    $base = u($route);
+    $qsPrefix = $qs ? '&' . http_build_query($qs) : '';
+    $url = static function (array $over) use ($base, $qsPrefix): string {
+        $merged = $over;
+        return $base . $qsPrefix . '&' . http_build_query($merged);
+    };
+    ?>
+    <div class="pagination">
+      <?php if ($page > 1): ?>
+        <a class="page-btn" href="<?= e($url(['page' => $page - 1])) ?>" rel="prev">← <?= e(t('common.prev')) ?></a>
+      <?php endif; ?>
+      <span class="page-info"><?= e(t('common.page_of', ['a' => $page, 'b' => $pages])) ?></span>
+      <?php if ($page < $pages): ?>
+        <a class="page-btn" href="<?= e($url(['page' => $page + 1])) ?>" rel="next"><?= e(t('common.next')) ?> →</a>
+      <?php endif; ?>
+      <?php foreach ([20, 50, 100] as $pp): ?>
+        <a class="page-btn <?= $perPage === $pp ? 'page-btn-on' : '' ?>" href="<?= e($url(['pp' => $pp])) ?>"><?= $pp ?></a>
+      <?php endforeach; ?>
+      <form class="page-jump" method="get" action="<?= e($base) ?>">
+        <input type="hidden" name="p" value="<?= e($route) ?>">
+        <?php foreach ($qs as $k => $v): ?>
+          <input type="hidden" name="<?= e((string) $k) ?>" value="<?= e((string) $v) ?>">
+        <?php endforeach; ?>
+        <input class="input input-sm" type="number" name="page" min="1" max="<?= $pages ?>" value="<?= $page ?>" aria-label="<?= e(t('common.jump')) ?>">
+        <button class="btn btn-ghost btn-sm" type="submit"><?= e(t('common.go')) ?></button>
+      </form>
+    </div>
+    <?php
 }
 
 function layout_footer(): void

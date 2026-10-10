@@ -99,10 +99,11 @@ final class Auth
     }
 
     /**
-     * Attempt a login. Returns the user row on success, or null.
-     * Callers check Auth::throttled() first for a friendly lockout message.
+     * Attempt a login. Returns the user row on success, the string 'mfa' when
+     * the password was correct but two-step verification is still pending, or
+     * null on failure. Callers check Auth::throttled() first.
      */
-    public static function attempt(string $login, string $password): ?array
+    public static function attempt(string $login, string $password)
     {
         $ip    = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $login = trim($login);
@@ -121,15 +122,18 @@ final class Auth
                 'INSERT INTO login_attempts (username, ip, success, attempted_at) VALUES (?, ?, 1, ?)',
                 [$login, $ip, now()]
             );
-            Database::exec('UPDATE users SET last_login_at = ? WHERE id = ?', [now(), (int) $user['id']]);
-            session_regenerate_id(true);
-            $_SESSION['uid']       = (int) $user['id'];
-            $_SESSION['csrf']      = bin2hex(random_bytes(32));
-            $_SESSION['last_activity'] = time();
-            $_SESSION['must_change'] = Database::hasColumn('users', 'must_change_password')
-                && (int) ($user['must_change_password'] ?? 0) === 1;
-            audit('login', 'user', $user['id']);
-            return $user;
+
+            $mfaOn = Database::hasColumn('users', 'mfa_enabled')
+                && (int) ($user['mfa_enabled'] ?? 0) === 1;
+            if ($mfaOn) {
+                // Password accepted — the TOTP step is still required.
+                $_SESSION['mfa_pending'] = (int) $user['id'];
+                $_SESSION['last_activity'] = time();
+                audit('mfa_challenge', 'user', $user['id']);
+                return 'mfa';
+            }
+
+            return self::establish($user);
         }
 
         Database::exec(
@@ -138,6 +142,49 @@ final class Auth
         );
         audit('login_failed', 'user', null, 'login=' . $login);
         return null;
+    }
+
+    /** Create the authenticated session for a user (shared by login and MFA). */
+    private static function establish(array $user): array
+    {
+        Database::exec('UPDATE users SET last_login_at = ? WHERE id = ?', [now(), (int) $user['id']]);
+        session_regenerate_id(true);
+        $_SESSION['uid']       = (int) $user['id'];
+        $_SESSION['csrf']      = bin2hex(random_bytes(32));
+        $_SESSION['last_activity'] = time();
+        $_SESSION['must_change'] = Database::hasColumn('users', 'must_change_password')
+            && (int) ($user['must_change_password'] ?? 0) === 1;
+        unset($_SESSION['mfa_pending']);
+        audit('login', 'user', $user['id']);
+        return $user;
+    }
+
+    /** The user id waiting for a TOTP code, or 0. */
+    public static function pendingMfa(): int
+    {
+        return (int) ($_SESSION['mfa_pending'] ?? 0);
+    }
+
+    /**
+     * Verify the TOTP code for the pending login and complete it.
+     * Returns the user row on success, or null.
+     */
+    public static function verifyMfa(string $code): ?array
+    {
+        $uid = self::pendingMfa();
+        if ($uid <= 0) {
+            return null;
+        }
+        $user = Database::one('SELECT * FROM users WHERE id = ? AND active = 1', [$uid]);
+        if (!$user || ($user['mfa_secret'] ?? '') === '') {
+            unset($_SESSION['mfa_pending']);
+            return null;
+        }
+        if (!totp_verify((string) $user['mfa_secret'], $code)) {
+            audit('mfa_failed', 'user', $uid);
+            return null;
+        }
+        return self::establish($user);
     }
 
     public static function throttled(string $login, string $ip): bool

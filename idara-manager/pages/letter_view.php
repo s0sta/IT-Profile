@@ -82,7 +82,10 @@ layout_header(t('corr.details'), 'correspondence');
       <span class="ref-pill"><?= e($letter['ref']) ?></span>
       <?= e($letter['subject']) ?>
     </h2>
-    <a class="link" href="<?= u('correspondence') ?>">← <?= e(t('common.back')) ?></a>
+    <div>
+      <a class="btn btn-ghost btn-sm" href="<?= u('print-letter&id=' . $id) ?>" target="_blank" rel="noopener"><?= e(t('common.print')) ?></a>
+      <a class="link" href="<?= u('correspondence') ?>">← <?= e(t('common.back')) ?></a>
+    </div>
   </div>
 
   <div class="ticket-badges">

@@ -114,6 +114,7 @@ layout_header(t('meetings.details'), 'meetings');
   <div class="panel-head">
     <h2 class="panel-title"><?= e($meeting['title']) ?></h2>
     <div>
+      <a class="btn btn-ghost btn-sm" href="<?= u('print-meeting&id=' . $id) ?>" target="_blank" rel="noopener"><?= e(t('common.print')) ?></a>
       <a class="link" href="<?= u('meetings') ?>">← <?= e(t('common.back')) ?></a>
     </div>
   </div>

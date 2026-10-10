@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS users (
   active        INTEGER NOT NULL DEFAULT 1,
   must_change_password INTEGER NOT NULL DEFAULT 0,
   avatar        TEXT NOT NULL DEFAULT '',
+  mfa_secret    TEXT NOT NULL DEFAULT '',
+  mfa_enabled   INTEGER NOT NULL DEFAULT 0,
   bio           TEXT NOT NULL DEFAULT '',
   birthdate     TEXT,
   last_login_at TEXT,
@@ -228,3 +230,9 @@ CREATE INDEX IF NOT EXISTS idx_meet_att_meeting ON meeting_attendees(meeting_id)
 CREATE INDEX IF NOT EXISTS idx_notif_user       ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created    ON audit_log(created_at);
 CREATE INDEX IF NOT EXISTS idx_attempts_lookup  ON login_attempts(attempted_at);
+
+-- Performance indexes for large task lists (production-readiness report §6.4)
+CREATE INDEX IF NOT EXISTS idx_tasks_creator  ON tasks(creator_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_category ON tasks(category_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
+CREATE INDEX IF NOT EXISTS idx_tasks_updated  ON tasks(updated_at);

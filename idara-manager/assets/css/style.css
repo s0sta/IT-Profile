@@ -1089,3 +1089,16 @@ a.stat-card .stat-value, a.stat-card .stat-label { color: inherit; }
 /* footer hyperlink to the main website */
 .footer-link { color: inherit; font-weight: 650; text-decoration: underline; text-underline-offset: 2px; }
 .footer-link:hover { color: var(--primary); }
+
+/* topbar today chip (Gregorian + Hijri) */
+.today-chip {
+  font-size: 12.5px; font-weight: 700; color: var(--muted);
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px; white-space: nowrap;
+}
+@media (max-width: 900px) { .today-chip { display: none; } }
+
+/* pagination toolbar */
+.page-jump { display: inline-flex; align-items: center; gap: 6px; }
+.page-jump .input { width: 70px; }
+.page-btn-on { background: var(--primary); color: #fff; border-color: var(--primary); }

@@ -552,10 +552,26 @@ LOGINHTML=$(curl -s "$BASE/index.php?p=login")
 check "stylesheet is versioned v2" "style.css?v=2" "$LOGINHTML"
 check "script is versioned v2" "app.js?v=2" "$LOGINHTML"
 # a healthy install shows no storage warning
-JARV15=/tmp/idara-v15-admin.jar; login admin 'Admin@1234' $JARV15
-SETTINGS=$(curl -s -b $JARV15 "$BASE/index.php?p=admin/settings")
+SETTINGS=$(curl -s -b $JA "$BASE/index.php?p=admin/settings")
 check "admin settings page loads for the storage check" "$(val as.general)" "$SETTINGS"
 checknot "no storage warning on a healthy install" "$(val common.storage_warning | cut -c1-20)" "$SETTINGS"
+# v1.5b: pagination links must not carry an empty parameter ("tasks&&page=2")
+# reuse the admin session created earlier in the suite (no extra login → no throttle risk)
+# fixture: 25 extra tasks so the list really has a second page (admin sees all departments)
+FIXN=$(php -r 'define("APP_ROOT", __DIR__); $c = require "data/config.php"; require "includes/db.php"; Database::init($c["db"]);
+for ($i = 1; $i <= 25; $i++) { $id = 9000 + $i;
+  Database::exec("INSERT INTO tasks (ref, title, description, category_id, priority, status, progress, creator_id, assignee_id, department_id, created_at, updated_at) VALUES (?, ?, ?, 1, ?, ?, 0, 1, 1, 1, ?, ?)",
+    ["TSK-2026-" . $id, "PAGE fixture " . $i, "pagination fixture", "medium", "new", "2026-10-10 09:00:00", "2026-10-10 09:00:00"]); }
+$r = Database::all("SELECT COUNT(*) c FROM tasks WHERE title LIKE ?", ["PAGE fixture%"]);
+echo $r[0]["c"];' 2>/dev/null)
+check "pagination fixture inserted (25 rows)" "25" "$FIXN"
+PAGEHTML=$(curl -s -b $JA "$BASE/index.php?p=tasks")
+checknot "pagination has no empty query parameter" "&&page=" "$PAGEHTML"
+check "pagination renders a second page link" "page=2" "$PAGEHTML"
+FILTHTML=$(curl -s -b $JA "$BASE/index.php?p=tasks&status=new&page=1")
+check "pager keeps the active filter" "status=new&amp;page=2" "$FILTHTML"
+check "explicit page 2 renders" "200" "$(curl -s -b $JA -o /dev/null -w '%{http_code}' "$BASE/index.php?p=tasks&page=2")"
+
 # clean up the attachment task
 T=$(curl -s -b $JAR "$BASE/index.php?p=task&id=$ATID" | csrf)
 curl -s -b $JAR -o /dev/null -d "csrf=$T" -d "action=delete" "$BASE/index.php?p=task&id=$ATID"
@@ -566,7 +582,89 @@ check "footer links to s0sta.com" 'href="https://s0sta.com"' "$DASH"
 check "version label shows 1.6" "$(val app.version)" "$DASH"
 checknot "old duplicated branding is gone" "prepared by s0sta" "$DASH"
 
-echo "== 30. Login throttle (last — it blocks this IP for 15 minutes) =="
+echo "== 30. v1.7 hardening — MFA, policy, print, import, hijri, pagination =="
+
+# TOTP code generator (RFC 6238, SHA-1, 6 digits) — independent of the app
+totp() { php -r '
+$s=$argv[1]; $b32="ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"; $bin="";
+foreach(str_split(strtoupper(preg_replace("/[^A-Z2-7]/","",$s))) as $c){ $bin.=str_pad(decbin(strpos($b32,$c)),5,"0",STR_PAD_LEFT); }
+$bytes=""; foreach(str_split($bin,8) as $ch){ if(strlen($ch)<8){$ch=str_pad($ch,8,"0");} $bytes.=chr(bindec($ch)); }
+$ct=pack("N*",(int)floor(time()/30)); $h=hash_hmac("sha1",$ct,$bytes,true);
+$o=ord($h[19])&0x0F; $v=((ord($h[$o])&0x7F)<<24)|((ord($h[$o+1])&0xFF)<<16)|((ord($h[$o+2])&0xFF)<<8)|(ord($h[$o+3])&0xFF);
+echo str_pad((string)($v%1000000),6,"0",STR_PAD_LEFT);' "$1"; }
+
+# password policy: a weak password is refused
+PU=$(curl -s -b $JA "$BASE/index.php?p=admin/users")
+T=$(echo "$PU" | csrf)
+WP=$(curl -s -L -b $JA --data-urlencode "csrf=$T" -d "action=add" --data-urlencode "name=مستخدم ضعيف" -d "name_en=Weak" -d "username=zz.weak.pw" -d "email=zz.weak.pw@idara.local" -d "role=member" -d "department_id=" -d "job_title=" -d "phone=" -d "manager_id=" -d "password=short1" "$BASE/index.php?p=admin/users")
+check "password policy rejects a weak password" "$(val profile.err_policy)" "$WP"
+
+# hijri chip on the top bar (Arabic master: contains the AH marker)
+DASH=$(curl -s -b $JAR "$BASE/index.php?p=dashboard")
+check "top bar shows the Hijri date" "هـ" "$DASH"
+
+# pagination toolbar: per-page + jump on a long list (audit)
+AU=$(curl -s -b $JA "$BASE/index.php?p=admin/audit&pp=20")
+check "audit toolbar offers the 50-per-page link" "pp=50" "$AU"
+check "audit toolbar offers the jump box" "$(val common.go)" "$AU"
+
+# print views
+PL=$(curl -s -b $JAR "$BASE/index.php?p=print-letter&id=1")
+check "print letter view renders" "$(val print.title_letter)" "$PL"
+PM=$(curl -s -b $JAR "$BASE/index.php?p=print-meeting&id=1")
+check "print meeting view renders" "$(val print.title_minutes)" "$PM"
+check "print view has the print stylesheet" "print.css" "$PL"
+
+# CSV import: 2 valid rows + 1 invalid
+python3 - << 'PYEOF'
+import io
+rows = [
+ "title,description,priority,assignee_username,department_code,due_date,start_date",
+ "مهمة استيراد ١,وصف,high,sarah.qahtani,HQ,2026-12-01,2026-11-20",
+ "مهمة استيراد ٢,,متوسطة,,,",
+ ",bad row without title,,,,",
+]
+io.open('/tmp/idara-import.csv','w',encoding='utf-8',newline='').write("\n".join(rows))
+PYEOF
+IP=$(curl -s -b $JA "$BASE/index.php?p=admin/import")
+T=$(echo "$IP" | csrf)
+IR=$(curl -s -L -b $JA -F "csrf=$T" -F "csv=@/tmp/idara-import.csv;type=text/csv" "$BASE/index.php?p=admin/import")
+check "import confirms 2 tasks" "$(val imp.ok | sed 's/{n}/2/')" "$IR"
+check "import reports the skipped row" "$(val imp.skipped | sed 's/{n}/1/')" "$IR"
+IMP=$(php -r 'define("APP_ROOT", __DIR__); require "includes/db.php"; Database::init((require "data/config.php")["db"]); echo (int) Database::value("SELECT COUNT(*) FROM tasks WHERE title LIKE ?", ["مهمة استيراد%"]);')
+check "the imported tasks exist" "^2$" "$IMP"
+
+# two-step verification (MFA) — full lifecycle for the admin
+PR=$(curl -s -b $JA "$BASE/index.php?p=profile")
+T=$(echo "$PR" | csrf)
+curl -s -b $JA --data-urlencode "csrf=$T" -d "action=mfa_enable" -o /dev/null "$BASE/index.php?p=profile"
+PR2=$(curl -s -b $JA "$BASE/index.php?p=profile")
+SECRET=$(echo "$PR2" | grep -oE '[A-Z2-7]{32}' | head -1)
+check "MFA secret is shown (base32)" '^[A-Z2-7]' "$SECRET"
+CODE=$(totp "$SECRET")
+T=$(echo "$PR2" | csrf)
+MR=$(curl -s -L -b $JA --data-urlencode "csrf=$T" -d "action=mfa_verify" -d "code=$CODE" "$BASE/index.php?p=profile")
+check "MFA enable is confirmed" "$(val profile.mfa_enabled_ok)" "$MR"
+# fresh login now requires the second factor
+JMF=/tmp/idara-mfa.jar; rm -f $JMF
+LT=$(curl -s -L -c $JMF "$BASE/index.php?p=login" | csrf)
+curl -s -b $JMF -c $JMF -o /dev/null -d "csrf=$LT&login=admin&password=Admin@1234" "$BASE/index.php?p=login"
+L2=$(curl -s -b $JMF "$BASE/index.php?p=login")
+check "MFA login shows the code prompt" "$(val auth.mfa_prompt)" "$L2"
+T=$(echo "$L2" | csrf)
+BAD=$(curl -s -L -b $JMF --data-urlencode "csrf=$T" --data-urlencode "mfa_code=000000" "$BASE/index.php?p=login")
+check "a wrong TOTP code is refused" "$(val auth.mfa_bad)" "$BAD"
+CODE2=$(totp "$SECRET")
+T2=$(curl -s -b $JMF "$BASE/index.php?p=login" | csrf)
+OK=$(curl -s -L -b $JMF -c $JMF --data-urlencode "csrf=$T2" --data-urlencode "mfa_code=$CODE2" "$BASE/index.php?p=login")
+check "the correct TOTP code completes the login" "$(val dash.awaiting_me)" "$OK"
+# disable MFA again (keeps the demo accounts simple)
+PR3=$(curl -s -b $JA "$BASE/index.php?p=profile")
+T=$(echo "$PR3" | csrf)
+DR=$(curl -s -L -b $JA --data-urlencode "csrf=$T" -d "action=mfa_disable" -d "password=Admin@1234" "$BASE/index.php?p=profile")
+check "MFA disable is confirmed" "$(val profile.mfa_disabled_ok)" "$DR"
+
+echo "== 31. Login throttle (last — it blocks this IP for 15 minutes) =="
 JTH=/tmp/idara-throttle.jar; rm -f $JTH
 T=$(curl -s -c $JTH "$BASE/index.php?p=login" | csrf)
 for i in 1 2 3 4 5 6; do

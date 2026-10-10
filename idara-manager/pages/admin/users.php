@@ -46,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if ($action === 'add') {
             $pw = (string) ($_POST['password'] ?? '');
-            if (strlen($pw) < 8) {
-                $errors[] = t('au.err_password');
+            if (!valid_password($pw)) {
+                $errors[] = t('profile.err_policy');
             }
         }
 

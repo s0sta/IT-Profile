@@ -13,173 +13,178 @@ return array (
   ),
   'UPLOAD-INSTRUCTIONS.txt' => 
   array (
-    'size' => 10886,
-    'md5' => 'f21496bc5a38cebbe0b4825af074b70d',
+    'size' => 12430,
+    'md5' => 'ded9ae172d16d7c887b86f449b7e2934',
   ),
   'assets/avatars/01.webp' => 
   array (
-    'size' => 4860,
-    'md5' => '8a3582b30e9b07f7eb8020e467122e82',
+    'size' => 6570,
+    'md5' => '3547587c6bb103288b7e477685428ed3',
   ),
   'assets/avatars/02.webp' => 
   array (
-    'size' => 4558,
-    'md5' => 'd8476b7b9ee785b9364bcc334dd6810e',
+    'size' => 8324,
+    'md5' => '64899d22642cc63e5aed7db3fcc0d0f2',
   ),
   'assets/avatars/03.webp' => 
   array (
-    'size' => 6944,
-    'md5' => 'b32cb815f2078d237a620b6095e0783a',
+    'size' => 13890,
+    'md5' => '3986e775f41450eb16e06ae66d6fdc6d',
   ),
   'assets/avatars/04.webp' => 
   array (
-    'size' => 5342,
-    'md5' => '26d34c08ddc9928a45c71fef9fb31f09',
+    'size' => 8124,
+    'md5' => '3c9e251cbe147a3600c75feca204be14',
   ),
   'assets/avatars/05.webp' => 
   array (
-    'size' => 6798,
-    'md5' => 'c1cf3a7781187694de40a2577f11cdec',
+    'size' => 12344,
+    'md5' => '9a2b1bfd2aa3ebe9ea298554c3676a0c',
   ),
   'assets/avatars/06.webp' => 
   array (
-    'size' => 9674,
-    'md5' => '4368980cd09490ce2b95934ffa4f709b',
+    'size' => 16714,
+    'md5' => '2284891ab460e39ac569ecafffb884f7',
   ),
   'assets/avatars/07.webp' => 
   array (
-    'size' => 4324,
-    'md5' => 'c40e1668d69bbc50eb29856107e56758',
+    'size' => 6178,
+    'md5' => '7bd3acf6c78e74b815a7d28f8d773cc1',
   ),
   'assets/avatars/08.webp' => 
   array (
-    'size' => 4926,
-    'md5' => 'c56eaa5e34fc5c80bfae000f71edd812',
+    'size' => 9692,
+    'md5' => '5a5e721b72ee4fdab9b4e81f337f344e',
   ),
   'assets/avatars/09.webp' => 
   array (
-    'size' => 6546,
-    'md5' => '96ab911b3e18c06e74c90116894646aa',
+    'size' => 9382,
+    'md5' => '2454a4d25ca5a2ecb9777e0105c75094',
   ),
   'assets/avatars/10.webp' => 
   array (
-    'size' => 5460,
-    'md5' => '860e52004c6cda4cd42b5728ac539973',
+    'size' => 9820,
+    'md5' => '92a1b1f0b31788c6c0170564f0198821',
   ),
   'assets/avatars/11.webp' => 
   array (
-    'size' => 5142,
-    'md5' => 'c419a123212e13205ccbc04a78a8353b',
+    'size' => 9420,
+    'md5' => 'e282ac7a6632d5e9a0ad39cee8899513',
   ),
   'assets/avatars/12.webp' => 
   array (
-    'size' => 5360,
-    'md5' => '5f454c0921b029e5d5a1583ff7e4353e',
+    'size' => 8976,
+    'md5' => 'f7e99b20e772b2322ec4b7615591e8dd',
   ),
   'assets/avatars/13.webp' => 
   array (
-    'size' => 7454,
-    'md5' => '67b0880afb890931cfc5484998a7c1cc',
+    'size' => 13234,
+    'md5' => 'c2f53bceeae45e1baa92614ebaa59c7b',
   ),
   'assets/avatars/14.webp' => 
   array (
-    'size' => 5518,
-    'md5' => '395d1ceb4b55a0005178b4db9fe2e4e3',
+    'size' => 10632,
+    'md5' => '288ccdec6eb8b0a93cf3533526c3f2dc',
   ),
   'assets/avatars/15.webp' => 
   array (
-    'size' => 4884,
-    'md5' => 'd50705cc86cdef86d7703110fb8e91ba',
+    'size' => 9428,
+    'md5' => '126046a3ec441a013ca8ea616fdd6ab5',
   ),
   'assets/avatars/16.webp' => 
   array (
-    'size' => 4148,
-    'md5' => '7a9e37183387f072d35e0c292812516b',
+    'size' => 8324,
+    'md5' => 'a74c97a2de9f9c1c1f971e4063a93bd6',
   ),
   'assets/avatars/17.webp' => 
   array (
-    'size' => 4622,
-    'md5' => 'e51340268ba437481ae861d71161091c',
+    'size' => 7372,
+    'md5' => '7d382e350bcd8daa3739b7e93fa46f01',
   ),
   'assets/avatars/18.webp' => 
   array (
-    'size' => 6094,
-    'md5' => 'e6c3b8be6c3139cbf2edc64be86fc70f',
+    'size' => 11312,
+    'md5' => '4408ce79ff601a298440385543d634e5',
   ),
   'assets/avatars/19.webp' => 
   array (
-    'size' => 6596,
-    'md5' => '50ea4c87a8a21e9118cc3ba60202b72d',
+    'size' => 12938,
+    'md5' => '2e43ec9dec6107561ea0756c2c6b56ae',
   ),
   'assets/avatars/20.webp' => 
   array (
-    'size' => 5772,
-    'md5' => '01d67ee86ad6fc203090f0285dcb3bef',
+    'size' => 9892,
+    'md5' => 'a72f1614801589ea504ef64dd7da3171',
   ),
   'assets/avatars/21.webp' => 
   array (
-    'size' => 6894,
-    'md5' => '856174a68fa8579acae59c9fb8835ebe',
+    'size' => 12792,
+    'md5' => '9369ceff130176b02c2b19477fc74b61',
   ),
   'assets/avatars/22.webp' => 
   array (
-    'size' => 5304,
-    'md5' => '7410542267da642c24717995e1229e5d',
+    'size' => 9758,
+    'md5' => '308eaee670e12fc39074c39f2fbcbae7',
   ),
   'assets/avatars/23.webp' => 
   array (
-    'size' => 5506,
-    'md5' => '75509817e06d0def8edf19b157462acc',
+    'size' => 8524,
+    'md5' => 'b3695913219888be59ea7b28a0eec16b',
   ),
   'assets/avatars/24.webp' => 
   array (
-    'size' => 5436,
-    'md5' => '2b81121c6d286d259282aff3aadd7b04',
+    'size' => 10814,
+    'md5' => 'a6751ab308d11b86af283d55a7282d7e',
   ),
   'assets/avatars/25.webp' => 
   array (
-    'size' => 4438,
-    'md5' => '00f80b7c756e4e92f686ce48e59c4af0',
+    'size' => 6604,
+    'md5' => '99909a71fb7d21684915a942ff427fff',
   ),
   'assets/avatars/26.webp' => 
   array (
-    'size' => 4316,
-    'md5' => '4ab8394d3cc7609caf4ba00327746abe',
+    'size' => 8478,
+    'md5' => 'f0adbb78c67b22d0a09f5f6b44af137b',
   ),
   'assets/avatars/27.webp' => 
   array (
-    'size' => 3924,
-    'md5' => '688fae06f458554a649e0dd74fe78546',
+    'size' => 6864,
+    'md5' => '86d09a27341260dfe84137a3a5a16e7a',
   ),
   'assets/avatars/28.webp' => 
   array (
-    'size' => 4282,
-    'md5' => '46ef4e486dc2791d05d1ae74a62bf681',
+    'size' => 8138,
+    'md5' => 'e4d1400a6a2e603072643b4ec6157bdc',
   ),
   'assets/avatars/29.webp' => 
   array (
-    'size' => 3756,
-    'md5' => '0a8a9c1c42f4c0c12c6c8ed7ff987760',
+    'size' => 5664,
+    'md5' => '12377ea3a42b388e980458036efcee2d',
   ),
   'assets/avatars/30.webp' => 
   array (
-    'size' => 5224,
-    'md5' => '04b705c3e35daace0ef02f1567f8983b',
+    'size' => 10218,
+    'md5' => '465db49537eeb56b29e520726bb70de8',
   ),
   'assets/avatars/31.webp' => 
   array (
-    'size' => 4304,
-    'md5' => '671233500e990687971613f2cdd00127',
+    'size' => 7154,
+    'md5' => '7241301cb8dec177095ca282eb588054',
   ),
   'assets/avatars/32.webp' => 
   array (
-    'size' => 5890,
-    'md5' => 'f650a9ef32ba6971b46f6ae7d23cde94',
+    'size' => 10864,
+    'md5' => 'bed03079dd693c9a222715ab6194e407',
+  ),
+  'assets/css/print.css' => 
+  array (
+    'size' => 4126,
+    'md5' => '2106694493067efc3538cdbfd68d08fc',
   ),
   'assets/css/style.css' => 
   array (
-    'size' => 50275,
-    'md5' => '1bd24bf54c9d1b7aa9a5b74bc87e9716',
+    'size' => 50801,
+    'md5' => 'b087322e0c4acff80396201262ca5d4f',
   ),
   'assets/js/app.js' => 
   array (
@@ -193,8 +198,8 @@ return array (
   ),
   'includes/auth.php' => 
   array (
-    'size' => 5134,
-    'md5' => '9d9791c33fb395cb2e7de51ed7ff9c9f',
+    'size' => 6733,
+    'md5' => '0fe997b455179fe6d1cec887d985af48',
   ),
   'includes/bootstrap.php' => 
   array (
@@ -208,8 +213,8 @@ return array (
   ),
   'includes/helpers.php' => 
   array (
-    'size' => 14836,
-    'md5' => '192d12a4dc27aa3d54c082f0e05a62d6',
+    'size' => 22724,
+    'md5' => '55e6edb2681a375b1ee7474edbf1cdce',
   ),
   'includes/i18n.php' => 
   array (
@@ -218,8 +223,8 @@ return array (
   ),
   'includes/layout.php' => 
   array (
-    'size' => 18268,
-    'md5' => '8eec3b950b8ecd7c010ee0c6b4003267',
+    'size' => 20270,
+    'md5' => '033fa01af3ef5eaf975ccb7d426bab36',
   ),
   'includes/models.php' => 
   array (
@@ -228,18 +233,18 @@ return array (
   ),
   'index.php' => 
   array (
-    'size' => 2854,
-    'md5' => '85763cf93abb68487866c255092d88ae',
+    'size' => 3042,
+    'md5' => '1dd7ee86ba6f6b19d53f32c11b09286d',
   ),
   'install.php' => 
   array (
-    'size' => 18600,
-    'md5' => '0a470b1c44bb6d3b0344ec6f5bb4b837',
+    'size' => 18724,
+    'md5' => '32b56cbd25a959b9c197db8e61af3521',
   ),
   'lang/ar.php' => 
   array (
-    'size' => 38303,
-    'md5' => 'dbedba47ae17366a93f70ef64d58102b',
+    'size' => 42071,
+    'md5' => 'af9343752f740bcbb8f7346dc744231f',
   ),
   'lang/doc-ar.php' => 
   array (
@@ -253,8 +258,8 @@ return array (
   ),
   'lang/en.php' => 
   array (
-    'size' => 31780,
-    'md5' => '5abffc89ffe2cc90b095f00e6e7cbead',
+    'size' => 34870,
+    'md5' => 'b903fb28b1684ef5d4956aba15f523a9',
   ),
   'pages/404.php' => 
   array (
@@ -263,8 +268,8 @@ return array (
   ),
   'pages/admin/audit.php' => 
   array (
-    'size' => 3257,
-    'md5' => '410d4f88064e7b5cb8ba389acbae908a',
+    'size' => 2864,
+    'md5' => '0a08721d9ed7e7978e820f5afc0b197b',
   ),
   'pages/admin/categories.php' => 
   array (
@@ -276,6 +281,11 @@ return array (
     'size' => 6640,
     'md5' => '9a3bf2c9da3114b02859be6fb6f9ca9d',
   ),
+  'pages/admin/import.php' => 
+  array (
+    'size' => 5410,
+    'md5' => '3e155648fd13c29926f86cf9363d2c5c',
+  ),
   'pages/admin/reports.php' => 
   array (
     'size' => 10139,
@@ -283,8 +293,8 @@ return array (
   ),
   'pages/admin/settings.php' => 
   array (
-    'size' => 3270,
-    'md5' => '0331d5a04fd4ff268c7a4ed0b083c336',
+    'size' => 5294,
+    'md5' => 'd0e762404171d9db96fe497a1d9fbd73',
   ),
   'pages/admin/types.php' => 
   array (
@@ -293,8 +303,8 @@ return array (
   ),
   'pages/admin/users.php' => 
   array (
-    'size' => 10821,
-    'md5' => '81aba8b8208294b4eae7fbab64e0dc8b',
+    'size' => 10829,
+    'md5' => '4245933caeab819e603474db0289d258',
   ),
   'pages/api.php' => 
   array (
@@ -313,8 +323,8 @@ return array (
   ),
   'pages/approvals.php' => 
   array (
-    'size' => 4640,
-    'md5' => '4c20910b6ba747a49d04c80f311b6df6',
+    'size' => 4217,
+    'md5' => 'c5fc9e29a599443a28b29d4afa7f623f',
   ),
   'pages/calendar.php' => 
   array (
@@ -323,8 +333,8 @@ return array (
   ),
   'pages/correspondence.php' => 
   array (
-    'size' => 5673,
-    'md5' => '21beb7b0ac04814a5bea9d2bf137a425',
+    'size' => 5245,
+    'md5' => '0f6b226fe972a9d1a2fcc201fc6450da',
   ),
   'pages/dashboard.php' => 
   array (
@@ -353,13 +363,13 @@ return array (
   ),
   'pages/letter_view.php' => 
   array (
-    'size' => 9282,
-    'md5' => 'afaa59a009133d25db5a91257f7a8708',
+    'size' => 9448,
+    'md5' => '5ce054bf55cb83e373a3b4233edae6b7',
   ),
   'pages/login.php' => 
   array (
-    'size' => 2895,
-    'md5' => 'e2c683cbc5251f548f8d78f49fe9d2e7',
+    'size' => 4018,
+    'md5' => 'af73f7dbb22126b5c0ae04bf48d3e95e',
   ),
   'pages/logout.php' => 
   array (
@@ -368,8 +378,8 @@ return array (
   ),
   'pages/meeting_view.php' => 
   array (
-    'size' => 12506,
-    'md5' => 'a1a1bcca70e8f8b182ec521b2821d988',
+    'size' => 12650,
+    'md5' => '0fa8d2291ef3d8bc3463bc2daec072ea',
   ),
   'pages/meetings.php' => 
   array (
@@ -381,10 +391,20 @@ return array (
     'size' => 1502,
     'md5' => 'f37f5a73a1bb9e584c76cec52e15e667',
   ),
+  'pages/print_letter.php' => 
+  array (
+    'size' => 3741,
+    'md5' => 'f550d5f685f74874e8cb093186118986',
+  ),
+  'pages/print_meeting.php' => 
+  array (
+    'size' => 5231,
+    'md5' => 'c173736a913656cd5a3c643510098260',
+  ),
   'pages/profile.php' => 
   array (
-    'size' => 8843,
-    'md5' => 'c0ec280ab4a7ef25c2649443c7954df7',
+    'size' => 12009,
+    'md5' => 'd5c97280159733654b4eac32559e18f1',
   ),
   'pages/task_new.php' => 
   array (
@@ -398,8 +418,8 @@ return array (
   ),
   'pages/tasks.php' => 
   array (
-    'size' => 6032,
-    'md5' => 'c8bb3513510d6a52cb91e893a14079d4',
+    'size' => 5613,
+    'md5' => '1a3fda7be691eb61ff705d74c659f05b',
   ),
   'pages/team.php' => 
   array (
@@ -413,12 +433,12 @@ return array (
   ),
   'sql/schema.mysql.sql' => 
   array (
-    'size' => 9105,
-    'md5' => '57cd6ac22ba26468fc6c33a9390ab3da',
+    'size' => 9556,
+    'md5' => '40b8ad2a99768be8cfd1fd98f24fa135',
   ),
   'sql/schema.sqlite.sql' => 
   array (
-    'size' => 7791,
-    'md5' => '62bbefc3a9f403c9413b22ead27b9c78',
+    'size' => 8229,
+    'md5' => 'a27f24398d87b799d78d63a886e6b182',
   ),
 );
