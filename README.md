@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://s0sta.com/#projects"><img src=".github/assets/banner.png" alt="Business apps for real teams. Upload and run. Daem IT help desk, Idara manager workspace, Sanad field service." width="100%"></a>
+<a href="https://s0sta.com/it/projects/"><img src=".github/assets/banner.png" alt="Business apps for real teams. Upload and run. Daem IT help desk, Idara manager workspace, Sanad field service." width="100%"></a>
 
 <br>
 
@@ -14,13 +14,34 @@
 
 Upload one folder to normal web hosting, open the installer, and start working.
 
-**[Daem](#daem--it-help-desk)** · **[Idara](#idara--manager-workspace)** · **[Sanad](#sanad--field-service)** · **[Install](#install-in-5-steps)** · **[Try it on your computer](#try-it-on-your-computer)**
+**[Version 2.0: six apps](#version-20-six-apps)** · **[Daem](#daem--it-help-desk)** · **[Idara](#idara--manager-workspace)** · **[Sanad](#sanad--field-service)** · **[Install](#install-in-5-steps)** · **[Try it on your computer](#try-it-on-your-computer)**
 
 </div>
 
 <br>
 
-## The apps
+## Version 2.0: six apps
+
+<a href="https://s0sta.com/it/projects/"><img src=".github/assets/apps-2.0.jpg" alt="Version 2.0 of the six apps: Daem, Sanad, Idara, Jard, Fariq and Aqar" width="100%"></a>
+
+The family grew to **six apps**, each with a new design and **four languages** (English, Deutsch, Nederlands, العربية).
+Read a short case study of every app on **[s0sta.com/it/projects](https://s0sta.com/it/projects/)**:
+
+| | App | Made for | Case study |
+|:--:|:--|:--|:--|
+| 🎫 | **Daem** · IT help desk | IT teams: tickets, SLA targets, knowledge base | [s0sta.com/it/projects/daem](https://s0sta.com/it/projects/daem/) |
+| 🛠️ | **Sanad** · Field service | Service companies: jobs, technicians, stock, invoices | [s0sta.com/it/projects/sanad](https://s0sta.com/it/projects/sanad/) |
+| 🏛️ | **Idara** · Manager workspace | Managers: approvals, tasks, letters, meetings | [s0sta.com/it/projects/idara](https://s0sta.com/it/projects/idara/) |
+| 🏷️ | **Jard** · IT asset management | IT teams: devices, custody, repairs, licences | [s0sta.com/it/projects/jard](https://s0sta.com/it/projects/jard/) |
+| 👥 | **Fariq** · HR and workforce | HR: attendance, leave, documents, payroll | [s0sta.com/it/projects/fariq](https://s0sta.com/it/projects/fariq/) |
+| 🏢 | **Aqar** · Property and leases | Landlords: units, leases, cheques, owner statements | [s0sta.com/it/projects/aqar](https://s0sta.com/it/projects/aqar/) |
+
+> **In this repository today:** the code of **Daem, Idara and Sanad, version 1.x** (below). Version 2.0 of the apps
+> is being prepared for release here: new tests, file checks and install packages first, then the code.
+
+---
+
+## The apps in this repository (version 1.x)
 
 | | App | Made for | Languages |
 |:--:|:--|:--|:--|
@@ -134,7 +155,7 @@ Run them with `bash tests/smoke.sh` and `bash tests/i18n-smoke.sh` while the app
 
 <div align="center">
 
-Made by **[Hosam Hani (s0sta)](https://github.com/s0sta)** · [s0sta.com](https://s0sta.com) · [LinkedIn](https://www.linkedin.com/in/hosam-hani-abdelati/) · [X](https://x.com/s0sta_)
+Made by **[Hosam Hani (s0sta)](https://github.com/s0sta)** · [s0sta.com](https://s0sta.com) · [IT projects](https://s0sta.com/it/projects/) · [LinkedIn](https://www.linkedin.com/in/hosam-hani-abdelati/) · [X](https://x.com/s0sta_)
 
 © 2026 s0sta. All rights reserved.
 
